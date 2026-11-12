@@ -5,7 +5,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaColorSchemeEditorHighlightingFixture
 import org.jetbrains.plugins.scala.ScalaColorSchemeEditorHighlightingFixture.ExpectedHighlight
 import org.jetbrains.plugins.scala.annotator.Message2
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.base.CaptureCheckingTestUtils
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -25,29 +25,20 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
   override protected def getFilterByField(annotation: Message2): TextAttributesKey = annotation.textAttributesKey
 
   @Test
-  def testCaptureFilterKeywords(): Unit = {
-    val profile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-    val settings = profile.getSettings
-    profile.setSettings(settings.copy(
-      additionalCompilerOptions = settings.additionalCompilerOptions :+ "-language:experimental.captureChecking"
-    ))
-    try {
-      testAnnotations(
-        """def f(c: Object^): Object^{c.only[C].except[D].rd} = ???
-          |val only = 1
-          |val except = 2
-          |val rd = 3
-          |val use = only + except + rd
-          |""".stripMargin,
-        KEYWORD,
-        """Info((29,33),only,Scala Keyword)
-          |Info((37,43),except,Scala Keyword)
-          |Info((47,49),rd,Scala Keyword)
-          |""".stripMargin
-      )
-    } finally {
-      profile.setSettings(settings)
-    }
+  def testCaptureFilterKeywords(): Unit = withCaptureChecking {
+    testAnnotations(
+      """def f(c: Object^): Object^{c.only[C].except[D].rd} = ???
+        |val only = 1
+        |val except = 2
+        |val rd = 3
+        |val use = only + except + rd
+        |""".stripMargin,
+      KEYWORD,
+      """Info((29,33),only,Scala Keyword)
+        |Info((37,43),except,Scala Keyword)
+        |Info((47,49),rd,Scala Keyword)
+        |""".stripMargin
+    )
   }
 
   @Test
@@ -64,6 +55,29 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
         |""".stripMargin
     )
   }
+
+  @Test
+  def testCaptureSetParametersAndBounds(): Unit = withCaptureChecking {
+    testAnnotations(
+      """def f[T, C^ <: {any.except[Control]}, D^ >: {} <: {any.only[Shared]}]: Unit = ()
+        |val only = 1
+        |val except = 2
+        |val xor = 1 ^ 2
+        |""".stripMargin,
+      Set(TYPEPARAM, KEYWORD),
+      """Info((6,7),T,Scala Type parameter)
+        |Info((9,10),C,Scala Type parameter)
+        |Info((20,26),except,Scala Keyword)
+        |Info((38,39),D,Scala Type parameter)
+        |Info((55,59),only,Scala Keyword)
+        |""".stripMargin
+    )
+  }
+
+  private def withCaptureChecking(body: => Unit): Unit =
+    CaptureCheckingTestUtils
+      .captureCheckingCompilerSettingsChange(getProject)
+      .run(body)
 
   @Test
   def testSoftKeywords_Derives(): Unit = {

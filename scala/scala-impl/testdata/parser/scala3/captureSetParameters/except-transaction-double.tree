@@ -1,0 +1,327 @@
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: language.experimental.captureChecking
+        CodeReferenceElement: language.experimental
+          CodeReferenceElement: language
+            PsiElement(identifier)('language')
+          PsiElement(.)('.')
+          PsiElement(identifier)('experimental')
+        PsiElement(.)('.')
+        PsiElement(identifier)('captureChecking')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: language.experimental.erasedDefinitions
+        CodeReferenceElement: language.experimental
+          CodeReferenceElement: language
+            PsiElement(identifier)('language')
+          PsiElement(.)('.')
+          PsiElement(identifier)('experimental')
+        PsiElement(.)('.')
+        PsiElement(identifier)('erasedDefinitions')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: caps
+        PsiElement(identifier)('caps')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: Classifier
+            PsiElement(identifier)('Classifier')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: SharedCapability
+            PsiElement(identifier)('SharedCapability')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Commit
+    PsiComment(comment)('// "Classifying Capabilities" §6.2: withTransaction forbids the body's result from capturing')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// the transaction's commit/rollback authority, using two exclusions. The single-exclusion')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// form is in except-transaction.scala.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Commit')
+    PsiWhiteSpace('   ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: SharedCapability
+            CodeReferenceElement: SharedCapability
+              PsiElement(identifier)('SharedCapability')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: Classifier
+            CodeReferenceElement: Classifier
+              PsiElement(identifier)('Classifier')
+  PsiWhiteSpace('\n')
+  ScTrait: Rollback
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Rollback')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: SharedCapability
+            CodeReferenceElement: SharedCapability
+              PsiElement(identifier)('SharedCapability')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: Classifier
+            CodeReferenceElement: Classifier
+              PsiElement(identifier)('Classifier')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Transaction
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Transaction')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: SharedCapability
+            CodeReferenceElement: SharedCapability
+              PsiElement(identifier)('SharedCapability')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: cm
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(erased)('erased')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: cm
+              PsiElement(identifier)('cm')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          CaptureType: Commit^
+            SimpleType: Commit
+              CodeReferenceElement: Commit
+                PsiElement(identifier)('Commit')
+            PsiElement(^)('^')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: rb
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(erased)('erased')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: rb
+              PsiElement(identifier)('rb')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          CaptureType: Rollback^
+            SimpleType: Rollback
+              CodeReferenceElement: Rollback
+                PsiElement(identifier)('Rollback')
+            PsiElement(^)('^')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: commit
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: commit
+              PsiElement(identifier)('commit')
+          PsiElement(:)(':')
+          PsiWhiteSpace('   ')
+          FunctionalType: () ->{this.only[Commit]} Unit
+            TypeInParenthesis: ()
+              PsiElement(()('(')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(->)('->')
+            CaptureSet
+              PsiElement({)('{')
+              CaptureRef
+                ThisReference
+                  PsiElement(this)('this')
+                CaptureFilter
+                  PsiElement(.)('.')
+                  PsiElement(only)('only')
+                  PsiElement([)('[')
+                  CodeReferenceElement: Commit
+                    PsiElement(identifier)('Commit')
+                  PsiElement(])(']')
+              PsiElement(})('}')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: rollback
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: rollback
+              PsiElement(identifier)('rollback')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          FunctionalType: () ->{this.only[Rollback]} Unit
+            TypeInParenthesis: ()
+              PsiElement(()('(')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(->)('->')
+            CaptureSet
+              PsiElement({)('{')
+              CaptureRef
+                ThisReference
+                  PsiElement(this)('this')
+                CaptureFilter
+                  PsiElement(.)('.')
+                  PsiElement(only)('only')
+                  PsiElement([)('[')
+                  CodeReferenceElement: Rollback
+                    PsiElement(identifier)('Rollback')
+                  PsiElement(])(']')
+              PsiElement(})('}')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: withTransaction
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('withTransaction')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+        PsiElement(^)('^')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: body
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('body')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            DependentFunctionType: (tx: Transaction^) -> (() ->{E, tx.except[Commit].except[Rollback]} T)
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: tx
+                  PsiElement(identifier)('tx')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    CaptureType: Transaction^
+                      SimpleType: Transaction
+                        CodeReferenceElement: Transaction
+                          PsiElement(identifier)('Transaction')
+                      PsiElement(^)('^')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(->)('->')
+              PsiWhiteSpace(' ')
+              TypeInParenthesis: (() ->{E, tx.except[Commit].except[Rollback]} T)
+                PsiElement(()('(')
+                FunctionalType: () ->{E, tx.except[Commit].except[Rollback]} T
+                  TypeInParenthesis: ()
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(->)('->')
+                  CaptureSet
+                    PsiElement({)('{')
+                    CaptureRef
+                      CodeReferenceElement: E
+                        PsiElement(identifier)('E')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    CaptureRef
+                      CodeReferenceElement: tx
+                        PsiElement(identifier)('tx')
+                      CaptureFilter
+                        PsiElement(.)('.')
+                        PsiElement(except)('except')
+                        PsiElement([)('[')
+                        CodeReferenceElement: Commit
+                          PsiElement(identifier)('Commit')
+                        PsiElement(])(']')
+                      CaptureFilter
+                        PsiElement(.)('.')
+                        PsiElement(except)('except')
+                        PsiElement([)('[')
+                        CodeReferenceElement: Rollback
+                          PsiElement(identifier)('Rollback')
+                        PsiElement(])(']')
+                    PsiElement(})('}')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                PsiElement())(')')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: T
+      CodeReferenceElement: T
+        PsiElement(identifier)('T')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')

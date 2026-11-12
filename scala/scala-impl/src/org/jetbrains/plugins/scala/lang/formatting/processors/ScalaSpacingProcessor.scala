@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging, ScTypeBoundsOwner}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{ScDerivesClauseElementType, ScStubFileElementType}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdentifier, isKeyword}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -460,6 +460,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     // capture sets take precedence above most stuff
     rightElementType match {
+      // Bound spacing also applies when a comment separates the operator and capture set.
+      case ScalaElementType.CAPTURE_SET if rightPsi.getParent.is[ScTypeBoundsOwner] =>
+        return WITH_SPACING
       case ScalaElementType.CAPTURE_SET => return WITHOUT_SPACING
       case ScalaTokenType.CaptureOperator => return WITHOUT_SPACING
       case ScalaTokenType.ReachCapabilityStar => return WITHOUT_SPACING

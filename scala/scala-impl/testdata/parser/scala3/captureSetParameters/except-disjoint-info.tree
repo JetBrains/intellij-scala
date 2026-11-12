@@ -1,0 +1,241 @@
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: language.experimental.captureChecking
+        CodeReferenceElement: language.experimental
+          CodeReferenceElement: language
+            PsiElement(identifier)('language')
+          PsiElement(.)('.')
+          PsiElement(identifier)('experimental')
+        PsiElement(.)('.')
+        PsiElement(identifier)('captureChecking')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: caps
+        PsiElement(identifier)('caps')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScTrait: C1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C1')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Classifier
+            CodeReferenceElement: Classifier
+              PsiElement(identifier)('Classifier')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: SharedCapability
+            CodeReferenceElement: SharedCapability
+              PsiElement(identifier)('SharedCapability')
+  PsiWhiteSpace('\n')
+  ScTrait: C2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C2')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Classifier
+            CodeReferenceElement: Classifier
+              PsiElement(identifier)('Classifier')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: C1
+            CodeReferenceElement: C1
+              PsiElement(identifier)('C1')
+  PsiWhiteSpace('\n\n')
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: SharedCapability
+            CodeReferenceElement: SharedCapability
+              PsiElement(identifier)('SharedCapability')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            CaptureType: A^{any.except[C1]}
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(^)('^')
+              CaptureSet
+                PsiElement({)('{')
+                CaptureRef
+                  CodeReferenceElement: any
+                    PsiElement(identifier)('any')
+                  CaptureFilter
+                    PsiElement(.)('.')
+                    PsiElement(except)('except')
+                    PsiElement([)('[')
+                    CodeReferenceElement: C1
+                      PsiElement(identifier)('C1')
+                    PsiElement(])(']')
+                PsiElement(})('}')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    CaptureType: A^{x.except[C2]}
+      SimpleType: A
+        CodeReferenceElement: A
+          PsiElement(identifier)('A')
+      PsiElement(^)('^')
+      CaptureSet
+        PsiElement({)('{')
+        CaptureRef
+          CodeReferenceElement: x
+            PsiElement(identifier)('x')
+          CaptureFilter
+            PsiElement(.)('.')
+            PsiElement(except)('except')
+            PsiElement([)('[')
+            CodeReferenceElement: C2
+              PsiElement(identifier)('C2')
+            PsiElement(])(']')
+        PsiElement(})('}')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: x
+      PsiElement(identifier)('x')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: g
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('g')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: c
+        PsiElement(identifier)('c')
+        PsiElement(^)('^')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        CaptureSet
+          PsiElement({)('{')
+          CaptureRef
+            CodeReferenceElement: any
+              PsiElement(identifier)('any')
+            CaptureFilter
+              PsiElement(.)('.')
+              PsiElement(except)('except')
+              PsiElement([)('[')
+              CodeReferenceElement: C1
+                PsiElement(identifier)('C1')
+              PsiElement(])(']')
+          PsiElement(})('}')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            CaptureType: A^{c}
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(^)('^')
+              CaptureSet
+                PsiElement({)('{')
+                CaptureRef
+                  CodeReferenceElement: c
+                    PsiElement(identifier)('c')
+                PsiElement(})('}')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    CaptureType: A^{c.except[C2]}
+      SimpleType: A
+        CodeReferenceElement: A
+          PsiElement(identifier)('A')
+      PsiElement(^)('^')
+      CaptureSet
+        PsiElement({)('{')
+        CaptureRef
+          CodeReferenceElement: c
+            PsiElement(identifier)('c')
+          CaptureFilter
+            PsiElement(.)('.')
+            PsiElement(except)('except')
+            PsiElement([)('[')
+            CodeReferenceElement: C2
+              PsiElement(identifier)('C2')
+            PsiElement(])(']')
+        PsiElement(})('}')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: x
+      PsiElement(identifier)('x')
+  PsiWhiteSpace('\n')

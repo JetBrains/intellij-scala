@@ -4,18 +4,16 @@ import com.intellij.ide.util.EditSourceUtil
 import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
 import com.intellij.psi.PsiElement
-import com.intellij.psi.tree.IElementType
-import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.TYPE_DECLARATION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScTypeBoundsOwnerSyntax
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionLikeImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 import org.jetbrains.plugins.scala.lang.psi.types.Context
@@ -27,6 +25,7 @@ import javax.swing.Icon
 final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, TYPE_DECLARATION, node)
     with ScTypeAliasDeclaration
+    with ScTypeBoundsOwnerSyntax
     with ScTypeDefinitionLikeImpl {
 
   def this(node: ASTNode) = this(null, node)
@@ -63,16 +62,10 @@ final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTN
     byStubOrPsi(_.contextBounds)(findChildren[ScContextBound])
 
   override def upperTypeElement: Option[ScTypeElement] =
-    byPsiOrStub(boundElement(tUPPER_BOUND))(_.upperBoundTypeElement)
+    byPsiOrStub(super.upperTypeElement)(_.upperBoundTypeElement)
 
   override def lowerTypeElement: Option[ScTypeElement] =
-    byPsiOrStub(boundElement(tLOWER_BOUND))(_.lowerBoundTypeElement)
-
-  private def boundElement(elementType: IElementType): Option[ScTypeElement] = {
-    findLastChildByTypeScala[PsiElement](elementType).flatMap { element =>
-      getNextSiblingOfType(element, classOf[ScTypeElement]).toOption
-    }
-  }
+    byPsiOrStub(super.lowerTypeElement)(_.lowerBoundTypeElement)
 
   override protected def baseIcon: Icon = Icons.ABSTRACT_TYPE_ALIAS
 
