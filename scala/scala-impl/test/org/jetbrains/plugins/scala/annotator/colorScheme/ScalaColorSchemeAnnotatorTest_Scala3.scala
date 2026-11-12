@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaColorSchemeEditorHighlightingFixture
 import org.jetbrains.plugins.scala.ScalaColorSchemeEditorHighlightingFixture.ExpectedHighlight
 import org.jetbrains.plugins.scala.annotator.Message2
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -22,6 +23,32 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
   protected def needToAnnotateElement(element: PsiElement): Boolean = true
 
   override protected def getFilterByField(annotation: Message2): TextAttributesKey = annotation.textAttributesKey
+
+  @Test
+  def testCaptureFilterKeywords(): Unit = {
+    val profile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
+    val settings = profile.getSettings
+    profile.setSettings(settings.copy(
+      additionalCompilerOptions = settings.additionalCompilerOptions :+ "-language:experimental.captureChecking"
+    ))
+    try {
+      testAnnotations(
+        """def f(c: Object^): Object^{c.only[C].except[D].rd} = ???
+          |val only = 1
+          |val except = 2
+          |val rd = 3
+          |val use = only + except + rd
+          |""".stripMargin,
+        KEYWORD,
+        """Info((29,33),only,Scala Keyword)
+          |Info((37,43),except,Scala Keyword)
+          |Info((47,49),rd,Scala Keyword)
+          |""".stripMargin
+      )
+    } finally {
+      profile.setSettings(settings)
+    }
+  }
 
   @Test
   def testSoftKeywords_As(): Unit = {

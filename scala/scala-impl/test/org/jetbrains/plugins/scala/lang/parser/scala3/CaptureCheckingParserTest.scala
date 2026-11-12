@@ -1,16 +1,1294 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.base.CaptureCheckingTestUtils
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{CAPTURE_REF, CAPTURE_SET, REFERENCE, TYPE_DEFINITION}
+import org.jetbrains.plugins.scala.lang.parser.scala3.CaptureCheckingParserTestUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScPolyFunctionTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.junit.Assert.{assertEquals, assertTrue}
 
+/**
+ * Tests capture-type and function-type syntax, including capture-filter trees and recovery.
+ * Filter snapshots pin child ownership and contextual token kinds; diagnostic matrices
+ * preserve the next capture and following declaration for every incomplete-filter variant.
+ * Focused capture/function PSI suites cover the filter-related accessor contracts.
+ */
 class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   override def scalaCodeParsingFeatures: ScalaFeatures.SerializableScalaFeatures =
-    ScalaFeatures.custom(ScalaVersion.Latest.Scala_3_8, hasCaptureCheckingEnabled = true)
-  //override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3_8
+    CaptureCheckingTestUtils.parsingFeatures
+
+  // Capture annotations from scala/scala3 tag 3.10.1:
+  // tests/pos-custom-args/captures/{any-only,except-chain}.scala
+  def test_only_capture_filter(): Unit = checkTree(
+    "x: Object^{any.only[SharedCapability]}",
+    """ScalaFile
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{any.only[SharedCapability]}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: any
+      |            PsiElement(identifier)('any')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(only)('only')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: SharedCapability
+      |              PsiElement(identifier)('SharedCapability')
+      |            PsiElement(])(']')
+      |        PsiElement(})('}')
+      |""".stripMargin
+  )
+
+  def test_except_capture_filters(): Unit = checkTree(
+    "x: Object^{c.except[C].except[D]}",
+    """ScalaFile
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{c.except[C].except[D]}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: c
+      |            PsiElement(identifier)('c')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(except)('except')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: C
+      |              PsiElement(identifier)('C')
+      |            PsiElement(])(']')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(except)('except')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: D
+      |              PsiElement(identifier)('D')
+      |            PsiElement(])(']')
+      |        PsiElement(})('}')
+      |""".stripMargin
+  )
+
+  def test_combined_capture_filters(): Unit = checkTree(
+    "x: Object^{c.only[C].except[D].rd}",
+    """ScalaFile
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{c.only[C].except[D].rd}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: c
+      |            PsiElement(identifier)('c')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(only)('only')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: C
+      |              PsiElement(identifier)('C')
+      |            PsiElement(])(']')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(except)('except')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: D
+      |              PsiElement(identifier)('D')
+      |            PsiElement(])(']')
+      |          PsiElement(.)('.')
+      |          PsiElement(rd)('rd')
+      |        PsiElement(})('}')
+      |""".stripMargin
+  )
+
+  def test_capture_filter_scala3_examples(): Unit = {
+    checkParseErrors(
+      """import scala.caps.{any, Classifier, Control, SharedCapability}
+        |
+        |trait C extends SharedCapability, Classifier
+        |trait D extends SharedCapability, Classifier
+        |
+        |val x: Object^{any.only[SharedCapability]} = Object()
+        |def f(c: Object^): Object^{c.except[C].except[D]} = ???
+        |def combined(c: Object^): Object^{c.only[C].except[D]} = ???
+        |
+        |// From scala/scala3 3.10.1 tests/pos-custom-args/captures/except-classified.scala
+        |def runOnNewThread[T](body: () ->{any.except[Control]} T): T = body()
+        |""".stripMargin
+    )
+  }
+
+  def test_qualified_references(): Unit = checkTree(
+    checkParseErrors("""type F = () ->{this.c.only[p.C].except[p.D].rd} Unit
+      |type G = () ?->{c*.only[p.C]} Unit
+      |""".stripMargin),
+    """ScalaFile
+      |  ScTypeAliasDefinition: F
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('F')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    FunctionalType: () ->{this.c.only[p.C].except[p.D].rd} Unit
+      |      TypeInParenthesis: ()
+      |        PsiElement(()('(')
+      |        PsiElement())(')')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(->)('->')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: this.c
+      |            ThisReference
+      |              PsiElement(this)('this')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('c')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(only)('only')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: p.C
+      |              CodeReferenceElement: p
+      |                PsiElement(identifier)('p')
+      |              PsiElement(.)('.')
+      |              PsiElement(identifier)('C')
+      |            PsiElement(])(']')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(except)('except')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: p.D
+      |              CodeReferenceElement: p
+      |                PsiElement(identifier)('p')
+      |              PsiElement(.)('.')
+      |              PsiElement(identifier)('D')
+      |            PsiElement(])(']')
+      |          PsiElement(.)('.')
+      |          PsiElement(rd)('rd')
+      |        PsiElement(})('}')
+      |      PsiWhiteSpace(' ')
+      |      SimpleType: Unit
+      |        CodeReferenceElement: Unit
+      |          PsiElement(identifier)('Unit')
+      |  PsiWhiteSpace('\n')
+      |  ScTypeAliasDefinition: G
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('G')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    FunctionalType: () ?->{c*.only[p.C]} Unit
+      |      TypeInParenthesis: ()
+      |        PsiElement(()('(')
+      |        PsiElement())(')')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(?->)('?->')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: c
+      |            PsiElement(identifier)('c')
+      |          PsiElement(*)('*')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(only)('only')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: p.C
+      |              CodeReferenceElement: p
+      |                PsiElement(identifier)('p')
+      |              PsiElement(.)('.')
+      |              PsiElement(identifier)('C')
+      |            PsiElement(])(']')
+      |        PsiElement(})('}')
+      |      PsiWhiteSpace(' ')
+      |      SimpleType: Unit
+      |        CodeReferenceElement: Unit
+      |          PsiElement(identifier)('Unit')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  // From scala/scala3 3.10.1 tests/pos-custom-args/captures/except-database.scala.
+  def test_this_only(): Unit = checkTree(
+    checkParseErrors("type F = () ->{this.only[UserTable]} List[User]"),
+    """ScalaFile
+      |  ScTypeAliasDefinition: F
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('F')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    FunctionalType: () ->{this.only[UserTable]} List[User]
+      |      TypeInParenthesis: ()
+      |        PsiElement(()('(')
+      |        PsiElement())(')')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(->)('->')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          ThisReference
+      |            PsiElement(this)('this')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(only)('only')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: UserTable
+      |              PsiElement(identifier)('UserTable')
+      |            PsiElement(])(']')
+      |        PsiElement(})('}')
+      |      PsiWhiteSpace(' ')
+      |      ParametrizedType: List[User]
+      |        SimpleType: List
+      |          CodeReferenceElement: List
+      |            PsiElement(identifier)('List')
+      |        TypeArgumentsList
+      |          PsiElement([)('[')
+      |          TypeArgument
+      |            SimpleType: User
+      |              CodeReferenceElement: User
+      |                PsiElement(identifier)('User')
+      |          PsiElement(])(']')
+      |""".stripMargin
+  )
+
+  // From scala/scala3 3.10.1 tests/pos-custom-args/captures/except-database.scala.
+  def test_this_except(): Unit = checkTree(
+    checkParseErrors("type F = () ->{this.except[TransactionTable]} List[User]"),
+    """ScalaFile
+      |  ScTypeAliasDefinition: F
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('F')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    FunctionalType: () ->{this.except[TransactionTable]} List[User]
+      |      TypeInParenthesis: ()
+      |        PsiElement(()('(')
+      |        PsiElement())(')')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(->)('->')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          ThisReference
+      |            PsiElement(this)('this')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(except)('except')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: TransactionTable
+      |              PsiElement(identifier)('TransactionTable')
+      |            PsiElement(])(']')
+      |        PsiElement(})('}')
+      |      PsiWhiteSpace(' ')
+      |      ParametrizedType: List[User]
+      |        SimpleType: List
+      |          CodeReferenceElement: List
+      |            PsiElement(identifier)('List')
+      |        TypeArgumentsList
+      |          PsiElement([)('[')
+      |          TypeArgument
+      |            SimpleType: User
+      |              CodeReferenceElement: User
+      |                PsiElement(identifier)('User')
+      |          PsiElement(])(']')
+      |""".stripMargin
+  )
+
+  // From scala/scala3 3.10.1 tests/pos-custom-args/captures/except-top.scala.
+  def test_adjacent_capture(): Unit = checkTree(
+    checkParseErrors("type T = Object^{c.except[Any], d}"),
+    """ScalaFile
+      |  ScTypeAliasDefinition: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{c.except[Any], d}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: c
+      |            PsiElement(identifier)('c')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(except)('except')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: Any
+      |              PsiElement(identifier)('Any')
+      |            PsiElement(])(']')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        CaptureRef
+      |          CodeReferenceElement: d
+      |            PsiElement(identifier)('d')
+      |        PsiElement(})('}')
+      |""".stripMargin
+  )
+
+  // From scala/scala3 3.10.1 tests/pos-custom-args/captures/except-captureexception.scala.
+  def test_inside_type_argument(): Unit = checkTree(
+    checkParseErrors("type T = Option[Failure^{f.only[Control]}]"),
+    """ScalaFile
+      |  ScTypeAliasDefinition: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    ParametrizedType: Option[Failure^{f.only[Control]}]
+      |      SimpleType: Option
+      |        CodeReferenceElement: Option
+      |          PsiElement(identifier)('Option')
+      |      TypeArgumentsList
+      |        PsiElement([)('[')
+      |        TypeArgument
+      |          CaptureType: Failure^{f.only[Control]}
+      |            SimpleType: Failure
+      |              CodeReferenceElement: Failure
+      |                PsiElement(identifier)('Failure')
+      |            PsiElement(^)('^')
+      |            CaptureSet
+      |              PsiElement({)('{')
+      |              CaptureRef
+      |                CodeReferenceElement: f
+      |                  PsiElement(identifier)('f')
+      |                CaptureFilter
+      |                  PsiElement(.)('.')
+      |                  PsiElement(only)('only')
+      |                  PsiElement([)('[')
+      |                  CodeReferenceElement: Control
+      |                    PsiElement(identifier)('Control')
+      |                  PsiElement(])(']')
+      |              PsiElement(})('}')
+      |        PsiElement(])(']')
+      |""".stripMargin
+  )
+
+  // From scala/scala3 3.10.1 tests/pos-custom-args/captures/except-multi-subsumes.scala.
+  def test_only_then_multiple_except(): Unit = checkTree(
+    checkParseErrors("type T = Object^{c.only[SharedCapability].except[Control].except[IOCap]}"),
+    """ScalaFile
+      |  ScTypeAliasDefinition: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{c.only[SharedCapability].except[Control].except[IOCap]}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: c
+      |            PsiElement(identifier)('c')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(only)('only')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: SharedCapability
+      |              PsiElement(identifier)('SharedCapability')
+      |            PsiElement(])(']')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(except)('except')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: Control
+      |              PsiElement(identifier)('Control')
+      |            PsiElement(])(']')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(except)('except')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: IOCap
+      |              PsiElement(identifier)('IOCap')
+      |            PsiElement(])(']')
+      |        PsiElement(})('}')
+      |""".stripMargin
+  )
+
+  // From scala/scala3 3.10.1 tests/pos-custom-args/captures/except-sep/Defs_1.scala.
+  def test_except_read_only(): Unit = checkTree(
+    checkParseErrors("type T = Object^{c.except[Control].rd}"),
+    """ScalaFile
+      |  ScTypeAliasDefinition: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{c.except[Control].rd}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: c
+      |            PsiElement(identifier)('c')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(except)('except')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: Control
+      |              PsiElement(identifier)('Control')
+      |            PsiElement(])(']')
+      |          PsiElement(.)('.')
+      |          PsiElement(rd)('rd')
+      |        PsiElement(})('}')
+      |""".stripMargin
+  )
+
+  // From scala/scala3 3.10.1 tests/neg-custom-args/captures/implied-ro.scala; its errors concern semantics.
+  def test_only_read_only(): Unit = checkTree(
+    checkParseErrors("type T = Object^{any.only[Unscoped].rd}"),
+    """ScalaFile
+      |  ScTypeAliasDefinition: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{any.only[Unscoped].rd}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: any
+      |            PsiElement(identifier)('any')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(only)('only')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: Unscoped
+      |              PsiElement(identifier)('Unscoped')
+      |            PsiElement(])(']')
+      |          PsiElement(.)('.')
+      |          PsiElement(rd)('rd')
+      |        PsiElement(})('}')
+      |""".stripMargin
+  )
+
+  // From scala/scala3 3.10.1 tests/pos-custom-args/captures/except-effects.scala.
+  def test_qualified_context_parameter(): Unit = checkTree(
+    checkParseErrors("type F = this.Raise ?->{any.except[ErrHandler]} A"),
+    """ScalaFile
+      |  ScTypeAliasDefinition: F
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('F')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    FunctionalType: this.Raise ?->{any.except[ErrHandler]} A
+      |      SimpleType: this.Raise
+      |        CodeReferenceElement: this.Raise
+      |          ThisReference
+      |            PsiElement(this)('this')
+      |          PsiElement(.)('.')
+      |          PsiElement(identifier)('Raise')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(?->)('?->')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: any
+      |            PsiElement(identifier)('any')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(except)('except')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: ErrHandler
+      |              PsiElement(identifier)('ErrHandler')
+      |            PsiElement(])(']')
+      |        PsiElement(})('}')
+      |      PsiWhiteSpace(' ')
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |""".stripMargin
+  )
+
+  // From scala/scala3 3.10.1 tests/pos-custom-args/captures/i19751.scala.
+  def test_context_parameter(): Unit = checkTree(
+    checkParseErrors("type F = Scope ?->{any.only[Shared]} A"),
+    """ScalaFile
+      |  ScTypeAliasDefinition: F
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('F')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    FunctionalType: Scope ?->{any.only[Shared]} A
+      |      SimpleType: Scope
+      |        CodeReferenceElement: Scope
+      |          PsiElement(identifier)('Scope')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(?->)('?->')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: any
+      |            PsiElement(identifier)('any')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(only)('only')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: Shared
+      |              PsiElement(identifier)('Shared')
+      |            PsiElement(])(']')
+      |        PsiElement(})('}')
+      |      PsiWhiteSpace(' ')
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |""".stripMargin
+  )
+
+  def test_missing_open_bracket(): Unit = checkTree(
+    checkParseErrors(s"""type T = Object^{c.only${err("'[' expected")}, next}
+      |type U = Object^{after}
+      |""".stripMargin),
+    """ScalaFile
+      |  ScTypeAliasDefinition: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{c.only, next}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: c
+      |            PsiElement(identifier)('c')
+      |          PsiElement(.)('.')
+      |          PsiElement(only)('only')
+      |          PsiErrorElement:'[' expected
+      |            <empty list>
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        CaptureRef
+      |          CodeReferenceElement: next
+      |            PsiElement(identifier)('next')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  ScTypeAliasDefinition: U
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('U')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{after}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: after
+      |            PsiElement(identifier)('after')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_missing_identifier(): Unit = checkTree(
+    checkParseErrors(s"""type T = Object^{c.only[${err("Wrong qualified identifier")}, next}
+      |type U = Object^{after}
+      |""".stripMargin),
+    """ScalaFile
+      |  ScTypeAliasDefinition: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{c.only[, next}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: c
+      |            PsiElement(identifier)('c')
+      |          PsiElement(.)('.')
+      |          PsiElement(only)('only')
+      |          PsiElement([)('[')
+      |          PsiErrorElement:Wrong qualified identifier
+      |            <empty list>
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        CaptureRef
+      |          CodeReferenceElement: next
+      |            PsiElement(identifier)('next')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  ScTypeAliasDefinition: U
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('U')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{after}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: after
+      |            PsiElement(identifier)('after')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_empty_argument(): Unit = checkTree(
+    checkParseErrors(s"""type T = Object^{c.only[${err("Wrong qualified identifier")}], next}
+      |type U = Object^{after}
+      |""".stripMargin),
+    """ScalaFile
+      |  ScTypeAliasDefinition: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{c.only[], next}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: c
+      |            PsiElement(identifier)('c')
+      |          PsiElement(.)('.')
+      |          PsiElement(only)('only')
+      |          PsiElement([)('[')
+      |          PsiErrorElement:Wrong qualified identifier
+      |            <empty list>
+      |          PsiElement(])(']')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        CaptureRef
+      |          CodeReferenceElement: next
+      |            PsiElement(identifier)('next')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  ScTypeAliasDefinition: U
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('U')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{after}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: after
+      |            PsiElement(identifier)('after')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_missing_close_bracket(): Unit = checkTree(
+    checkParseErrors(s"""type T = Object^{c.only[C${err("']' expected")}, next}
+      |type U = Object^{after}
+      |""".stripMargin),
+    """ScalaFile
+      |  ScTypeAliasDefinition: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{c.only[C, next}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: c
+      |            PsiElement(identifier)('c')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(only)('only')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: C
+      |              PsiElement(identifier)('C')
+      |            PsiErrorElement:']' expected
+      |              <empty list>
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        CaptureRef
+      |          CodeReferenceElement: next
+      |            PsiElement(identifier)('next')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  ScTypeAliasDefinition: U
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('U')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{after}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: after
+      |            PsiElement(identifier)('after')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_unfinished_qualified_identifier(): Unit = checkTree(
+    checkParseErrors(s"""type T = Object^{c.only[p.${err("Wrong qualified identifier")}], next}
+      |type U = Object^{after}
+      |""".stripMargin),
+    """ScalaFile
+      |  ScTypeAliasDefinition: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{c.only[p.], next}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: c
+      |            PsiElement(identifier)('c')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(only)('only')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: p
+      |              PsiElement(identifier)('p')
+      |            PsiElement(.)('.')
+      |            PsiErrorElement:Wrong qualified identifier
+      |              <empty list>
+      |            PsiElement(])(']')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        CaptureRef
+      |          CodeReferenceElement: next
+      |            PsiElement(identifier)('next')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  ScTypeAliasDefinition: U
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('U')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{after}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: after
+      |            PsiElement(identifier)('after')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_unfinished_filter_chain(): Unit = checkTree(
+    checkParseErrors(s"""type T = Object^{c.only[C].except[${err("Wrong qualified identifier")}], next}
+      |type U = Object^{after}
+      |""".stripMargin),
+    """ScalaFile
+      |  ScTypeAliasDefinition: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{c.only[C].except[], next}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: c
+      |            PsiElement(identifier)('c')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(only)('only')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: C
+      |              PsiElement(identifier)('C')
+      |            PsiElement(])(']')
+      |          PsiElement(.)('.')
+      |          PsiElement(except)('except')
+      |          PsiElement([)('[')
+      |          PsiErrorElement:Wrong qualified identifier
+      |            <empty list>
+      |          PsiElement(])(']')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        CaptureRef
+      |          CodeReferenceElement: next
+      |            PsiElement(identifier)('next')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  ScTypeAliasDefinition: U
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('U')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{after}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: after
+      |            PsiElement(identifier)('after')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_ordinary_identifiers(): Unit = checkTree(
+    checkParseErrors("""def only[T](x: T): T = x
+      |def except[T](x: T): T = x
+      |val value = only[Int](except[Int](1))
+      |val selected = value.only[Int].except[String]
+      |type T = Object^{only, except, c.`only`, c.`except`}
+      |""".stripMargin),
+    """ScalaFile
+      |  ScFunctionDefinition: only
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('only')
+      |    TypeParameterClause
+      |      PsiElement([)('[')
+      |      TypeParameter: T
+      |        PsiElement(identifier)('T')
+      |      PsiElement(])(']')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: x
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('x')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: T
+      |              CodeReferenceElement: T
+      |                PsiElement(identifier)('T')
+      |        PsiElement())(')')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    SimpleType: T
+      |      CodeReferenceElement: T
+      |        PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: except
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('except')
+      |    TypeParameterClause
+      |      PsiElement([)('[')
+      |      TypeParameter: T
+      |        PsiElement(identifier)('T')
+      |      PsiElement(])(']')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: x
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('x')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: T
+      |              CodeReferenceElement: T
+      |                PsiElement(identifier)('T')
+      |        PsiElement())(')')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    SimpleType: T
+      |      CodeReferenceElement: T
+      |        PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |  PsiWhiteSpace('\n')
+      |  ScPatternDefinition: value
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(val)('val')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ReferencePattern: value
+      |        PsiElement(identifier)('value')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    MethodCall
+      |      GenericCall
+      |        ReferenceExpression: only
+      |          PsiElement(identifier)('only')
+      |        TypeArgumentsList
+      |          PsiElement([)('[')
+      |          TypeArgument
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |          PsiElement(])(']')
+      |      ArgumentList
+      |        PsiElement(()('(')
+      |        MethodCall
+      |          GenericCall
+      |            ReferenceExpression: except
+      |              PsiElement(identifier)('except')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              TypeArgument
+      |                SimpleType: Int
+      |                  CodeReferenceElement: Int
+      |                    PsiElement(identifier)('Int')
+      |              PsiElement(])(']')
+      |          ArgumentList
+      |            PsiElement(()('(')
+      |            IntegerLiteral
+      |              PsiElement(integer)('1')
+      |            PsiElement())(')')
+      |        PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |  ScPatternDefinition: selected
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(val)('val')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ReferencePattern: selected
+      |        PsiElement(identifier)('selected')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    GenericCall
+      |      ReferenceExpression: value.only[Int].except
+      |        GenericCall
+      |          ReferenceExpression: value.only
+      |            ReferenceExpression: value
+      |              PsiElement(identifier)('value')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('only')
+      |          TypeArgumentsList
+      |            PsiElement([)('[')
+      |            TypeArgument
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
+      |            PsiElement(])(']')
+      |        PsiElement(.)('.')
+      |        PsiElement(identifier)('except')
+      |      TypeArgumentsList
+      |        PsiElement([)('[')
+      |        TypeArgument
+      |          SimpleType: String
+      |            CodeReferenceElement: String
+      |              PsiElement(identifier)('String')
+      |        PsiElement(])(']')
+      |  PsiWhiteSpace('\n')
+      |  ScTypeAliasDefinition: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: Object^{only, except, c.`only`, c.`except`}
+      |      SimpleType: Object
+      |        CodeReferenceElement: Object
+      |          PsiElement(identifier)('Object')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: only
+      |            PsiElement(identifier)('only')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        CaptureRef
+      |          CodeReferenceElement: except
+      |            PsiElement(identifier)('except')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        CaptureRef
+      |          CodeReferenceElement: c.`only`
+      |            CodeReferenceElement: c
+      |              PsiElement(identifier)('c')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('`only`')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        CaptureRef
+      |          CodeReferenceElement: c.`except`
+      |            CodeReferenceElement: c
+      |              PsiElement(identifier)('c')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('`except`')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_incomplete_capture_filters(): Unit = {
+    for (prefix <- Seq("c.only", "c.except", "c.only[C].except", "c.except[C].except")) {
+      val incompleteFilters = Seq(
+        s"$prefix${err("'[' expected")}",
+        s"$prefix[${err("Wrong qualified identifier")}",
+        s"$prefix[${err("Wrong qualified identifier")}]",
+        s"$prefix[C${err("']' expected")}",
+        s"$prefix[p.${err("Wrong qualified identifier")}]"
+      )
+      for (incomplete <- incompleteFilters) {
+        checkIncompleteFilterRecovery(incomplete)
+      }
+    }
+  }
+
+  private def checkIncompleteFilterRecovery(incomplete: String): Unit = {
+    val file = checkParseErrors(
+      s"""type T = Object^{$incomplete, next}
+         |type U = Object^{after}
+         |""".stripMargin
+    )
+    val aliases = childrenOfType(file, TYPE_DEFINITION)
+    assertEquals(incomplete, Seq("T", "U"), aliases.map(identifierText))
+    assertEquals(incomplete, Seq("c", "next"), captureBaseReferenceTexts(aliases.head))
+    assertEquals(incomplete, Seq("after"), captureBaseReferenceTexts(aliases.last))
+  }
+
+  private def captureBaseReferenceTexts(alias: PsiElement): Seq[String] = {
+    val Seq(set) = descendantsOfType(alias, CAPTURE_SET)
+    childrenOfType(set, CAPTURE_REF).map { capture =>
+      val reference = capture.getNode.getFirstChildNode
+      assertEquals(capture.getText, REFERENCE, reference.getElementType)
+      reference.getText
+    }
+  }
 
   def test_polymorphic_pure_function(): Unit = {
     val file = checkParseErrors(
@@ -1181,7 +2459,7 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
       |          PsiErrorElement:Capture reference expected
       |            <empty list>
       |          PsiElement(.)('.')
-      |          PsiErrorElement:'as' or 'rd' expected
+      |          PsiErrorElement:'only', 'except', 'as' or 'rd' expected
       |            <empty list>
       |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')

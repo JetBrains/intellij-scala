@@ -9,7 +9,7 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.highlighter.ScalaColorsSchemeUtils.NamedArgument
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.SOFT_KEYWORDS
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{CAPTURE_FILTER_KEYWORDS, SOFT_KEYWORDS}
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
@@ -93,8 +93,10 @@ class ScalaSyntaxHighlightingVisitor extends HighlightVisitor with DumbAware {
       .textAttributes(attr)
       .create()
 
-  private def isSoftKeyword(element: PsiElement): Boolean =
-    SOFT_KEYWORDS.contains(element.getNode.getElementType)
+  private def isSoftKeyword(element: PsiElement): Boolean = {
+    val tokenType = element.getNode.getElementType
+    SOFT_KEYWORDS.contains(tokenType) || CAPTURE_FILTER_KEYWORDS.contains(tokenType)
+  }
 
   override def clone(): HighlightVisitor =
     new ScalaSyntaxHighlightingVisitor()
