@@ -1,19 +1,30 @@
 package org.jetbrains.plugins.scala.lang.formatter.intellij.tests.scala3
 
-import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.project.{ScalaFeaturePusher, ScalaFeatures}
+import com.intellij.psi.{PsiFile, PsiManager}
+import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.openapi.vfs.VfsUtil
+import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.base.CaptureCheckingTestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class Scala3CaptureCheckingFormatterTest extends Scala3FormatterBaseTest {
   override protected def version: ScalaVersion = LatestScalaVersions.Scala_3_8
 
-  override protected def initFile(fileName: String, text: String): PsiFile = {
-    val file = super.initFile(fileName, text)
-    ScalaFeaturePusher.setFeatures(file.getVirtualFile,
-      ScalaFeatures.onlyByVersion(version)
-        .copy(version, hasCaptureCheckingEnabled = true)
-    )
-    file
+  override protected def setUp(): Unit = {
+    super.setUp()
+    CaptureCheckingTestUtils.enableCaptureCheckingInLightModule(getModule, version, getTestRootDisposable)
+  }
+
+  /**
+   * Creates a physical file in the configured module so committed formatting edits
+   * use its Scala version and capture-checking option. Pushing features onto a light
+   * virtual file alone does not configure the module features used during reparsing.
+   */
+  override protected def initFile(fileName: String, text: String): PsiFile = inWriteAction {
+    val root = ModuleRootManager.getInstance(getModule).getSourceRoots.head
+    val virtualFile = root.createChildData(this, fileName)
+    VfsUtil.saveText(virtualFile, text)
+    PsiManager.getInstance(getProject).findFile(virtualFile)
   }
 
   def test_capture_type(): Unit =
@@ -77,6 +88,8 @@ class Scala3CaptureCheckingFormatterTest extends Scala3FormatterBaseTest {
         |x: A^{this*}
         |x: A^{this*.as[x]}
         |x: A^{this*.rd}
-        |""".stripMargin
+        |""".stripMargin,
+      repeats = 2,
+      checkAfterEachIteration = true
     )
 }

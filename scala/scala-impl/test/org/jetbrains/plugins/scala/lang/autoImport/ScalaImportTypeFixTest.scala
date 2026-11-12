@@ -268,6 +268,45 @@ class Scala3ImportTypeFixTest extends ScalaImportTypeFixTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 
+  def testCaptureFilterNamesCanBeImportedAsOrdinaryTypes(): Unit = {
+    for (className <- Seq("only", "except")) {
+      checkCaptureFilterNameCanBeImportedAsClass(className)
+    }
+  }
+
+  private def checkCaptureFilterNameCanBeImportedAsClass(className: String): Unit = {
+    checkElementsToImport(
+      s"""object Source {
+         |  class $className
+         |}
+         |object Target {
+         |  val value: $CARET$className = ???
+         |}
+         |""".stripMargin,
+      s"Source.$className"
+    )
+
+    doTest(
+      s"""object Source {
+         |  class $className
+         |}
+         |object Target {
+         |  val value: $CARET$className = ???
+         |}
+         |""".stripMargin,
+      s"""import Source.$className
+         |
+         |object Source {
+         |  class $className
+         |}
+         |object Target {
+         |  val value: $className = ???
+         |}
+         |""".stripMargin,
+      selected = s"Source.$className"
+    )
+  }
+
   def testClass(): Unit = {
     val fileText =
       s"""object Source:
