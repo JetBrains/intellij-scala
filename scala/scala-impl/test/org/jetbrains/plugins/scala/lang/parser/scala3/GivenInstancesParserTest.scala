@@ -4,6 +4,50 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
+  def test_capture_filter_names_in_given_parents(): Unit = {
+    for (name <- Seq("only", "except")) {
+      checkGivenParentNamed(name)
+    }
+  }
+
+  private def checkGivenParentNamed(name: String): Unit =
+    checkTree(
+      s"given instance: Base with $name with {}",
+      s"""ScalaFile
+         |  ScGivenDefinition: instance
+         |    AnnotationsList
+         |      <empty list>
+         |    Modifiers
+         |      <empty list>
+         |    PsiElement(given)('given')
+         |    PsiWhiteSpace(' ')
+         |    PsiElement(identifier)('instance')
+         |    PsiElement(:)(':')
+         |    Parameters
+         |      <empty list>
+         |    PsiWhiteSpace(' ')
+         |    ExtendsBlock
+         |      TemplateParents
+         |        ConstructorInvocation
+         |          SimpleType: Base
+         |            CodeReferenceElement: Base
+         |              PsiElement(identifier)('Base')
+         |        PsiWhiteSpace(' ')
+         |        PsiElement(with)('with')
+         |        PsiWhiteSpace(' ')
+         |        ConstructorInvocation
+         |          SimpleType: $name
+         |            CodeReferenceElement: $name
+         |              PsiElement(identifier)('$name')
+         |      PsiWhiteSpace(' ')
+         |      PsiElement(with)('with')
+         |      PsiWhiteSpace(' ')
+         |      ScTemplateBody
+         |        PsiElement({)('{')
+         |        PsiElement(})('}')
+         |""".stripMargin
+    )
+
   def test_indentation(): Unit = checkTree(
     """
       |given Test with
