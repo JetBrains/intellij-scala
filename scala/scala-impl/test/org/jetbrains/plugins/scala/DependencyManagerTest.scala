@@ -2,15 +2,37 @@ package org.jetbrains.plugins.scala
 
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, StandardProgressIndicator}
+import org.apache.ivy.core.settings.IvySettings
+import org.apache.ivy.plugins.resolver.ChainResolver
 import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription, ResolveFailure, Resolver, RichStr}
-import org.junit.jupiter.api.Assertions.{assertThrows, fail}
+import org.junit.jupiter.api.Assertions.{assertEquals, assertInstanceOf, assertNotNull, assertThrows, fail}
 import org.junit.jupiter.api.{Test, Timeout}
 
+import java.net.URLClassLoader
 import java.text.ParseException
 import java.util.concurrent.TimeUnit
+import scala.jdk.CollectionConverters.*
 
 class DependencyManagerTest {
   import DependencyManagerTest.*
+
+  @Test
+  def ivySettingsAreBundledWithDependencyManager(): Unit = {
+    val location = classOf[DependencyManagerBase].getProtectionDomain.getCodeSource.getLocation
+    // The test classpath includes scala-impl, unlike the dependency-manager plugin module's classloader.
+    val loader = new URLClassLoader(Array(location), null)
+    try {
+      val resource = "dependencyManager/ivysettings-file-system-resolvers-only.xml"
+      val url = loader.findResource(resource)
+      assertNotNull(url, s"$resource must be bundled with DependencyManagerBase in $location")
+
+      val settings = new IvySettings
+      settings.load(url)
+      val resolver = assertInstanceOf(classOf[ChainResolver], settings.getDefaultResolver)
+      assertEquals("main", resolver.getName)
+      assertEquals(Seq("local", "shared"), resolver.getResolvers.asScala.map(_.getName).toSeq)
+    } finally loader.close()
+  }
 
   @Test
   @Timeout(value = 30, unit = TimeUnit.SECONDS)
