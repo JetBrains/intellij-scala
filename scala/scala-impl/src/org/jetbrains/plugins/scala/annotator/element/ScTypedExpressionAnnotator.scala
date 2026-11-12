@@ -4,7 +4,7 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeDiff}
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Mismatch, asString}
-import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.annotator.quickfix.{ElaborateCodeQuickFix, ReportHighlightingErrorQuickFix}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -50,7 +50,7 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
         }
         val message = ScalaBundle.message("cannot.upcast.type.to.other.type", wideActual.presentableText, expected.presentableText)
         ranges.foreach { range =>
-          holder.createErrorAnnotation(range, message, ReportHighlightingErrorQuickFix)
+          holder.createErrorAnnotation(range, message, Seq(ElaborateCodeQuickFix, ReportHighlightingErrorQuickFix))
         }
       }
     }

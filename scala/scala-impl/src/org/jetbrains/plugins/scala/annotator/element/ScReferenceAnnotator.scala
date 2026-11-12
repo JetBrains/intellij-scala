@@ -9,7 +9,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.highlightImplicitView
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
-import org.jetbrains.plugins.scala.annotator.quickfix.{AddCallParenthesesQuickFix, ReportHighlightingErrorQuickFix}
+import org.jetbrains.plugins.scala.annotator.quickfix.{AddCallParenthesesQuickFix, ElaborateCodeQuickFix, ReportHighlightingErrorQuickFix}
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, UnresolvedReferenceFixProvider}
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
@@ -311,7 +311,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
           holder.createErrorAnnotation(
             refElement.nameId,
             message,
-            ReportHighlightingErrorQuickFix :: typeDefFix
+            ElaborateCodeQuickFix :: ReportHighlightingErrorQuickFix :: typeDefFix
           )
 
           true
@@ -343,6 +343,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     val identifier = reference.nameId
     val fixes =
       UnresolvedReferenceFixProvider.fixesFor(reference) :+
+        ElaborateCodeQuickFix :+
         ReportHighlightingErrorQuickFix :++
         createFixesByUsages(reference) // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
 

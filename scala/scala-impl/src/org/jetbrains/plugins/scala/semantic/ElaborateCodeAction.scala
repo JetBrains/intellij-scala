@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorOpenRequest}
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{CompilerModuleExtension, LibraryOrderEntry, ModuleRootManager, ProjectFileIndex}
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.PsiClass
@@ -34,13 +35,17 @@ class ElaborateCodeAction extends AnAction(message("elaborate.code.action.text")
     ScalaActionUtil.enableAndShowIfInScalaFile(e)
 
   override def actionPerformed(e: AnActionEvent): Unit = {
-    ScalaActionUsagesCollector.logDesugarCode(e.getProject)
-
     val project = e.getProject
     val editor = CommonDataKeys.EDITOR.getData(e.getDataContext)
+    val psiFile = CommonDataKeys.PSI_FILE.getData(e.getDataContext).asInstanceOf[ScalaFile]
+    perform(project, editor, psiFile)
+  }
+
+  def perform(project: Project, editor: Editor, psiFile: ScalaFile): Unit = {
+    ScalaActionUsagesCollector.logDesugarCode(project)
+
     val document = editor.getDocument
     val virtualFile = editor.getVirtualFile
-    val psiFile = CommonDataKeys.PSI_FILE.getData(e.getDataContext).asInstanceOf[ScalaFile]
     if (psiFile.isCompiled) {
       CommonRefactoringUtil.showErrorHint(project, editor, message("elaborate.code.no.source"), getTemplateText, null)
       return
