@@ -7,21 +7,23 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.io.NioFiles
 import com.intellij.psi.{PsiComment, PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-import java.io.File
+import java.io.IOException
+import java.nio.file.attribute.PosixFileAttributeView
+import java.nio.file.{Files, Path}
 
 // Similar to Kotlin's ScriptShebangExecPermissionInspection:
 // https://github.com/JetBrains/intellij-community/blob/43f59a59e0360809fb08461e1023c725b27358b3/plugins/kotlin/code-insight/inspections-k2/src/org/jetbrains/kotlin/idea/codeInsight/inspections/ScriptShebangExecPermissionInspection.kt
 final class ScalaShebangExecutableInspection extends LocalInspectionTool with DumbAware {
   import ProblemDescriptor.EMPTY_ARRAY
-  import ScalaShebangExecutableInspection._
+  import ScalaShebangExecutableInspection.*
 
   override def isEnabledByDefault: Boolean = true
 
@@ -39,11 +41,10 @@ final class ScalaShebangExecutableInspection extends LocalInspectionTool with Du
     if (comment == null)
       return EMPTY_ARRAY
 
-    val script = findNonExecutableLocalScript(scalaFile)
-    if (script == null)
+    if (!isNonExecutableLocalScript(scalaFile))
       return EMPTY_ARRAY
 
-    val quickFix = new MakeExecutableQuickFix(comment, script)
+    val quickFix = new MakeExecutableQuickFix(comment)
     Array(manager.createProblemDescriptor(
       comment,
       ScalaInspectionBundle.message("shebang.not.executable"),
@@ -56,21 +57,34 @@ final class ScalaShebangExecutableInspection extends LocalInspectionTool with Du
 
 object ScalaShebangExecutableInspection {
   // Scala uses SCL-25035's ordinary first-character comment PSI because it has no script-file PSI or shebang token.
+  private def isNonExecutableLocalScript(file: ScalaFile): Boolean = {
+    val virtualFile = file.getVirtualFile
+    // The PSI text starts after the BOM, but SCL-25035 recognizes a shebang only at byte offset zero.
+    if (virtualFile == null || virtualFile.getBOM != null)
+      return false
+
+    val script = findLocalScript(file)
+    // Without POSIX file permissions, e.g. on Windows, a script has no execute permission that could be missing.
+    script != null && hasPosixFilePermissions(script) && !Files.isExecutable(script)
+  }
+
+  /**
+   * The path of the file, if it is in the local file system.
+   *
+   * The quick fix looks it up when it is invoked, rather than when it is created,
+   * so that it uses the current path of the file, even if the file was moved or renamed in the meantime.
+   */
   @Nullable
-  private def findNonExecutableLocalScript(file: ScalaFile): File = {
+  private def findLocalScript(file: PsiFile): Path | Null = {
     val virtualFile = file.getVirtualFile
     if (virtualFile == null || !virtualFile.isInLocalFileSystem)
       return null
-    // The PSI text starts after the BOM, but SCL-25035 recognizes a shebang only at byte offset zero.
-    if (virtualFile.getBOM != null)
-      return null
 
-    val script = VfsUtilCore.virtualToIoFile(virtualFile)
-    if (script.canExecute)
-      return null
-
-    script
+    virtualFile.getFileSystem.getNioPath(virtualFile)
   }
+
+  private def hasPosixFilePermissions(path: Path): Boolean =
+    Files.getFileAttributeView(path, classOf[PosixFileAttributeView]) != null
 
   // SCL-25035 recognizes a shebang only when "#!" is the first two characters in the file.
   // Keep this inspection bound to that existing comment PSI rather than interpreting arbitrary text as a script header.
@@ -89,20 +103,14 @@ object ScalaShebangExecutableInspection {
     textRange.getStartOffset == 0 && text.startsWith("#!")
   }
 
-  private[codeInspection] def makeScriptExecutable(
-    script: File
-  ): Either[String, Unit] = {
+  private def makeScriptExecutable(script: Path): Either[String, Unit] =
     try {
-      val executable = script.setExecutable(true)
-      if (executable)
-        Right(())
-      else
-        Left(ScalaInspectionBundle.message("shebang.make.executable.file.system.rejected"))
+      NioFiles.setExecutable(script)
+      Right(())
     } catch {
-      case _: SecurityException =>
-        Left(ScalaInspectionBundle.message("shebang.make.executable.security.exception"))
+      case _: IOException =>
+        Left(ScalaInspectionBundle.message("shebang.make.executable.file.system.rejected"))
     }
-  }
 
   /**
    * Shows a short-lived error hint above the shebang range, so a quick-fix failure stays at its source.
@@ -164,9 +172,8 @@ object ScalaShebangExecutableInspection {
       null
   }
 
-  private[codeInspection] final class MakeExecutableQuickFix(
-    shebang: PsiComment,
-    script: File
+  private final class MakeExecutableQuickFix(
+    shebang: PsiComment
   ) extends LocalQuickFixAndIntentionActionOnPsiElement(shebang) {
 
     override def getText: String =
@@ -182,11 +189,15 @@ object ScalaShebangExecutableInspection {
       startElement: PsiElement,
       endElement: PsiElement
     ): Unit = {
+      val script = findLocalScript(file)
+      if (script == null)
+        return
+
       val textRange = startElement.getTextRange
       val permissionChange = makeScriptExecutable(script)
       permissionChange match {
         case Right(_) =>
-          // File.setExecutable changes filesystem metadata outside PSI, so restart analysis to remove the warning.
+          // NioFiles.setExecutable changes file system metadata outside PSI, so restart analysis to remove the warning.
           DaemonCodeAnalyzer.getInstance(project).restart(file, this)
         case Left(message) =>
           val failureEditor =
