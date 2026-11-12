@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.semantic
 
 import com.intellij.diff.requests.SimpleDiffRequest
 import com.intellij.diff.{DiffContentFactory, DiffManager}
-import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorOpenRequest}
 import com.intellij.openapi.module.Module
@@ -11,22 +11,31 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.PsiClass
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.testFramework.LightVirtualFile
+import org.jetbrains.plugins.scala.ScalaBundle.message
+import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction, withProgressSynchronously}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.getInstance as ScalaApplicationSettings
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 import org.jetbrains.plugins.scala.{LanguageFileTypeBase, Scala3Language}
 
 import java.nio.file.Files
 import javax.swing.Icon
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-object DesugarCodeAction {
-  private def getTemplateText: String = "Desugar Scala Code"
+class ElaborateCodeAction extends AnAction(message("elaborate.code.action.text"), message("elaborate.code.action.description"), /* icon = */ null) {
+  override def getActionUpdateThread: ActionUpdateThread =
+    ActionUpdateThread.BGT
 
-  def actionPerformed(e: AnActionEvent): Unit = {
+  override def update(e: AnActionEvent): Unit =
+    ScalaActionUtil.enableAndShowIfInScalaFile(e)
+
+  override def actionPerformed(e: AnActionEvent): Unit = {
+    ScalaActionUsagesCollector.logDesugarCode(e.getProject)
+
     val project = e.getProject
     val editor = CommonDataKeys.EDITOR.getData(e.getDataContext)
     val document = editor.getDocument
@@ -37,7 +46,7 @@ object DesugarCodeAction {
       return
     }
     val cls = classAtCaret(editor, psiFile).orElse(psiFile.typeDefinitions.headOption).getOrElse {
-      CommonRefactoringUtil.showErrorHint(project, editor, "No class to desugar", getTemplateText, null)
+      CommonRefactoringUtil.showErrorHint(project, editor, "No class to elaborate", getTemplateText, null)
       return
     }
 
@@ -70,7 +79,7 @@ object DesugarCodeAction {
       (compiledVirtualFile.getName, compiledVirtualFile.contentsToByteArray(), true, classpathOf(module))
     }
 
-    val (compilerText, pluginText) = withProgressSynchronously(s"Desugaring ${cls.name}...") {
+    val (compilerText, pluginText) = withProgressSynchronously(s"Elaborating ${cls.name}...") {
       val compilerText = if (!isScala3) "" else {
         val decompiler = Decompiler(classpath, Decompiler.classLoader(getClass.getClassLoader))
         decompiler.decompile(tastyFileName, tastyFileContents.toIndexedSeq)
@@ -89,12 +98,12 @@ object DesugarCodeAction {
     }
 
     if (!isScala3) {
-      val file = new LightVirtualFile(s"${cls.name} (desugared)", psiFile.getFileType, pluginText)
+      val file = new LightVirtualFile(s"${cls.name} (elaborated)", psiFile.getFileType, pluginText)
       FileEditorManager.getInstance(project).requestOpenFile(file, FileEditorOpenRequest.withFocus(true))
     } else {
       val left = DiffContentFactory.getInstance.create(project, compilerText, Scala3FileType)
       val right = DiffContentFactory.getInstance.create(project, pluginText, Scala3FileType)
-      DiffManager.getInstance.showDiff(project, new SimpleDiffRequest("Desugaring of " + cls.qualifiedName, left, right, "Compiler" + (if (upToDate) "" else " (outdated, please recompile):"), "Plugin:"))
+      DiffManager.getInstance.showDiff(project, new SimpleDiffRequest("Elaboration of " + cls.qualifiedName, left, right, "Compiler" + (if (upToDate) "" else " (outdated, please recompile):"), "Plugin:"))
     }
   }
 
