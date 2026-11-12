@@ -7,9 +7,10 @@ import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.util.registry.Registry
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.testFramework.EdtTestUtil
-import junit.framework.TestCase.{assertNotNull, assertSame, assertTrue}
+import junit.framework.TestCase.{assertEquals, assertFalse, assertNotNull, assertSame, assertTrue}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -43,7 +44,7 @@ class ScalafmtReformatOnSaveActionIntegrationTest
     Registry.get("scalafmt.min.time.between.format.on.save.action.ms").setValue(0, getTestRootDisposable)
   }
 
-  /** Verifies that the registered Save All action formats an edited Scala file. */
+  /** Verifies that the registered Save All action formats and saves an edited Scala file. */
   def testRegisteredSaveAllActionReformatsEditedScalaFile(): Unit = {
     openScalaFileWithUnsavedUnformattedChanges()
     performRegisteredSaveAllAndCheckFormatting()
@@ -51,8 +52,8 @@ class ScalafmtReformatOnSaveActionIntegrationTest
 
   /**
    * Verifies that replacing the registered Save All action with a delegating proxy
-   * still triggers Scalafmt. This reproduces the action-identity regression while
-   * exercising the same action dispatch as the plain Save All control case.
+   * still triggers and saves Scalafmt output. This reproduces the action-identity
+   * regression while exercising the same action dispatch as the plain Save All case.
    */
   def testRegisteredSaveAllReplacementReformatsEditedScalaFile(): Unit = {
     openScalaFileWithUnsavedUnformattedChanges()
@@ -91,14 +92,19 @@ class ScalafmtReformatOnSaveActionIntegrationTest
       "The edited Scala document must be unsaved before Save All",
       FileDocumentManager.getInstance().isDocumentUnsaved(document)
     )
+    assertEquals(
+      "The unsaved edit must not have reached the file before Save All",
+      InitialScalaFileText,
+      VfsUtilCore.loadText(myFixture.getFile.getVirtualFile)
+    )
   }
 
-  /** Performs the registered Save All action and checks that it formatted the edited Scala file. */
+  /** Performs the registered Save All action and checks its formatted result is saved. */
   private def performRegisteredSaveAllAndCheckFormatting(): Unit = {
     val action = registeredSaveAllAction()
     val event = createSaveAllActionEvent(action)
     performSaveAllAction(action, event)
-    assertEditedScalaFileWasFormatted()
+    assertEditedScalaFileWasFormattedAndSaved()
   }
 
   private def registeredSaveAllAction(): AnAction = {
@@ -125,6 +131,16 @@ class ScalafmtReformatOnSaveActionIntegrationTest
     }, false)
   }
 
-  private def assertEditedScalaFileWasFormatted(): Unit =
+  private def assertEditedScalaFileWasFormattedAndSaved(): Unit = {
     myFixture.checkResult(FormattedScalaFileText)
+    assertFalse(
+      "The formatted Scala document must be saved by Save All",
+      FileDocumentManager.getInstance().isDocumentUnsaved(myFixture.getEditor.getDocument)
+    )
+    assertEquals(
+      "Save All must persist the formatted Scala text in the file",
+      FormattedScalaFileText,
+      VfsUtilCore.loadText(myFixture.getFile.getVirtualFile)
+    )
+  }
 }
