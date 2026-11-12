@@ -1,7 +1,11 @@
+// Declared for all subprojects: sbt 1 prints a warning for every subproject without a declared `scalaVersion`
+// when the build is loaded. On Windows, the sbt server started by the sbt BSP client stopped in the middle of
+// these warnings and never started (SCL-25750).
+ThisBuild / scalaVersion := "2.13.18"
+
 lazy val `java-language-level-and-target-byte-code-level` = project.in(file("."))
   .settings(
-    version := "0.1",
-    scalaVersion := "2.13.4"
+    version := "0.1"
   )
 
 // Module naming: `source_target_release`

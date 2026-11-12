@@ -5,11 +5,10 @@ import com.intellij.util.system.OS
 /**
  * Switch for the sbt-over-BSP tests that are disabled on Windows (SCL-25750).
  *
- * The connection file regeneration tests fail on Windows for a reason that is not understood yet.
+ * The connection file regeneration tests fail on Windows for a reason that is not understood yet: the notification
+ * about an externally changed connection file is not shown.
  *
- * Each case checks the switch once, at its entry point:
- *  - `BspConfigRegenerationIntegrationTest`: all its tests
- *  - `SbtOverBspProjectStructureImportingTestBase.testJavaLanguageLevelAndTargetByteCodeLevel`: the sbt 1 variant
+ * `BspConfigRegenerationIntegrationTest` checks the switch once, at its entry point, for all its tests.
  */
 object SbtOverBspTestsOnWindows {
 
