@@ -81,15 +81,25 @@ class GenericConnector(base: Path, compilerOutput: Path, capabilities: BspCapabi
   }
 
   /**
-   * The command of the connection file, with the [[SbtOverBspVmOptions]] appended for sbt.
+   * The command of the connection file, with the [[SbtOverBspVmOptions]] added for sbt.
    *
-   * The command of sbt (`... xsbt.boot.Boot -bsp`) starts the sbt BSP client, which sets the `-Dkey=value` arguments as
-   * system properties and passes them on to the sbt server that it starts, so they apply to the server as well.
+   * The command of sbt (`java ... xsbt.boot.Boot -bsp`) starts the sbt BSP client. The options are added twice:
+   *  - as JVM options of the client, before `xsbt.boot.Boot`, because the sbt launcher resolves the sbt version of the
+   *    project before the client reads its arguments
+   *  - as arguments of the client, which sets the `-Dkey=value` arguments as system properties and passes them on to
+   *    the sbt server that it starts, so they apply to the server as well
    */
   private def argv(details: BspConnectionDetails): Seq[String] = {
     val argv = details.getArgv.asScala.toSeq
     // The name that sbt writes to its connection file, see `sbt.internal.bsp.BuildServerConnection.name`
-    if (details.getName == "sbt") argv ++ SbtOverBspVmOptions.getInstance.vmOptions
+    if (details.getName == "sbt") {
+      val options = SbtOverBspVmOptions.getInstance.vmOptions
+      val launcherMainClassIndex = argv.indexOf("xsbt.boot.Boot")
+      val argvWithJvmOptions =
+        if (launcherMainClassIndex < 0) argv
+        else argv.patch(launcherMainClassIndex, options, 0)
+      argvWithJvmOptions ++ options
+    }
     else argv
   }
 }
