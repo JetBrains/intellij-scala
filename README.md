@@ -45,7 +45,7 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md)
 In order to take part in Scala plugin development, you need:
 
 1. IntelliJ IDEA 2022.3 or higher with a compatible version of Scala plugin
-2. JDK 25 (you can [download it via IntelliJ IDEA](https://www.jetbrains.com/help/idea/sdk.html#define-sdk))
+2. The JDK specified in the [shared build prerequisites](docs/building.md#jdk)
 3. (optional but **recommended**) \
    Enable [internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html) in IDEA to get access to helpful internal actions and debug information
 
@@ -60,7 +60,8 @@ In order to take part in Scala plugin development, you need:
 2. Open IntelliJ IDEA. From the Welcome screen or `File` menu, click `Open`, and point to
 the directory where you cloned the Scala plugin sources. It will be automatically imported as a sbt project.
 
-3. In the next step, select JDK 25 as project JDK (create it from an installed JDK if necessary).
+3. In the next step, select the JDK from the [shared build prerequisites](docs/building.md#jdk) as project JDK
+   (create it from an installed JDK if necessary).
 
 4. Select the `scalaCommunity` run configuration and select the `Run` or `Debug` button to build and start a
 development version of IDEA with the Scala plugin.
@@ -84,9 +85,8 @@ To run and distribute a modified version of the plugin in a regular IntelliJ ins
 
 ## Running the Tests
 
-Run sbt from the checkout root and select its main project:
-`project scalaCommunity` for a standalone Community checkout, or
-`project scalaUltimate` for an Ultimate checkout.
+Before running tests, follow the [shared build guidance](docs/building.md) for prerequisites, build roots,
+project selection, and sbt session behavior.
 
 The sbt `test` and `testOnly` tasks automatically package the plugin as needed.
 Category commands such as `runFastTests` and `runTypeInferenceTests` use
@@ -126,9 +126,9 @@ The nightly inspection-sanity workflow runs daily only after a recent default-br
 when started manually. It builds the Community sources and runs `GeneralInspectionSanityTest`; it
 does not repeat the pull-request or full test suite.
 
-The pull-request workflow installs JDKs 8, 11, 17, 21, and 25 so tests can
-launch the compatible runtime they need. Its final JDK entry, 25, is the
-`JAVA_HOME` used to run sbt. The nightly workflow also runs sbt on JDK 25.
+The pull-request workflow installs older test JDKs alongside the
+[required build JDK](docs/building.md#jdk), which is the final JDK entry and
+the `JAVA_HOME` used to run sbt. The nightly workflow uses the same build JDK.
 `GitHubWorkflowPolicyTest` in `ultimate-meta-tests-standalone` keeps these
 defaults aligned with this project's JDK requirement. The test is not available
 in the Community repository mirrored to GitHub; it runs as part of the Ultimate

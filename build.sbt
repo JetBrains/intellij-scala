@@ -9,6 +9,7 @@ import org.jetbrains.sbtidea.Keys.*
 import org.jetbrains.sbtidea.PluginJars
 
 import java.nio.file.Path
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
 // Global build settings
 
@@ -51,6 +52,20 @@ ThisBuild / javacOptions := globalJavacOptions
 
 Global / intellijAttachSources := true
 
+// Reuse the JVM for repeated test runs without keeping agent-started servers idle for sbt's seven-day default.
+// Opt in per server JVM, e.g. sbt --client -Dscala.sbt.idleTimeout=30m; absent property preserves the existing setting.
+// A command-line property avoids saving this session preference in .jvmopts or global configuration.
+// Later clients cannot change an existing server's startup properties; preserve user-managed server configuration.
+// Ultimate also loads this file, so one setting covers both builds.
+Global / serverIdleTimeout ~= { default =>
+  sys.props.get("scala.sbt.idleTimeout").fold(default) { value =>
+    scala.util.Try(Duration(value)).toOption match {
+      case Some(timeout: FiniteDuration) if timeout > Duration.Zero => Some(timeout)
+      case _ => sys.error(s"Invalid scala.sbt.idleTimeout '$value': expected a positive finite duration, e.g. 30m")
+    }
+  }
+}
+
 // One shared farm hash cache per sbt session, required by `compilationCacheSettings` (see CompilationCache).
 // The ultimate build loads this file as well, so this is the only definition needed.
 Global / farmHashCache := new java.util.concurrent.ConcurrentHashMap()
@@ -59,7 +74,7 @@ Global / farmHashCache := new java.util.concurrent.ConcurrentHashMap()
 Global / onLoad := {
   val prev = (Global / onLoad).value
   state => {
-    //NOTE: the min JDK version should be the same as in README.md
+    // Keep the documented build JDK in docs/building.md aligned with this requirement.
     JdkVersionCheck.warnIfNotRequiredJdk(state.log, minJdkVersion = "25")
     prev(state)
   }
