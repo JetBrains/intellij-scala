@@ -7,7 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.hints.onlyErrorStripeAttributes
-import org.jetbrains.plugins.scala.annotator.quickfix.{EnableTypeMismatchHints, ReportHighlightingErrorQuickFix}
+import org.jetbrains.plugins.scala.annotator.quickfix.{ElaborateCodeQuickFix, EnableTypeMismatchHints, ReportHighlightingErrorQuickFix}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScMatchTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
@@ -72,6 +72,7 @@ private object TypeMismatchError {
 
     val builder = holder.newAnnotation(HighlightSeverity.ERROR, message)
       .tooltip(tooltip)
+      .withFix(ElaborateCodeQuickFix)
       .withFix(ReportHighlightingErrorQuickFix)
       .withFix(EnableTypeMismatchHints)
       .problemGroup(TypeMismatchErrorProblemGroup)
