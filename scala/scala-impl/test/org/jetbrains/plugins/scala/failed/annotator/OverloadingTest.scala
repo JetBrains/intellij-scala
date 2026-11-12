@@ -3,7 +3,7 @@ package failed.annotator
 
 import com.intellij.psi.{PsiErrorElement, PsiReference}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.annotator.quickfix.{ElaborateCodeQuickFix, ReportHighlightingErrorQuickFix}
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTypeElementExt}
@@ -66,7 +66,7 @@ abstract class OverloadingTestBase extends ScalaLightCodeInsightFixtureTestCase 
         holder.createErrorAnnotation(
           expr,
           ScalaBundle.message("type.mismatch.found.required", actualText, expText),
-          ReportHighlightingErrorQuickFix
+          Seq(ElaborateCodeQuickFix, ReportHighlightingErrorQuickFix)
         )
       }
     }

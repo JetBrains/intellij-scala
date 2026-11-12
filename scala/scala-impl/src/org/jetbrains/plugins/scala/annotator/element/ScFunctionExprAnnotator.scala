@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.element.ScExpressionAnnotator.checkExpressionType
 import org.jetbrains.plugins.scala.annotator.element.ScTypedExpressionAnnotator.mismatchRangesIn
-import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.annotator.quickfix.{ElaborateCodeQuickFix, ReportHighlightingErrorQuickFix}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFunctionExpr, ScParenthesisedExpr, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -154,7 +154,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
           )
 
           val ranges = mismatchRangesIn(parameter.typeElement.get, expectedType)(using parameter)
-          ranges.foreach(holder.createErrorAnnotation(_, message, ReportHighlightingErrorQuickFix))
+          ranges.foreach(holder.createErrorAnnotation(_, message, Seq(ElaborateCodeQuickFix, ReportHighlightingErrorQuickFix)))
           typeMismatch = true
         }
     }
