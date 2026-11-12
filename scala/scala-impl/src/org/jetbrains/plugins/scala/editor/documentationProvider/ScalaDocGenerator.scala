@@ -145,9 +145,15 @@ object ScalaDocGenerator {
           case DesugaredTypeDefinition(gvn) if gvn.getDocComment != null =>
             Some(ActualComment(gvn, gvn.getDocComment, isInherited = false, param))
           case method: ScFunction =>
-            findSuperMethodWithDocComment(method).map {
-              case (method, comment) => ActualComment(method, comment, isInherited = true, param)
+            // Generated methods can share their source declaration's parameters and documentation.
+            val originalComment = Option(method.originalParametersOwner).collect {
+              case owner: PsiDocCommentOwner => owner
+            }.flatMap { owner =>
+              Option(owner.getDocComment).map(comment => ActualComment(owner, comment, isInherited = false, param))
             }
+            originalComment.orElse(findSuperMethodWithDocComment(method).map {
+              case (method, comment) => ActualComment(method, comment, isInherited = true, param)
+            })
           case _ => None
         }
     }
