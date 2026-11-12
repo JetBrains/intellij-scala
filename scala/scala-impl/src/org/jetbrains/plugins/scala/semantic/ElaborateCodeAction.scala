@@ -101,7 +101,7 @@ class ElaborateCodeAction extends AnAction(message("elaborate.code.action.text")
       val file = new LightVirtualFile(message("elaborate.code.elaborated", cls.name), psiFile.getFileType, pluginText)
       FileEditorManager.getInstance(project).requestOpenFile(file, FileEditorOpenRequest.withFocus(true))
     } else {
-      val leftTitle = s"${message("elaborate.code.compiler")}${if (upToDate) "" else s" (${message("elaborate.code.outdated")})"}"
+      val leftTitle = s"${message("elaborate.code.compiler")}${if (upToDate) "" else s" ⚠️${message("elaborate.code.outdated")}"}"
       val rightTitle = s"${message("elaborate.code.plugin")}"
       val left = DiffContentFactory.getInstance.create(project, compilerText, Scala3FileType)
       val right = DiffContentFactory.getInstance.create(project, pluginText, Scala3FileType)
