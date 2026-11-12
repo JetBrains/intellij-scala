@@ -172,7 +172,7 @@ object ScalaShebangExecutableInspection {
       null
   }
 
-  private[codeInspection] final class MakeExecutableQuickFix(
+  private final class MakeExecutableQuickFix(
     shebang: PsiComment
   ) extends LocalQuickFixAndIntentionActionOnPsiElement(shebang) {
 
