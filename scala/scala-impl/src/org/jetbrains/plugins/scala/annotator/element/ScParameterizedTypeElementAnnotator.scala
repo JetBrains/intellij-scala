@@ -4,7 +4,7 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.annotator.quickfix.{ElaborateCodeQuickFix, ReportHighlightingErrorQuickFix}
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeConstructorDiff, tooltipForDiffTrees}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
@@ -253,7 +253,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
         .createErrorAnnotation(
           range,
           ScalaBundle.message("type.arg.does.not.conform.to.upper.bound", argTyText, upper.presentableText, param.name),
-          ReportHighlightingErrorQuickFix
+          Seq(ElaborateCodeQuickFix, ReportHighlightingErrorQuickFix)
         )
     }
 
@@ -262,7 +262,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
         .createErrorAnnotation(
           range,
           ScalaBundle.message("type.arg.does.not.conform.to.lower.bound", argTyText, lower.presentableText, param.name),
-          ReportHighlightingErrorQuickFix
+          Seq(ElaborateCodeQuickFix, ReportHighlightingErrorQuickFix)
         )
     }
   }
@@ -298,6 +298,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
             )
             .range(range)
             .tooltip(tooltipForDiffTrees(ScalaBundle.message("type.constructor.mismatch"), expectedDiff, actualDiff))
+            .withFix(ElaborateCodeQuickFix)
             .withFix(ReportHighlightingErrorQuickFix)
             .create()
         }
@@ -314,6 +315,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
           .tooltip(
             tooltipForDiffTrees(ScalaBundle.message("expected.type.constructor", ""), expectedDiff, actualDiff)
           )
+          .withFix(ElaborateCodeQuickFix)
           .withFix(ReportHighlightingErrorQuickFix)
           .create()
       case _ => ()
