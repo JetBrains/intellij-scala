@@ -57,9 +57,15 @@ object ScalaTokenType {
   val ImplicitFunctionArrow     = new ScalaTokenType("?=>") // TODO: rename to context function arrow?
   val PureFunctionArrow         = new ScalaTokenType("->")
   val ImplicitPureFunctionArrow = new ScalaTokenType("?->")
+
+  // Capture parsers remap identifiers to these tokens for PSI queries and contextual highlighting;
+  // this does not reserve their spellings as global keywords. Scala 3's capture-reference parser
+  // instead compares identifier names and records modifiers in its AST (see CaptureRef).
   val CaptureOperator           = new ScalaKeywordTokenType("^")
   val ReachCapabilityStar       = new ScalaKeywordTokenType("*")
   val ReadOnlyCapabilityKeyword = new ScalaKeywordTokenType("rd")
+  val OnlyCapabilityKeyword     = new ScalaKeywordTokenType("only")
+  val ExceptCapabilityKeyword   = new ScalaKeywordTokenType("except")
 
   object IsTemplateDefinition {
 

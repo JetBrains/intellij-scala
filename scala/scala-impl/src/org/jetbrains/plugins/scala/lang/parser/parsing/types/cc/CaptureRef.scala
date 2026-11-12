@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.types.cc
 
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -12,11 +12,38 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import scala.annotation.tailrec
 
 /**
- * SimpleRef   ::=  id
- *               |  [id ‘.’] ‘this’
- *               |  [id ‘.’] ‘super’ [ClassQualifier] ‘.’ id
- * CaptureRef  ::=  { SimpleRef ‘.’ } SimpleRef [‘*’] [CapFilter] [‘.’ ‘rd’] -- under captureChecking
- * CapFilter   ::=  ‘.’ ‘as’ ‘[’ QualId ’]’                                  -- under captureChecking
+ * Capture-reference syntax with capture checking enabled.
+ *
+ * == Scala 3.10.1 ==
+ * {{{
+ * SimpleRef    ::= id
+ *                | [id '.'] 'this'
+ *                | [id '.'] 'super' [ClassQualifier] '.' id
+ * CaptureRef   ::= { SimpleRef '.' } SimpleRef [OnlyFilter] {ExceptFilter} ['.' 'rd']
+ * OnlyFilter   ::= '.' 'only' '[' QualId ']'
+ * ExceptFilter ::= '.' 'except' '[' QualId ']'
+ * }}}
+ * This describes accepted syntax: unlike the compiler's grammar comment, it excludes reach '*',
+ * which the Scala 3.10.1 implementation recognizes only to report that it is no longer supported.
+ *
+ * == Older syntax retained for compatibility ==
+ * Scala 3.9.0 supports reach capabilities, with the same SimpleRef and OnlyFilter rules:
+ * {{{
+ * CaptureRef ::= { SimpleRef '.' } SimpleRef ['*'] [OnlyFilter] ['.' 'rd']
+ * }}}
+ * The plugin's historical grammar from SCL-24630 is also retained:
+ * {{{
+ * CaptureRef ::= { SimpleRef '.' } SimpleRef ['*'] [AsFilter] ['.' 'rd']
+ * AsFilter   ::= '.' 'as' '[' QualId ']'
+ * }}}
+ * The '.as' form describes historical plugin behavior, not Scala 3.8.0 compiler syntax:
+ * that compiler's grammar comment named 'as', but its implementation already recognized 'only'.
+ *
+ * Plugin parsing and diagnostics accept the combined syntax without per-version checks.
+ *
+ * @see <a href="https://github.com/scala/scala3/blob/3.10.1/compiler/src/dotty/tools/dotc/parsing/Parsers.scala#L1810">Scala 3.10.1 capture-reference parser</a>
+ * @see <a href="https://github.com/scala/scala3/blob/3.9.0/compiler/src/dotty/tools/dotc/parsing/Parsers.scala#L1672">Scala 3.9.0 capture-reference parser</a>
+ * @see <a href="https://github.com/scala/scala3/blob/3.8.0/compiler/src/dotty/tools/dotc/parsing/Parsers.scala#L1636">Scala 3.8.0 capture-reference parser and its stale grammar comment</a>
  */
 object CaptureRef extends ParsingRule {
 
@@ -30,15 +57,23 @@ object CaptureRef extends ParsingRule {
       }
     }
 
-    // parse and eat *
+    // Parse and consume the optional '*' reach marker for compatibility with older Scala versions.
     builder.tryParseSoftKeyword(ScalaTokenType.ReachCapabilityStar)
 
-    val parsedAs = parseCaptureFilter()
-
-    parseReadOnly(parsedAs)
+    val parsedAs = parseCaptureFilter(ScalaTokenType.AsKeyword)
+    val parsedFilter = parsedAs || parseCapabilityFilters()
+    parseReadOnly(parsedAs, parsedFilter)
 
     marker.done(ScalaElementType.CAPTURE_REF)
     true
+  }
+
+  private def parseCapabilityFilters()(implicit builder: ScalaPsiBuilder): Boolean = {
+    var parsedFilter = parseCaptureFilter(ScalaTokenType.OnlyCapabilityKeyword)
+    while (parseCaptureFilter(ScalaTokenType.ExceptCapabilityKeyword)) {
+      parsedFilter = true
+    }
+    parsedFilter
   }
 
   private def parseSimpleRef()(implicit builder: ScalaPsiBuilder): Boolean = {
@@ -53,7 +88,7 @@ object CaptureRef extends ParsingRule {
           builder.advanceLexer()
 
           builder.getTokenText match {
-            case "rd" | "as" =>
+            case "rd" | "as" | "only" | "except" =>
               rollBackMarker.rollbackTo()
               marker.drop()
               true
@@ -114,7 +149,7 @@ object CaptureRef extends ParsingRule {
     parseNext(builder.mark(), parseDot = false, hadOne = false)
   }
 
-  private def parseCaptureFilter()(implicit builder: ScalaPsiBuilder): Boolean = {
+  private def parseCaptureFilter(keyword: ScalaKeywordTokenType)(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.getTokenType != ScalaTokenTypes.tDOT) {
       return false
     }
@@ -122,7 +157,7 @@ object CaptureRef extends ParsingRule {
     val marker = builder.mark()
     builder.advanceLexer() // eat .
 
-    if (!builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword)) {
+    if (!builder.tryParseSoftKeyword(keyword)) {
       marker.rollbackTo()
       return false
     }
@@ -155,7 +190,7 @@ object CaptureRef extends ParsingRule {
     true
   }
 
-  private def parseReadOnly(parsedAs: Boolean)(implicit builder: ScalaPsiBuilder): Unit = {
+  private def parseReadOnly(parsedAs: Boolean, parsedFilter: Boolean)(implicit builder: ScalaPsiBuilder): Unit = {
     if (builder.getTokenType != ScalaTokenTypes.tDOT) {
       return
     }
@@ -165,8 +200,10 @@ object CaptureRef extends ParsingRule {
     if (!builder.tryParseSoftKeyword(ScalaTokenType.ReadOnlyCapabilityKeyword)) {
       if (parsedAs) {
         builder.error(ScalaBundle.message("rd.expected"))
+      } else if (parsedFilter) {
+        builder.error(ScalaBundle.message("except.or.rd.expected"))
       } else {
-        builder.error(ScalaBundle.message("as.or.rd.expected"))
+        builder.error(ScalaBundle.message("capture.filter.or.rd.expected"))
       }
     }
   }

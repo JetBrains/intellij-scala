@@ -261,6 +261,13 @@ public interface ScalaTokenTypes {
             ReadOnlyCapabilityKeyword()
     );
 
+    // Highlight these words only after capture parsing remaps them. Keep them out of SOFT_KEYWORDS,
+    // which also excludes ordinary names from given-parent parsing and auto-import hints.
+    TokenSet CAPTURE_FILTER_KEYWORDS = TokenSet.create(
+            OnlyCapabilityKeyword(),
+            ExceptCapabilityKeyword()
+    );
+
     TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER, tINTERPOLATED_STRING_ID);
 
     TokenSet STRING_LITERAL_TOKEN_SET = TokenSet.create(

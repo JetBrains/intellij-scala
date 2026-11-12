@@ -92,4 +92,40 @@ class Scala3CaptureCheckingFormatterTest extends Scala3FormatterBaseTest {
       repeats = 2,
       checkAfterEachIteration = true
     )
+
+  def test_capture_filters(): Unit =
+    doTextTest(
+      """
+        |x: Object^{ any . only [ SharedCapability ] }
+        |x: Object^{ c . except [ C ] . except [ D ] }
+        |x: Object^{ this . c . only [ p . C ] . except [ p . D ] . rd }
+        |x: () -> { any . except [ Control ] } Unit
+        |x: () ?-> { c * . only [ C ] } Unit
+        |x: () -> { this . only [ UserTable ] } List [ User ]
+        |x: () -> { this . except [ TransactionTable ] } List [ User ]
+        |x: Object^{ c . except [ Any ] , d }
+        |x: Option [ Failure ^ { f . only [ Control ] } ]
+        |x: Object^{ c . only [ SharedCapability ] . except [ Control ] . except [ IOCap ] }
+        |x: Object^{ c . except [ Control ] . rd }
+        |x: Object^{ any . only [ Unscoped ] . rd }
+        |x: this . Raise ?-> { any . except [ ErrHandler ] } A
+        |x: Scope ?-> { any . only [ Shared ] } A
+        |""".stripMargin,
+      """
+        |x: Object^{any.only[SharedCapability]}
+        |x: Object^{c.except[C].except[D]}
+        |x: Object^{this.c.only[p.C].except[p.D].rd}
+        |x: () ->{any.except[Control]} Unit
+        |x: () ?->{c*.only[C]} Unit
+        |x: () ->{this.only[UserTable]} List[User]
+        |x: () ->{this.except[TransactionTable]} List[User]
+        |x: Object^{c.except[Any], d}
+        |x: Option[Failure^{f.only[Control]}]
+        |x: Object^{c.only[SharedCapability].except[Control].except[IOCap]}
+        |x: Object^{c.except[Control].rd}
+        |x: Object^{any.only[Unscoped].rd}
+        |x: this.Raise ?->{any.except[ErrHandler]} A
+        |x: Scope ?->{any.only[Shared]} A
+        |""".stripMargin
+    )
 }
