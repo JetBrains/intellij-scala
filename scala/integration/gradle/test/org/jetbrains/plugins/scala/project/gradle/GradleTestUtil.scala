@@ -13,7 +13,8 @@ object GradleTestUtil {
 
   /** A `repositories` block for test build scripts that prefers the JetBrains Maven Central mirror to avoid
     * HTTP Error 429 Too Many Requests from Maven Central in the CI. Maven Central proper is a fallback in case
-    * the mirror is unavailable, mirroring the resolver order in community/project/repositories. */
+    * the mirror is unavailable, mirroring the resolver order of the sbt tests in
+    * community/scala/scala-impl/testdata/sbt/repositories-default. */
   val repositoriesBlock: String =
     s"""repositories {
        |    maven {
