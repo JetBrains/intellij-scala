@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base
 
-import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, api}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
-trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
+trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwnerSyntax {
 
   override def lowerBound(implicit context: Context): TypeResult = typeOf(lowerTypeElement, isLower = true)
 
@@ -20,15 +19,6 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   override def viewBound: Seq[ScType] = viewTypeElement.flatMap(_.`type`().toOption)
 
   override def contextBound: Seq[ScType] = contextBounds.flatMap(_.typeElement.`type`().toOption)
-
-  override def upperTypeElement: Option[ScTypeElement] =
-    findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tUPPER_BOUND)
-      .flatMap(_.nextSiblingOfType[ScTypeElement])
-
-  override def lowerTypeElement: Option[ScTypeElement] =
-    findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tLOWER_BOUND)
-      .flatMap(_.nextSiblingOfType[ScTypeElement])
-
 
   override def viewTypeElement: Seq[ScTypeElement] = {
     for {

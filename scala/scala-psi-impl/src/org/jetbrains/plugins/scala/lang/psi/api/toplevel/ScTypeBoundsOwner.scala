@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.cc.ScCaptureSet
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
@@ -20,6 +21,14 @@ trait ScTypeBoundsOwner extends ScNamedElement with ScTypeParametersOwner {
 
   def lowerTypeElement: Option[ScTypeElement] = None
   def upperTypeElement: Option[ScTypeElement] = None
+
+  /**
+   * Syntax-only, AST-backed capture bounds, kept separate from ordinary type bounds.
+   * They are not interpreted by lowerBound/upperBound or serialized as type text.
+   * Native capture-set semantics are tracked in SCL-26427.
+   */
+  def lowerCaptureSet: Option[ScCaptureSet] = None
+  def upperCaptureSet: Option[ScCaptureSet] = None
 
   def viewTypeElement: Seq[ScTypeElement] = Nil
   def contextBounds: Seq[ScContextBound] = Nil

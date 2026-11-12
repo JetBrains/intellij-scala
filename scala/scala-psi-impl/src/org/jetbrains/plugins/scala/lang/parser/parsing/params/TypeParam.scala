@@ -1,14 +1,19 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.params
 
 import org.jetbrains.plugins.scala.NlsString
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Bounds, ContextBounds}
-import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
-/*
- * TypeParam ::= {Annotation} (id | '_') [TypeParamClause] ['>:' Type] ['<:'Type] {'<%' Type} {':' Type}
+/**
+ * TypeParam ::= {Annotation} ['+' | '-'] (id | '_') ['^'] [TypeParamClause] Bounds
+ *
+ * Scala 3.8.0 through 3.10.1 recognize the optional '^' under capture checking.
+ * As in the compiler's TypeDef with a CaptureVar attachment, the parameter keeps
+ * its ordinary declaration node; the contextual caret distinguishes its syntax.
+ * Capture-set bounds are separate CaptureSet children (see [[Bounds]]), not types.
  */
 object TypeParam {
 
@@ -45,6 +50,9 @@ object TypeParam {
       case _ =>
         paramMarker.rollbackTo()
         return false
+    }
+    if (builder.features.`parses capture checking`) {
+      builder.tryParseSoftKeyword(ScalaTokenType.CaptureOperator)
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET =>

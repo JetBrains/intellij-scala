@@ -128,4 +128,60 @@ class Scala3CaptureCheckingFormatterTest extends Scala3FormatterBaseTest {
         |x: Scope ?->{any.only[Shared]} A
         |""".stripMargin
     )
+
+  def test_capture_set_parameters_and_bounds(): Unit =
+    doTextTest(
+      """def f[ T , C ^ , U ](x: T): U = ???
+        |def g[ C ^ >: { } <: { any } , T ](x: Object ^ { C }): T = ???
+        |def h[ c ^ <: { any . except [ C1 ] } ](x: A ^ { c }): A ^ { c . except [ C2 ] } = x
+        |def run[ T , C ^ ](body: () -> { C } T): Box [ T ] ^ { C . except [ Control ] } = ???
+        |def apply[ T , C ^ ](body: () -> { C } T): Try [ T ] ^ { C . only [ Control ] } = ???
+        |def withTransaction[ T , E ^ ](body: (tx: Transaction ^) -> (() -> { E , tx . except [ Commit ] . except [ Rollback ] } T)): T = ???
+        |""".stripMargin,
+      """def f[T, C^, U](x: T): U = ???
+        |def g[C^ >: {} <: {any}, T](x: Object^{C}): T = ???
+        |def h[c^ <: {any.except[C1]}](x: A^{c}): A^{c.except[C2]} = x
+        |def run[T, C^](body: () ->{C} T): Box[T]^{C.except[Control]} = ???
+        |def apply[T, C^](body: () ->{C} T): Try[T]^{C.only[Control]} = ???
+        |def withTransaction[T, E^](body: (tx: Transaction^) -> (() ->{E, tx.except[Commit].except[Rollback]} T)): T = ???
+        |""".stripMargin
+    )
+
+  def test_same_line_trailing_comma_in_capture_bound(): Unit =
+    doTextTest(
+      "class Box[C ^ <: { any , }, T]\nclass After",
+      "class Box[C^ <: {any,}, T]\n\nclass After",
+      repeats = 2,
+      checkAfterEachIteration = true
+    )
+
+  def test_multiline_trailing_comma_in_capture_bound(): Unit =
+    doTextTest(
+      "class Box[C ^ <: { any ,\n}, T]\nclass After",
+      "class Box[C^ <: {any,\n}, T]\n\nclass After",
+      repeats = 2,
+      checkAfterEachIteration = true
+    )
+
+  def test_capture_bounds_with_comments_and_line_breaks(): Unit =
+    doTextTest(
+      """def f[
+        |  C ^ >: /* lower */ { } <: /* upper */ { any . only [ Shared ] . except [ Control ] . rd },
+        |  D ^ <: // capture upper
+        |    { any },
+        |  T >: /* type lower */ Nothing <: // type upper
+        |    AnyRef
+        |](x: T): T = x
+        |""".stripMargin,
+      """def f[
+        |  C^ >: /* lower */ {} <: /* upper */ {any.only[Shared].except[Control].rd},
+        |  D^ <: // capture upper
+        |  {any},
+        |  T >: /* type lower */ Nothing <: // type upper
+        |  AnyRef
+        |](x: T): T = x
+        |""".stripMargin,
+      repeats = 2,
+      checkAfterEachIteration = true
+    )
 }
