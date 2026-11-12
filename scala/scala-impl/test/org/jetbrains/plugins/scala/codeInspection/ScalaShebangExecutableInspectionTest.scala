@@ -1,25 +1,33 @@
 package org.jetbrains.plugins.scala.codeInspection
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
+import com.intellij.openapi.util.io.NioFiles
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.psi.PsiComment
+import com.intellij.psi.{PsiComment, PsiFile}
 import com.intellij.testFramework.{LightVirtualFile, PlatformTestUtil}
 import com.intellij.util.system.OS
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.codeInspection.shebang.ScalaShebangExecutableInspection
+import org.jetbrains.plugins.scala.codeInspection.shebang.ScalaShebangExecutableInspection.MakeExecutableQuickFix
 import org.jetbrains.plugins.scala.util.EditorHintFixtureEx
-import org.junit.Assert.{assertEquals, assertTrue, fail}
+import org.junit.Assert.{assertEquals, assertNull, assertTrue}
 
-import java.io.File
 import java.nio.charset.StandardCharsets
+import java.nio.file.attribute.{PosixFileAttributeView, PosixFilePermissions}
 import java.nio.file.{Files, Path}
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
+/**
+ * The inspection only applies where the file system has POSIX file permissions. Elsewhere, e.g. on Windows, a script
+ * has no execute permission that could be missing, so the tests assert that there is no warning, quick fix or hint.
+ */
 class ScalaShebangExecutableInspectionTest extends ScalaLightCodeInsightFixtureTestCase {
+  import ScalaShebangExecutableInspectionTest.*
 
-  override protected def sourceRootPath: Path = ScalaShebangExecutableInspectionTest.scriptSourceRoot
+  override protected def sourceRootPath: Path = scriptSourceRoot
 
   private val shebang = "#!/usr/bin/env -S scala-cli shebang -q"
   private val shebangScript = s"$shebang\nprintln(42)"
@@ -27,15 +35,29 @@ class ScalaShebangExecutableInspectionTest extends ScalaLightCodeInsightFixtureT
   private val makeExecutableText = "Make script executable"
   private val fileSystemRejectionText =
     "Could not make script executable because the file system rejected the permission change."
-  private val securityExceptionText =
-    "Could not make script executable because permission to change file permissions was denied."
 
-  private var editorHintFixture: EditorHintFixtureEx = scala.compiletime.uninitialized
+  private var editorHintFixture: EditorHintFixtureEx = uninitialized
+
+  /** The script that the test created with [[configureLocalScript]], if any. */
+  private var script: Path = uninitialized
 
   override protected def setUp(): Unit = {
     super.setUp()
     editorHintFixture = new EditorHintFixtureEx(getTestRootDisposable)
     myFixture.enableInspections(classOf[ScalaShebangExecutableInspection])
+  }
+
+  override protected def tearDown(): Unit =
+    try super.tearDown()
+    finally if (script != null) Files.deleteIfExists(script)
+
+  def testPosixFilePermissionsAreSupportedExceptOnWindows(): Unit = {
+    assertEquals(
+      "The script directory must have POSIX file permissions everywhere except on Windows, " +
+        "so that each platform runs the intended assertions of this test",
+      OS.CURRENT != OS.Windows,
+      posixFilePermissions
+    )
   }
 
   def testInspectionIsEnabledByDefault(): Unit = {
@@ -46,20 +68,21 @@ class ScalaShebangExecutableInspectionTest extends ScalaLightCodeInsightFixtureT
   }
 
   def testNonExecutableShebangScriptHasWarningAndQuickFix(): Unit = {
-    // TODO: SCL-26338 File.setExecutable(false) always fails on Windows
-    if (OS.CURRENT == OS.Windows) return
+    configureLocalScript(shebangScript, executable = false)
 
-    val script = configureLocalScript(shebangScript, executable = false)
+    assertWarningWithPosixFilePermissions()
+    if (posixFilePermissions) {
+      myFixture.launchAction(myFixture.findSingleIntention(makeExecutableText))
+      assertTrue(
+        "The quick fix must set the script execute permission",
+        Files.isExecutable(script)
+      )
 
-    assertWarning()
-
-    myFixture.launchAction(myFixture.findSingleIntention(makeExecutableText))
-    assertTrue(
-      "The quick fix must set the script execute permission",
-      script.canExecute
-    )
-
-    assertNoWarning()
+      assertNoWarning()
+    }
+    else {
+      assertNoQuickFix()
+    }
   }
 
   def testExecutableShebangScriptHasNoWarning(): Unit = {
@@ -68,103 +91,60 @@ class ScalaShebangExecutableInspectionTest extends ScalaLightCodeInsightFixtureT
     assertNoWarning()
   }
 
-  def testPermissionChangeRejectionShowsErrorHint(): Unit = {
-    val script = new PermissionChangingFile(result = false)
+  def testFailedPermissionChangeShowsErrorHint(): Unit = {
+    val (file, quickFix) = configureDeletedScriptWithQuickFix()
 
-    assertMakeExecutableFailureHint(fileSystemRejectionText, script)
+    quickFix.invoke(getProject, myFixture.getEditor, file)
+
+    assertFailureHintWithPosixFilePermissions()
   }
 
-  def testPermissionChangeSecurityExceptionShowsErrorHint(): Unit = {
-    val script = new PermissionChangingFile(throw new SecurityException)
+  def testFailedPermissionChangeShowsErrorHintWithoutInvocationEditor(): Unit = {
+    val (file, quickFix) = configureDeletedScriptWithQuickFix()
 
-    assertMakeExecutableFailureHint(securityExceptionText, script)
+    // A quick fix from the Inspection Results has no invocation editor, so the hint goes to the selected editor.
+    quickFix.invoke(getProject, null, file)
+
+    assertFailureHintWithPosixFilePermissions()
   }
 
-  def testPermissionChangeRejectionReturnsFileSystemFailure(): Unit = {
-    val script = new PermissionChangingFile(result = false)
-
-    assertMakeExecutableFailure(
-      ScalaShebangExecutableInspection.makeScriptExecutable(script),
-      fileSystemRejectionText
-    )
-  }
-
-  def testPermissionChangeSecurityExceptionReturnsPermissionChangeDenied(): Unit = {
-    val script = new PermissionChangingFile(throw new SecurityException)
-
-    assertMakeExecutableFailure(
-      ScalaShebangExecutableInspection.makeScriptExecutable(script),
-      securityExceptionText
-    )
-  }
-
-  def testPermissionChangeRejectionShowsErrorHintWithoutInvocationEditor(): Unit = {
-    val script = new PermissionChangingFile(result = false)
-
-    assertMakeExecutableFailureHint(fileSystemRejectionText, script, useInvocationEditor = false)
-  }
-
-  def testPermissionChangeRejectionHasNoHintWithoutMatchingEditor(): Unit = {
-    val script = new PermissionChangingFile(result = false)
-    val file = myFixture.configureByText(ScalaFileType.INSTANCE, shebangScript)
-    val comment = file.findElementAt(0).asInstanceOf[PsiComment]
-    val quickFix = new ScalaShebangExecutableInspection.MakeExecutableQuickFix(comment, script)
+  def testFailedPermissionChangeHasNoHintWithoutMatchingEditor(): Unit = {
+    val (file, quickFix) = configureDeletedScriptWithQuickFix()
 
     myFixture.configureByText(ScalaFileType.INSTANCE, "println(42)")
     quickFix.invoke(getProject, null, file)
 
-    dispatchAllInvocationEvents()
-
-    assertEquals(
-      "A batch quick fix without an editor for the affected file must not show a non-contextual failure hint",
-      null,
-      editorHintFixture.getCurrentHintText(stripHtml = true)
-    )
+    assertNoHint("A batch quick fix without an editor for the affected file must not show a non-contextual failure hint")
   }
 
   def testScriptWithoutShebangHasNoWarning(): Unit = {
-    // TODO: SCL-26338 File.setExecutable(false) always fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
     configureLocalScript("println(42)", executable = false)
 
     assertNoWarning()
   }
 
   def testLaterShebangHasNoWarning(): Unit = {
-    // TODO: SCL-26338 File.setExecutable(false) always fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
     configureLocalScript(s"// ordinary comment\n$shebang", executable = false)
 
     assertNoWarning()
   }
 
   def testIndentedShebangHasNoWarning(): Unit = {
-    // TODO: SCL-26338 File.setExecutable(false) always fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
     configureLocalScript(s"  $shebang", executable = false)
 
     assertNoWarning()
   }
 
   def testBomPrefixedShebangHasNoWarning(): Unit = {
-    // TODO: SCL-26338 File.setExecutable(false) always fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
     configureLocalScript(s"\uFEFF$shebang", executable = false)
 
     assertNoWarning()
   }
 
   def testCrLfShebangScriptHasWarning(): Unit = {
-    // TODO: SCL-26338 File.setExecutable(false) always fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
     configureLocalScript(s"$shebang\r\nprintln(42)", executable = false)
 
-    assertWarning()
+    assertWarningWithPosixFilePermissions()
   }
 
   def testNonLocalShebangFileHasNoWarning(): Unit = {
@@ -183,22 +163,29 @@ class ScalaShebangExecutableInspectionTest extends ScalaLightCodeInsightFixtureT
     assertNoWarning()
   }
 
-  private def configureLocalScript(text: String, executable: Boolean): File = {
-    val script = Files.createTempFile(ScalaShebangExecutableInspectionTest.scriptSourceRoot, "script", ".scala").toFile
-    script.deleteOnExit()
-    Files.writeString(script.toPath, text, StandardCharsets.UTF_8)
+  /**
+   * Creates the [[script]] of the test in the local file system and opens it in the editor.
+   * `tearDown` deletes it, after the editor is closed.
+   *
+   * Where the file system has POSIX file permissions, the script gets the requested execute permission.
+   * Elsewhere, e.g. on Windows, a file has no execute permission to set.
+   */
+  private def configureLocalScript(text: String, executable: Boolean): Unit = {
+    assertNull("A test creates at most one script", script)
+    script = Files.createTempFile(scriptSourceRoot, getTestName(false), ".scala")
+    Files.writeString(script, text, StandardCharsets.UTF_8)
 
-    assertTrue(
-      s"The test fixture must allow setting execute permission to $executable",
-      script.setExecutable(executable)
-    )
-    assertEquals(
-      s"The test fixture must have execute permission $executable before inspection",
-      executable,
-      script.canExecute
-    )
+    if (posixFilePermissions) {
+      val permissions = if (executable) "rwx------" else "rw-------"
+      Files.setPosixFilePermissions(script, PosixFilePermissions.fromString(permissions))
+      assertEquals(
+        s"The test fixture must have execute permission $executable before inspection",
+        executable,
+        Files.isExecutable(script)
+      )
+    }
 
-    val virtualFile = Option(LocalFileSystem.getInstance.refreshAndFindFileByNioFile(script.toPath)).getOrElse {
+    val virtualFile = Option(LocalFileSystem.getInstance.refreshAndFindFileByNioFile(script)).getOrElse {
       throw new AssertionError(s"Could not refresh the local script file: $script")
     }
     assertTrue(
@@ -207,8 +194,33 @@ class ScalaShebangExecutableInspectionTest extends ScalaLightCodeInsightFixtureT
     )
 
     myFixture.configureFromExistingVirtualFile(virtualFile)
-    script
   }
+
+  /**
+   * Opens a non-executable shebang script, creates its quick fix and deletes the script outside the IDE,
+   * so that the quick fix fails to make it executable.
+   *
+   * The tests invoke the quick fix directly: `myFixture.launchAction` makes the file read-only around the intention,
+   * which fails for a deleted file.
+   */
+  private def configureDeletedScriptWithQuickFix(): (PsiFile, MakeExecutableQuickFix) = {
+    configureLocalScript(shebangScript, executable = false)
+    val file = myFixture.getFile
+    val quickFix = new MakeExecutableQuickFix(file.findElementAt(0).asInstanceOf[PsiComment])
+
+    Files.delete(script)
+    (file, quickFix)
+  }
+
+  /**
+   * A non-executable shebang script has the warning where the file system has POSIX file permissions,
+   * and no warning elsewhere.
+   */
+  private def assertWarningWithPosixFilePermissions(): Unit =
+    if (posixFilePermissions)
+      assertWarning()
+    else
+      assertNoWarning()
 
   private def assertNoWarning(): Unit = {
     val warnings = shebangWarnings
@@ -239,67 +251,62 @@ class ScalaShebangExecutableInspectionTest extends ScalaLightCodeInsightFixtureT
     )
   }
 
+  private def assertNoQuickFix(): Unit =
+    assertTrue(
+      "Without POSIX file permissions, the quick fix must not be offered",
+      myFixture.filterAvailableIntentions(makeExecutableText).isEmpty
+    )
+
+  /**
+   * The failure hint appears where the file system has POSIX file permissions.
+   * Elsewhere, making the script executable does nothing, so it cannot fail.
+   */
+  private def assertFailureHintWithPosixFilePermissions(): Unit =
+    if (posixFilePermissions)
+      assertFailureHint()
+    else
+      assertNoHint("Without POSIX file permissions, making the script executable does nothing, so it cannot fail")
+
+  private def assertFailureHint(): Unit = {
+    dispatchAllInvocationEvents()
+
+    assertEquals(
+      "The permission-change failure hint must explain why the permission change failed",
+      fileSystemRejectionText,
+      editorHintFixture.getCurrentHintBodyText
+    )
+  }
+
+  private def assertNoHint(message: String): Unit = {
+    dispatchAllInvocationEvents()
+
+    assertNull(message, editorHintFixture.getCurrentHintText(stripHtml = true))
+  }
+
   private def shebangWarnings: scala.collection.Seq[HighlightInfo] =
     myFixture.doHighlighting().asScala.filter(_.getDescription == warningText)
 
   private def descriptions(highlights: scala.collection.Seq[HighlightInfo]): String =
     highlights.map(_.getDescription).mkString(", ")
 
-  private def assertMakeExecutableFailureHint(
-    expectedMessage: String,
-    script: File,
-    useInvocationEditor: Boolean = true
-  ): Unit = {
-    val file = myFixture.configureByText(ScalaFileType.INSTANCE, shebangScript)
-    val comment = file.findElementAt(0).asInstanceOf[PsiComment]
-    val quickFix = new ScalaShebangExecutableInspection.MakeExecutableQuickFix(comment, script)
-    val editor =
-      if (useInvocationEditor)
-        myFixture.getEditor
-      else
-        null
-
-    quickFix.invoke(getProject, editor, file)
-
-    dispatchAllInvocationEvents()
-
-    assertEquals(
-      "The permission-change failure hint must explain why the permission change failed",
-      expectedMessage,
-      editorHintFixture.getCurrentHintBodyText
-    )
-  }
-
   private def dispatchAllInvocationEvents(): Unit = {
     UIUtil.dispatchAllInvocationEvents()
     PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
   }
-
-  private def assertMakeExecutableFailure(
-    result: Either[String, Unit],
-    expectedFailureMessage: String
-  ): Unit = {
-    result match {
-      case Left(actualFailureMessage) =>
-        assertEquals(
-          "A failed permission change must return its specific failure message",
-          expectedFailureMessage,
-          actualFailureMessage
-        )
-      case Right(_) =>
-        fail("A failed permission change must not report success")
-    }
-  }
-
-  private final class PermissionChangingFile(result: => Boolean) extends File("script.scala") {
-    override def setExecutable(executable: Boolean): Boolean = result
-  }
 }
 
 private object ScalaShebangExecutableInspectionTest {
+  /**
+   * Shared by all tests of the class, because the source root is added once to the light project that they share.
+   * Each test deletes its script in `tearDown`, and the directory is deleted when the test JVM exits.
+   */
   val scriptSourceRoot: Path = {
     val root = Files.createTempDirectory("ScalaShebangExecutableInspectionTest")
-    root.toFile.deleteOnExit()
+    sys.addShutdownHook(NioFiles.deleteRecursively(root))
     root
   }
+
+  /** Whether the file system of the scripts has POSIX file permissions, which the inspection relies on. */
+  val posixFilePermissions: Boolean =
+    Files.getFileAttributeView(scriptSourceRoot, classOf[PosixFileAttributeView]) != null
 }
