@@ -238,6 +238,8 @@ object Common {
       intellijTestJars ~= { _.filter(_.exists()) },
       intellijPlugins ++= Seq(
         "com.intellij.java",
+        // required for Java plugin (Java PSI, syntax and frontback modules were moved here in 271.2625)
+        "com.intellij.java.basic",
         // required for Java plugin (IJPL-244879)
         "com.intellij.todo",
         // TODO: add these plugins only in the modules where they are needed
