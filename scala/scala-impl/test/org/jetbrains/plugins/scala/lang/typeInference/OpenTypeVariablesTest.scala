@@ -9,11 +9,14 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
  *
  * The expected types are the ones inferred by Scala 3.7.4 (and 3.3.7).
  */
-class OpenTypeVariablesTest_Scala3 extends TypeInferenceTestBase {
+abstract class OpenTypeVariablesTestBase_Scala3 extends TypeInferenceTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
 
-  private def doTest(definitions: String, selected: String, expected: String): Unit = doTest(
+  protected def doTest(definitions: String, selected: String, expected: String): Unit =
+    doTest(fileText(definitions, selected, expected))
+
+  protected final def fileText(definitions: String, selected: String, expected: String): String =
     s"""trait Foo
        |
        |object Test {
@@ -33,7 +36,9 @@ class OpenTypeVariablesTest_Scala3 extends TypeInferenceTestBase {
        |}
        |//$expected
        |""".stripMargin
-  )
+}
+
+class OpenTypeVariablesTest_Scala3 extends OpenTypeVariablesTestBase_Scala3 {
 
   def testIfSingletonBranch(): Unit = doTest("val a = if (c) xs else Set.empty", "a", "Set[Foo]")
 
@@ -53,17 +58,40 @@ class OpenTypeVariablesTest_Scala3 extends TypeInferenceTestBase {
 
   def testIfElseIfChain(): Unit = doTest("val a = if (c) xs else if (c) Set.empty else Set()", "a", "Set[Foo]")
 
-  def testIfLowerBoundedTypeVariable(): Unit = doTest("val a = if (c) Set(1) else anys", "a", "Set[Any]")
-
-  def testIfTwoOpenTypeVariables(): Unit = doTest("""val a = if (c) Set(1) else Set("a")""", "a", "Set[Int | String]")
-
   def testIfInvariantAndCovariantTypeArguments(): Unit = doTest("val a = if (c) m else Map.empty", "a", "Map[String, Int]")
 
   def testIfNested(): Unit = doTest("val a = if (c) (if (c) (xs: Set[Foo]) else Set.empty) else Set.empty", "a", "Set[Foo]")
 
+  // the type variable of the inner Set.empty is constrained before it is unified with the one of the outer Set.empty
+  def testIfNestedOpenFirst(): Unit = doTest("val a = if (c) (if (c) Set.empty else (xs: Set[Foo])) else Set.empty", "a", "Set[Foo]")
+
+  def testIfNestedBothConstrainedBeforeUnified(): Unit = doTest(
+    "val a = if (c) (if (c) Set.empty else (xs: Set[Foo])) else (if (c) Set.empty else (xs: Set[Foo]))",
+    "a",
+    "Set[Foo]"
+  )
+
+  // the type variable of Set.empty is unified with the one of toSet, which has the declared lower bound Foo
+  def testIfDeclaredLowerBound(): Unit = doTest("val a = if (c) List.empty[Foo].toSet else Set.empty", "a", "Set[Foo]")
+
+  def testIfDeclaredLowerBoundSwapped(): Unit = doTest("val a = if (c) Set.empty else List.empty[Foo].toSet", "a", "Set[Foo]")
+
+  // a single comparison both unifies the type variables of the branches and constrains one of them
+  def testIfSameTypeVariableTwice(): Unit = doTest(
+    """def twice[A]: (Set[A], Set[A]) = ???
+      |  def withFoo[C]: (Set[C], Set[Foo]) = ???
+      |  val a = if (c) twice else withFoo""".stripMargin,
+    "a",
+    "(Set[Foo], Set[Foo])"
+  )
+
   def testIfNestedAllOpen(): Unit = doTest("val a = if (c) (if (c) Set.empty else Set.empty) else (??? : Set[Foo])", "a", "Set[Foo]")
 
   def testMatch(): Unit = doTest("val a = c match { case true => xs; case _ => Set.empty }", "a", "Set[Foo]")
+
+  // the type variable of the last Set.empty is only compared with the one of the other Set.empty
+  def testMatchThreeCases(): Unit =
+    doTest("val a = (1: Int) match { case 1 => xs; case 2 => Set.empty; case _ => Set.empty }", "a", "Set[Foo]")
 
   def testTryCatch(): Unit = doTest("val a = try xs catch { case _: Exception => Set.empty }", "a", "Set[Foo]")
 
@@ -118,8 +146,71 @@ class OpenTypeVariablesTest_Scala3 extends TypeInferenceTestBase {
        |""".stripMargin
   )
 
+  private val myEitherT =
+    """case class MyEitherT[A, B](value: Either[A, B]) {
+      |  def flatMap[AA, BB](f: B => MyEitherT[AA, BB]): MyEitherT[AA, BB] = ???
+      |  def map[BB](f: B => BB): MyEitherT[A, BB] = ???
+      |}
+      |
+      |object MyEitherT {
+      |  def rightT[B, A](a: A): MyEitherT[B, A] = ???
+      |  def leftT[B, A](e: B): MyEitherT[B, A] = ???
+      |}
+      |
+      |case class LeftValue()
+      |case class RightValue()
+      |""".stripMargin
+
+  // Each branch leaves the type variable open that its argument doesn't constrain, the join solves both,
+  // instead of making MyEitherT[SyntheticLub, SyntheticLub]
+  def testSCL26435(): Unit = doTest(
+    s"""$myEitherT
+       |object Test {
+       |  val isMatch: Boolean = ???
+       |  val a = if isMatch then MyEitherT.rightT(()) else MyEitherT.leftT(LeftValue())
+       |  ${START}a$END
+       |}
+       |//MyEitherT[LeftValue, Unit]
+       |""".stripMargin
+  )
+
+  // The code of the issue. Note that this test doesn't reproduce the false type mismatch of the editor even before
+  // the fix, where the type of the if is MyEitherT[SyntheticLub, SyntheticLub], see testSCL26435
+  def testSCL26435_ForComprehension(): Unit = assertNoErrors(
+    s"""$myEitherT
+       |class Test1 {
+       |  def intelliJ_SyntheticLub(isMatch: Boolean): MyEitherT[LeftValue, RightValue] = {
+       |    for {
+       |      _ <- if isMatch then MyEitherT.rightT(()) else MyEitherT.leftT(LeftValue())
+       |      _ <- MyEitherT.rightT(())
+       |    } yield RightValue()
+       |  }
+       |}
+       |""".stripMargin
+  )
+}
+
+/**
+ * Where the plugin still infers a type other than the compiler's.
+ * A test that starts failing here has been fixed, move it to [[OpenTypeVariablesTest_Scala3]].
+ */
+class OpenTypeVariablesTest_Scala3_Failing extends OpenTypeVariablesTestBase_Scala3 {
+
+  override protected def shouldPass: Boolean = false
+
+  override protected def doTest(definitions: String, selected: String, expected: String): Unit =
+    doTest(fileText(definitions, selected, expected), failIfNoAnnotatorErrorsInFileIfTestIsSupposedToFail = false)
+
+  // The argument constrains the type variable of Set(1) from below. The compiler leaves it open, since it occurs
+  // non-variantly, but the plugin solves it in local type inference (`InferUtil.localTypeInferenceWithApplicabilityExt`),
+  // before the branches are joined, so that the join is Set[Int] | Set[Any]
+  def testIfLowerBoundedTypeVariable(): Unit = doTest("val a = if (c) Set(1) else anys", "a", "Set[Any]")
+
+  def testIfTwoOpenTypeVariables(): Unit = doTest("""val a = if (c) Set(1) else Set("a")""", "a", "Set[Int | String]")
+
   // The compiler instantiates the type variables of a scrutinee without constraining them, so it infers
-  // Set[? <: Foo] (Set[Foo] | Set[Nothing] joined), which is presented as Set[SyntheticLub], SCL-26357
+  // Set[? <: Foo] (Set[Foo] | Set[Nothing] joined), which is presented as Set[SyntheticLub], SCL-26357.
+  // The plugin solves the type variables where the branches are joined, so it infers Set[Foo]
   def testScrutinee(): Unit = doTest("val a = (if (c) (xs: Set[Foo]) else Set.empty) match { case s => s }", "a", "Set[SyntheticLub]")
 }
 
