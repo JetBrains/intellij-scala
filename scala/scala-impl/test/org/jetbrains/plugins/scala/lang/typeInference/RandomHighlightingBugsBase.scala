@@ -73,6 +73,36 @@ abstract class RandomZioHighlightingBugsBase extends ScalaLightCodeInsightFixtur
     "dev.zio" %% "zio-http" % "3.0.0-RC7"
   )
 
+  // The type parameter of `ZLayer.scoped[R]` is inferred from the argument of `apply`,
+  // with the types inferred by scalac 2.13.14 and by dotc 3.7.4
+  def testSCL22614(): Unit = checkSCL22614(error = "Nothing")
+
+  def testSCL22614_Throwable(): Unit = checkSCL22614(error = "Throwable")
+
+  private def checkSCL22614(error: String): Unit = checkTextHasNoErrors(
+    s"""import zio.{ZIO, ZLayer}
+       |
+       |object Example {
+       |  private val zio1: ZIO[String, $error, String] = ???
+       |  private val zio2: ZIO[String, $error, String] = ???
+       |
+       |  def value1 = ZLayer.scoped {
+       |    for {
+       |      _ <- zio1
+       |      _ <- zio2
+       |    } yield ()
+       |  }
+       |
+       |  def value2 = ZLayer.scoped {
+       |    zio1.flatMap(_ => zio2.map(_ => ()))
+       |  }
+       |
+       |  val a: ZLayer[String, $error, Unit] = value1
+       |  val b: ZLayer[String, $error, Unit] = value2
+       |}
+       |""".stripMargin
+  )
+
   //SCL-20982
   def testSCL20982(): Unit = checkTextHasNoErrors(
     """import zio.ZLayer

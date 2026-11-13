@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.nonvalue
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, ScAbstractType, ScType, ScTypeExt, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -78,7 +78,7 @@ final case class ScTypePolymorphicType(
         val subst = undefinedSubstitutor
 
         val retTpeConformance = pt match {
-          case Some(tpe) => subst(retTpe).isConservativelyCompatible(tpe)
+          case Some(tpe) => subst(retTpe).isConservativelyCompatible(ScTypePolymorphicType.withContravariantAbstractsLowered(tpe))
           case None      => ConstraintSystem.empty
         }
 
@@ -197,4 +197,19 @@ final case class ScTypePolymorphicType(
 object ScTypePolymorphicType {
   def unapply(arg: ScTypePolymorphicType): Option[(ScType, Seq[TypeParameter])] =
     Some((arg.internalType, arg.typeParameters))
+
+  /**
+   * The abstract types in the expected type `pt` of an invocation are the type parameters of an enclosing invocation,
+   * which are not determined yet. The compiler replaces them by wildcards (`Infer.protoTypeArgs`), so that they don't
+   * restrict the type parameters of this invocation. In a contravariant position of `pt`, e.g. `R` in
+   * `ZIO[Scope with R, E, A]`, they become part of a lower bound, where the constraint system approximates them by
+   * their upper bounds, so they are approximated by their lower bounds beforehand, SCL-22614.
+   * It is only used to derive the expected types of the arguments, the invocation itself is typed as before.
+   * In the other positions, the constraint system already approximates them by the bounds that restrict the least.
+   */
+  def withContravariantAbstractsLowered(pt: ScType): ScType =
+    pt.recursiveVarianceUpdate(Variance.Covariant) {
+      case (ScAbstractType(_, lower, _), variance) if variance == Variance.Contravariant => ReplaceWith(lower)
+      case _                                                                            => ProcessSubtypes
+    }
 }

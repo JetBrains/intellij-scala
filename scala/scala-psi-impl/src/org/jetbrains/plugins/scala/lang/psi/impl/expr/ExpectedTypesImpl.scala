@@ -5,7 +5,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil.{Lambda, LambdaSymbolic}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaClassLookup}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, withTypeParametersOfInvoked}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScReferencePattern, ScTuplePattern, ScWildcardPattern}
@@ -301,7 +301,17 @@ class ExpectedTypesImpl extends ExpectedTypes {
             case srr @ ScalaResolveResult(fun: ScFunction, s: ScSubstitutor) if fun.name == CommonNames.Apply =>
               if (srr.innerResolveResult.exists(inner => syntheticKindProjectorApplyNames.contains(inner.name)))
                 tp
-              else Right(fun.polymorphicType(s, dropExtensionClauses = r.isExtensionCall))
+              else {
+                val applyType = fun.polymorphicType(s, dropExtensionClauses = r.isExtensionCall)
+
+                srr match {
+                  // `tp` is the type of the method that `apply` is invoked on the result of, whose undetermined type
+                  // parameters are inferred together with the ones of `apply`, e.g. `R` of `def scoped[R]: Scoped[R]`
+                  case ScalaResolveResult.ApplyMethodInnerResolve(_) =>
+                    Right(tp.fold(_ => applyType, withTypeParametersOfInvoked(_, applyType)))
+                  case _ => Right(applyType)
+                }
+              }
             case _ => tp
           }
 
@@ -625,7 +635,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
       applySrr match {
         case Array(srr @ ScalaResolveResult(fun: ScFunction, s)) =>
-          val polyType        = fun.polymorphicType(s)
+          // The undetermined type parameters of the invoked expression are inferred together with the ones of `apply`
+          val polyType        = withTypeParametersOfInvoked(internalType, fun.polymorphicType(s))
           val applyMethodType = polyType.updateTypeOfDynamicCall(srr.isDynamic)
 
           val updatedMethodCall =
@@ -873,7 +884,7 @@ private object ExpectedTypesImpl {
       InferUtil.updateAccordingToExpectedType(
         `type`,
         filterTypeParams = false,
-        invocation.expectedType(),
+        invocation.expectedType().map(ScTypePolymorphicType.withContravariantAbstractsLowered),
         invocation,
         canThrowSCE = false
       )

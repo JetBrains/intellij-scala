@@ -351,6 +351,23 @@ object ScalaPsiUtil {
     }
   }
 
+  /**
+   * The polymorphic type of an `apply` or `update` method invoked on an expression of a polymorphic type, i.e. on the
+   * result of a method with type parameters, but without parameters, e.g. `scoped { ... }` with
+   * `def scoped[R]: Scoped[R]`. Its type parameters are undetermined, so they are inferred together with the ones of
+   * the `apply` method, as the compiler does, e.g. `R` from the argument `{ ... }`, SCL-22614.
+   *
+   * @param invokedType the type of the invoked expression, e.g. `[R] Scoped[R]`
+   * @param methodType  the polymorphic type of the `apply` or `update` method
+   */
+  def withTypeParametersOfInvoked(invokedType: ScType, methodType: ScType): ScType =
+    (invokedType, methodType) match {
+      case (ScTypePolymorphicType(_, head), ScTypePolymorphicType(internal, tail)) =>
+        removeBadBounds(ScTypePolymorphicType(internal, head ++ tail))
+      case (ScTypePolymorphicType(_, head), internal) => ScTypePolymorphicType(internal, head)
+      case _                                          => methodType
+    }
+
   @tailrec
   def isAnonymousExpression(expr: ScExpression): (Int, ScExpression) = {
     val seq = ScUnderScoreSectionUtil.underscores(expr)

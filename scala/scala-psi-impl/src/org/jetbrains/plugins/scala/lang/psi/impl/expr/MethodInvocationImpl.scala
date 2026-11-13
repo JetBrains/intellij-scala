@@ -634,12 +634,7 @@ object MethodInvocationImpl {
           MacroContext(invocation.getContext, expectedType))
 
     def updateGenericType(`type`: ScType, resolveResult: ScalaResolveResult): ScType =
-      (`type`, polymorphicType(resolveResult)) match {
-        case (ScTypePolymorphicType(_, head), ScTypePolymorphicType(internal, tail)) =>
-          removeBadBounds(ScTypePolymorphicType(internal, head ++ tail))
-        case (ScTypePolymorphicType(_, head), internalType) => ScTypePolymorphicType(internalType, head)
-        case (_, polymorphicType)                           => polymorphicType
-      }
+      withTypeParametersOfInvoked(`type`, polymorphicType(resolveResult))
 
     private def polymorphicType(result: ScalaResolveResult): ScType = {
       val dropExtensionClauses =
