@@ -23,6 +23,9 @@ class OpenTypeVariablesTest_Scala3 extends TypeInferenceTestBase {
        |  val c: Boolean = ???
        |  def f(): Set[Foo] = ???
        |  def id[T](t: T): T = t
+       |  def over(s: Set[Foo]): Int = 1
+       |  def over(i: Int): Int = 2
+       |  extension (s: Set[Foo]) def ext: Int = 1
        |
        |  $definitions
        |
@@ -89,6 +92,21 @@ class OpenTypeVariablesTest_Scala3 extends TypeInferenceTestBase {
 
   // The type arguments are given explicitly
   def testExplicitTypeArgument(): Unit = doTest("val a = if (c) xs else Set.empty[Foo]", "a", "Set[Foo]")
+
+  // Other consumers of the type of an `if`
+  def testArgumentOfOverloadedMethod(): Unit = doTest("val a = over(if (c) (xs: Set[Foo]) else Set.empty)", "a", "Int")
+
+  def testExtensionMethod(): Unit = doTest("val a = (if (c) (xs: Set[Foo]) else Set.empty).ext", "a", "Int")
+
+  def testInfixOperand(): Unit = doTest("val a = (if (c) (xs: Set[Foo]) else Set.empty) ++ xs", "a", "Set[Foo]")
+
+  def testForComprehension(): Unit = doTest("val a = for (x <- if (c) (xs: Set[Foo]) else Set.empty) yield x", "a", "Set[Foo]")
+
+  def testFunctionLiteralWithoutExpectedType(): Unit = doTest("val a = () => if (c) (xs: Set[Foo]) else Set.empty", "a", "() => Set[Foo]")
+
+  // The compiler instantiates the type variables of a scrutinee without constraining them, so it infers
+  // Set[? <: Foo] (Set[Foo] | Set[Nothing] joined), which is presented as Set[SyntheticLub], SCL-26357
+  def testScrutinee(): Unit = doTest("val a = (if (c) (xs: Set[Foo]) else Set.empty) match { case s => s }", "a", "Set[SyntheticLub]")
 }
 
 /** Scala 2 instantiates the type variables right away (scalac 2.13.18). */
