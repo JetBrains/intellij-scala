@@ -37,6 +37,48 @@ class ClassPrinterTest extends ScalaLightCodeInsightFixtureTestCase {
       |"""
   )
 
+  def testJavaAnnotationPositionalArgumentAndOmittedDefault(): Unit = {
+    myFixture.addClass("package example; public @interface Flag { int count() default 1; String value(); }")
+    doTest(
+      """package example
+        |@Flag("test") class Test
+        |""",
+      """package example
+        |
+        |@example.Flag("test")
+        |class Test
+        |"""
+    )
+  }
+
+  def testJavaAnnotationNamedArgumentsRetainSourceOrder(): Unit = {
+    myFixture.addClass("package example; public @interface Flag { String value(); int count() default 1; }")
+    doTest(
+      """package example
+        |@Flag(count = 2, value = "test") class Test
+        |""",
+      """package example
+        |
+        |@example.Flag(count = 2, value = "test")
+        |class Test
+        |"""
+    )
+  }
+
+  def testJavaAnnotationDefaultsAreNotPrinted(): Unit = {
+    myFixture.addClass("package example; public @interface Flag { String value() default \"test\"; }")
+    doTest(
+      """package example
+        |@Flag class Test
+        |""",
+      """package example
+        |
+        |@example.Flag
+        |class Test
+        |"""
+    )
+  }
+
   def testSuperclassImplicitArguments(): Unit = doTest(
     """package example
       |class Parent(n: Int)(implicit m: Int)

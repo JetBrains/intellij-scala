@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
-import com.intellij.psi.{PsiElement, PsiMethod, PsiParameterList, PsiTypeParameterList}
+import com.intellij.psi.{PsiAnnotationMemberValue, PsiAnnotationMethod, PsiClass, PsiElement, PsiMethod, PsiParameterList, PsiTypeParameterList}
 import org.jetbrains.plugins.scala.lang.psi.api.InvocationDetails.ArgumentClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.impl.InvocationDetailsImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -38,6 +38,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  *  - for explicitly written type parameter clauses: [[InvocationDetails.TypeClause]]
  *  - the same for omitted type parameter clauses but type parameters will be inferred and [[InvocationDetails.TypeClause.origin]] will be `None`
  *  - for explicitly provided value clauses, or constructor clauses applied with defaults: [[InvocationDetails.ValueClause]]
+ *  - for Java annotation arguments: [[InvocationDetails.JavaAnnotationClause]]
  *  - for omitted implicit/using value parameter clauses: [[InvocationDetails.ImplicitValueClause]]
  *  - for value clauses supplied by an eta-expanded function: [[InvocationDetails.EtaExpandedClause]]
  *  - for omitted empty clauses in constructor invocations or targeting java methods with no parameters: [[InvocationDetails.AutoAppliedClause]]
@@ -92,7 +93,7 @@ trait InvocationDetails {
   def isUniversalApply: Boolean
 
   /**
-   * Weather this invocation targets a constructor. This is also true for universal applies.
+   * Whether this invocation applies a constructor or an annotation type. This is also true for universal applies.
    */
   def isConstructorInvocation: Boolean
 
@@ -243,6 +244,11 @@ object InvocationDetails {
       override def element: PsiParameterList = list
     }
 
+    /** A Java annotation's elements are methods of the annotation type, not constructor parameters. */
+    final case class JavaAnnotationParameters(annotation: PsiClass) extends Value {
+      override def element: PsiClass = annotation
+    }
+
     /**
      * One of the synthetic functions the compiler makes up for the primitives, `Int#+` and
      * `Any#asInstanceOf`, which stands for its own clauses since it has no PSI for them: it is a
@@ -278,6 +284,24 @@ object InvocationDetails {
   ) extends ArgumentClause.Value {
     override def isEtaExpanded: false = false
     override def isAutoApplied: Boolean = origin.isEmpty
+  }
+
+  /**
+   * Arguments mapped to the elements of a Java annotation. Explicit arguments are in source order;
+   * a positional argument maps to `value`, independently of the order of the annotation's methods.
+   * Defaults retain their Java PSI, so they are separate from the explicitly supplied Scala expressions.
+   */
+  final case class JavaAnnotationClause(
+    origin:           Option[ScArgumentExprList],
+    arguments:        Seq[(ScExpression, PsiAnnotationMethod)],
+    defaultArguments: Seq[(PsiAnnotationMemberValue, PsiAnnotationMethod)]
+  )(
+    override val target: ArgumentClauseTarget.JavaAnnotationParameters,
+    override val anchor: PsiElement
+  ) extends ArgumentClause.Value {
+    override def isEtaExpanded: false = false
+    override def isAutoApplied: Boolean = origin.isEmpty
+    override def isAutoTupling: false = false
   }
 
   /**

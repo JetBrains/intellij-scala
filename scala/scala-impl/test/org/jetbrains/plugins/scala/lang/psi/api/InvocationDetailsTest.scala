@@ -2031,6 +2031,118 @@ abstract class InvocationDetailsTestBase extends ScalaLightCodeInsightFixtureTes
       |"""
   )
 
+  def testJavaAnnotationNamedArguments(): Unit = {
+    myFixture.addClass("package example; public @interface Flag { String value(); int count() default 1; }")
+    doTestOfLastConstructorInvocation(
+      """@example.Flag(count = 2, value = "test") class Test""",
+      """
+        |example.Flag(count = 2, value = "test")
+        |  props:    constructor invocation
+        |  target:   Flag
+        |  (count = 2, value = "test") (explicit, after `example.Flag`)
+        |"""
+    )
+  }
+
+  def testJavaAnnotationPositionalValueAndDefault(): Unit = {
+    myFixture.addClass("package example; public @interface Flag { int count() default 1; String value(); }")
+    doTestOfLastConstructorInvocation(
+      """@example.Flag("test") class Test""",
+      """
+        |example.Flag("test")
+        |  props:    constructor invocation
+        |  target:   Flag
+        |  (value = "test", count = 1 [default]) (explicit, after `example.Flag`)
+        |"""
+    )
+  }
+
+  def testJavaAnnotationWithoutArgumentList(): Unit = {
+    myFixture.addClass("package example; public @interface Flag { String value() default \"test\"; }")
+    doTestOfLastConstructorInvocation(
+      "@example.Flag class Test",
+      """
+        |example.Flag
+        |  props:    constructor invocation
+        |  target:   Flag
+        |  (value = "test" [default]) (auto applied, after `example.Flag`)
+        |"""
+    )
+  }
+
+  def testJavaAnnotationWithEmptyArgumentList(): Unit = {
+    myFixture.addClass("package example; public @interface Flag { String value() default \"test\"; }")
+    doTestOfLastConstructorInvocation(
+      "@example.Flag() class Test",
+      """
+        |example.Flag()
+        |  props:    constructor invocation
+        |  target:   Flag
+        |  (value = "test" [default]) (explicit, after `example.Flag`)
+        |"""
+    )
+  }
+
+  def testJavaMarkerAnnotation(): Unit = {
+    myFixture.addClass("package example; public @interface Flag {}")
+    doTestOfLastConstructorInvocation(
+      "@example.Flag class Test",
+      """
+        |example.Flag
+        |  props:    constructor invocation
+        |  target:   Flag
+        |  () (auto applied, after `example.Flag`)
+        |"""
+    )
+  }
+
+  def testJavaAnnotationDefaultsRetainJavaPsi(): Unit = {
+    val annotation = myFixture.addClass(
+      "package example; public @interface Flag { Class<?> clazz() default String.class; int[] numbers() default {1, 2}; }"
+    )
+    val file = configureFromFileText("@example.Flag class Test")
+    val invocation = file.depthFirst().filterByType[ConstructorInvocationLike].toSeq.last
+    val details = invocation.invocationDetails.get
+    val clause = details.argumentClauses.collectFirst { case c: JavaAnnotationClause => c }.get
+
+    assertEquals(annotation, details.target.get.element)
+    assertEquals(annotation, clause.target.element)
+    assertEquals(Seq.empty, clause.arguments)
+    assertEquals(Seq("clazz", "numbers"), clause.defaultArguments.map(_._2.getName))
+    assertEquals(Seq("String.class", "{1, 2}"), clause.defaultArguments.map(_._1.getText))
+    clause.defaultArguments.foreach { case (value, method) =>
+      assertEquals(method.getDefaultValue, value)
+      assertEquals(annotation, method.getContainingClass)
+    }
+    assertEquals(false, details.isPartiallyApplied)
+  }
+
+  def testJavaAnnotationMissingRequiredArgumentIsNotEtaExpanded(): Unit = {
+    myFixture.addClass("package example; public @interface Flag { String value(); }")
+    doTestOfLastConstructorInvocation(
+      "@example.Flag class Test",
+      """
+        |example.Flag
+        |  props:    constructor invocation
+        |  target:   Flag
+        |  () (auto applied, after `example.Flag`)
+        |"""
+    )
+  }
+
+  def testScalaAnnotationConstructorArguments(): Unit = doTestOfLastConstructorInvocation(
+    """
+      |class Flag(val value: String, val count: Int = 1) extends scala.annotation.StaticAnnotation
+      |@Flag("test") class Test
+      |""",
+    """
+      |Flag("test")
+      |  props:    constructor invocation
+      |  target:   Flag
+      |  (value = "test", count = 1) (explicit, after `Flag`)
+      |"""
+  )
+
   def testConstructorDefaultsWithImplicitClause(): Unit = doTest(
     """
       |class A(i: Int = 1)(implicit s: String)
@@ -2472,6 +2584,10 @@ abstract class InvocationDetailsTestBase extends ScalaLightCodeInsightFixtureTes
           else                                     argument.name
         }
         renderClause(clause, s"(using ${arguments.mkString(", ")})")
+      case clause: JavaAnnotationClause =>
+        val arguments = clause.arguments.map { case (argument, method) => s"${method.getName} = ${textOf(argument)}" }
+        val defaults = clause.defaultArguments.map { case (argument, method) => s"${method.getName} = ${textOf(argument)} [default]" }
+        renderClause(clause, (arguments ++ defaults).mkString("(", ", ", ")"))
       //an eta expanded clause has no arguments, the function the call evaluates to takes them, so its
       //parameters are rendered with the types the call determines for them
       case clause: EtaExpandedClause =>

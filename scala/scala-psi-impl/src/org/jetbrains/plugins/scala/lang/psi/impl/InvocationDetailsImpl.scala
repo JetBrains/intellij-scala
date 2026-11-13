@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
-import com.intellij.psi.{PsiElement, PsiMethod, PsiTypeParameterList}
+import com.intellij.psi.{PsiAnnotationMethod, PsiClass, PsiElement, PsiMethod, PsiTypeParameterList}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
@@ -69,6 +69,25 @@ private[psi] object InvocationDetailsImpl {
       case call: ScSelfInvocation        => (call.multiResolve.headOption, call.thisElement)
     }
     val call = Call.initial(invocation, target, None, anchor, isConstructor = true)
+    target.map(_.element) match {
+      case Some(annotation: PsiClass) if annotation.isAnnotationType =>
+        val methods = annotation.getMethods.toSeq.collect { case method: PsiAnnotationMethod => method }
+        val origin = invocation.arguments.headOption
+        val arguments = origin.toSeq.flatMap(_.exprs).flatMap {
+          case ScAssignment(reference: ScReferenceExpression, Some(expression)) =>
+            methods.find(_.getName == reference.refName).map(expression -> _)
+          case expression =>
+            methods.find(_.getName == "value").map(expression -> _)
+        }
+        val defaults = methods.filterNot(method => arguments.exists(_._2 == method)).flatMap { method =>
+          Option(method.getDefaultValue).map(_ -> method)
+        }
+        val clause = JavaAnnotationClause(origin, arguments, defaults)(
+          ArgumentClauseTarget.JavaAnnotationParameters(annotation), anchor
+        )
+        return call.details.copy(argumentClauses = Seq(clause))
+      case _ =>
+    }
     val applicability = for {
       result <- target
       method <- result.element.asOptionOf[PsiMethod]

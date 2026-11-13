@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.{InvocationDetails, InvocationDetailsOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScCompositePattern, ScExtractorPattern, ScLiteralPattern, ScNamingPattern, ScPattern, ScReferencePattern, ScStableReferencePattern, ScTuplePattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationExpr, ScConstructorInvocation, ScInterpolatedStringLiteral, ScLiteral, ScPrimaryConstructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScInterpolatedStringLiteral, ScLiteral, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
@@ -398,15 +398,11 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     }
     val call = InvocationDetails.of(ci)
     // The constructed type already contains the type arguments.
-    val clauses =
-      if (ci.getParent.is[ScAnnotationExpr] && call.forall(_.argumentClauses.isEmpty)) {
-        // Java annotation elements do not form a constructor parameter clause.
-        ci.arguments.map(_.exprs.map(textOfExpression(_, indent)).mkString("(", ", ", ")")).mkString
-      } else call.toSeq.flatMap { call =>
-        call.argumentClauses.collect {
-          case clause: InvocationDetails.ArgumentClause.Value => textOfClause(clause, call, indent)
-        }
-      }.mkString
+    val clauses = call.toSeq.flatMap { call =>
+      call.argumentClauses.collect {
+        case clause: InvocationDetails.ArgumentClause.Value => textOfClause(clause, call, indent)
+      }
+    }.mkString
     val arguments = if (emptyParens) clauses else clauses.stripSuffix("()")
 
     tpe.map(textOf(_, parens = 1)).getOrElse("NotInferred") + arguments
@@ -513,6 +509,8 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         "(" + using + text + ")"
       case clause: InvocationDetails.ImplicitValueClause =>
         textOfImplicitArguments(Seq(clause.arguments), call.origin)
+      case clause: InvocationDetails.JavaAnnotationClause =>
+        clause.arguments.map { case (argument, _) => textOfArgument(argument, indent) }.mkString("(", ", ", ")")
       case clause: InvocationDetails.EtaExpandedClause =>
         val using = if (isImplicitClause(clause.target)) "using " else ""
         etaParameterNames(clause).mkString("(" + using, ", ", ")")

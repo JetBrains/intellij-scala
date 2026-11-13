@@ -24,6 +24,7 @@ object ArgumentFactory {
         clause.target match {
           case ArgumentClauseTarget.ScalaParameters(parameters) => parameters.getSmartParameters.headOption
           case ArgumentClauseTarget.JavaParameters(parameters) => parameters.getParameters.headOption.map(Parameter(_))
+          case _: ArgumentClauseTarget.JavaAnnotationParameters => None
           case ArgumentClauseTarget.Synthetic(function) => function.paramClauses.headOption.flatMap(_.headOption)
         }
       }
