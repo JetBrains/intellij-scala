@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.light.DummyLightTypeParam
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter, TypeParameterType, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -24,9 +24,11 @@ import scala.collection.immutable.LongMap
  *   val a = if (c) xs else Set.empty // Set[Foo], the type argument of Set.empty is Foo
  * }}}
  *
- * An open type variable is represented by a [[TypeParameterType]] of a fresh type parameter, see [[isOpen]].
+ * An open type variable is represented by an [[UndefinedType]] of a fresh type parameter, see [[isOpen]].
  * Every one is distinct, even if two of them are created for the same type parameter of a method,
  * so that the type variables of two invocations of the method are solved independently.
+ * A type with open type variables must not be compared or joined with other types, the undefined types would
+ * conform to anything without being constrained. It is only passed on to where the branches are joined.
  */
 object OpenTypeVariables {
 
@@ -62,7 +64,7 @@ object OpenTypeVariables {
           )
         }
 
-        val subst = ScSubstitutor.bind(nonVariant, variables.map(TypeParameterType(_)))
+        val subst = ScSubstitutor.bind(nonVariant, variables.map(UndefinedType(_)))
         val others = typeParameters.filterNot(nonVariant.contains)
 
         ScTypePolymorphicType(subst(internalType), others).inferValueType
@@ -89,7 +91,7 @@ object OpenTypeVariables {
     var seen = Set.empty[Long]
 
     tpe.visitRecursively {
-      case TypeParameterType(tp) if isOpen(tp) && !seen.contains(tp.typeParamId) =>
+      case UndefinedType(tp, _) if isOpen(tp) && !seen.contains(tp.typeParamId) =>
         seen += tp.typeParamId
         variables += tp
       case _ =>
@@ -97,6 +99,13 @@ object OpenTypeVariables {
 
     variables.result()
   }
+
+  /** Whether there are open type variables in `tpe`. */
+  def existIn(tpe: ScType): Boolean =
+    tpe.subtypeExists {
+      case UndefinedType(tp, _) => isOpen(tp)
+      case _                    => false
+    }
 
   /**
    * Instantiates the open type variables in `tpe`.
@@ -123,53 +132,55 @@ object OpenTypeVariables {
       def representative(tp: TypeParameter): TypeParameter =
         unified.get(tp.typeParamId).fold(tp)(representative)
 
-      def undefine(tpe: ScType): ScType =
+      def withRepresentatives(tpe: ScType): ScType =
         ScSubstitutor.bind(variables)(tp => UndefinedType(representative(tp)))(tpe)
 
-      // The constraint system doesn't relate two undefined types, so the open type variables at the same
-      // position of two applications of the same type constructor are unified before the types are compared
+      // As in the compiler, the constraint of a type variable starts out as its declared bounds, so that they are
+      // passed on when it is unified with another one. Only the lower bounds are recorded: a type variable that is
+      // only bounded from above is solved as its upper bound, but an open one is instantiated to its lower bound
+      var constraints = variables.foldLeft(ConstraintSystem.empty)((cs, tp) => cs.withLower(tp, tp.lowerType))
+
+      // The constraint system doesn't relate two undefined types of the same level, so the open type variables at the
+      // same position of two applications of the same type constructor are unified before the types are compared
       def unify(tp1: ScType, tp2: ScType): Unit = (tp1, tp2) match {
-        case (TypeParameterType(v1), TypeParameterType(v2)) if isOpen(v1) && isOpen(v2) =>
+        case (UndefinedType(v1, _), UndefinedType(v2, _)) if isOpen(v1) && isOpen(v2) =>
           val (r1, r2) = (representative(v1), representative(v2))
-          if (r1.typeParamId != r2.typeParamId) unified = unified.updated(r2.typeParamId, r1)
+          if (r1.typeParamId != r2.typeParamId) {
+            unified = unified.updated(r2.typeParamId, r1)
+            constraints = constraints.withUnified(r2, into = r1)
+          }
         case (ParameterizedType(d1, args1), ParameterizedType(d2, args2))
           if args1.length == args2.length && d1.equiv(d2) =>
           args1.lazyZip(args2).foreach(unify)
         case _ =>
       }
 
-      var constraints = ConstraintSystem.empty
+      // `isSubType(sub, sup, whenFrozen = false)`: whether `sub` is a subtype of `sup`,
+      // possibly after constraining the open type variables
+      def isSubtype(sub: ScType, sup: ScType): Boolean = {
+        val (unifiedBefore, constraintsBefore) = (unified, constraints)
+        unify(sup, sub)
 
-      // whether `tp2` is a subtype of `tp1`, possibly after constraining the open type variables
-      def constrainSubtype(tp2: ScType, tp1: ScType): Boolean = {
-        val unifiedBefore = unified
-        unify(tp1, tp2)
-
-        undefine(tp2).conforms(undefine(tp1), constraints) match {
-          case cs: ConstraintSystem => constraints = cs; true
-          case _                    => unified = unifiedBefore; false
+        withRepresentatives(sub).conforms(withRepresentatives(sup), constraints) match {
+          case cs: ConstraintSystem =>
+            constraints = cs
+            true
+          case _ =>
+            unified = unifiedBefore
+            constraints = constraintsBefore
+            false
         }
       }
 
-      // `TypeComparer.mergeIfSuper`: `tp1`, if `tp2` is a subtype of it or of one of its operands
-      def mergeIfSuper(tp1: ScType, tp2: ScType): Option[ScType] =
-        if (constrainSubtype(tp2, tp1)) Option(tp1)
-        else
-          tp1 match {
-            case ScOrType(l, r) => mergeIfSuper(l, tp2).orElse(mergeIfSuper(r, tp2)).map(_ => tp1)
-            case _              => None
-          }
+      val bounds = projectContext.project.getService(classOf[Scala3Bounds])
 
-      def lub(tp1: ScType, tp2: ScType): ScType =
-        mergeIfSuper(tp1, tp2)
-          .orElse(mergeIfSuper(tp2, tp1))
-          .getOrElse(ScOrType(tp1, tp2))
-
+      // `OrType.widenUnionWithoutNull`, only for the constraints it takes
       def widenUnion(tpe: ScType): ScType = tpe match {
-        case ScOrType(l, r) => lub(widenUnion(l), widenUnion(r))
+        case ScOrType(l, r) => bounds.lubConstraining(widenUnion(l), widenUnion(r))(isSubtype)
         case _              => tpe
       }
 
+      //records constraints
       widenUnion(tpe)
 
       val solved: LongMap[ScType] =
@@ -183,7 +194,7 @@ object OpenTypeVariables {
         val rep = representative(tp)
         solved.get(rep.typeParamId) match {
           case Some(solution) if in(solution).isEmpty && !solution.is[UndefinedType] => solution
-          case _                                                                   => rep.lowerType
+          case _                                                                     => rep.lowerType
         }
       }
 
@@ -195,16 +206,5 @@ object OpenTypeVariables {
 
       rejoin(instantiate(tpe))
     }
-  }
-
-  /**
-   * Instantiates the open type variables in `tpe` to their lower bounds, without constraining them,
-   * as `Inferencing.fullyDefinedType` does for type variables that occur non-variantly.
-   */
-  def instantiate(tpe: ScType): ScType = {
-    val variables = in(tpe)
-
-    if (variables.isEmpty) tpe
-    else ScSubstitutor.bind(variables)(_.lowerType)(tpe)
   }
 }

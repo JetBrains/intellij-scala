@@ -496,15 +496,30 @@ object ScExpression {
             joinedBranches.fold(withoutOpenTypeVariables)(joinedTypeWithOpenTypeVariables)
           case _ =>
             if (CompilerType(expr).isDefined) withoutOpenTypeVariables
-            else getTypeWithoutImplicits0(ignoreBaseType = false, fromUnderscore = false, expectedType = None, keepOpenTypeVariables = true)
+            else getTypeWithoutImplicits0(
+              ignoreBaseType        = false,
+              fromUnderscore        = false,
+              expectedType          = None,
+              keepOpenTypeVariables = true
+            )
         }
       }
 
-    /** The union of the types of `branches`, with their open type variables, see [[typeWithOpenTypeVariables]]. */
+    /**
+     * The union of the types of `branches`, with their open type variables, see [[typeWithOpenTypeVariables]].
+     *
+     * If a branch has open type variables, it is the plain union, as `thenp1.tpe | elsep1.tpe` in `Typer.typedIf`:
+     * a lub would merge a branch into another one with an open type variable without constraining it,
+     * they are joined when the type variables are solved, see [[OpenTypeVariables.solve]].
+     */
     private def joinedTypeWithOpenTypeVariables(branches: Seq[ScExpression]): TypeResult =
       branches
         .map(_.typeWithOpenTypeVariables)
-        .reduceLeft((l, r) => for (lt <- l; rt <- r) yield lt.lub(rt))
+        .reduceLeft { (l, r) =>
+          for (lt <- l; rt <- r) yield
+            if (OpenTypeVariables.existIn(lt) || OpenTypeVariables.existIn(rt)) ScOrType(lt, rt)
+            else                                                                lt.lub(rt)
+        }
 
     private def getTypeWithoutImplicits0(
       ignoreBaseType:        Boolean,

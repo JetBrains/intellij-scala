@@ -57,12 +57,36 @@ final case class Scala3Bounds(project: Project)
   )(implicit
     stopAddingUpperBound: Boolean,
     context:              Context
+  ): ScType =
+    mergedLub(lhs, rhs, checkWeak)(_.conforms(_))
+
+  /**
+   * The lub of `lhs` and `rhs` as `TypeComparer.lub(canConstrain = true)` computes it: the subtype checks that decide
+   * whether one of them is merged into the other one may constrain type variables.
+   * They are made by `isSubtype`, which constrains the undefined types in `lhs` and `rhs` and records the constraints.
+   * The lubs that a merge itself needs don't constrain, as in `TypeComparer.mergeIfSuper` (Scala 3.3), but unlike the
+   * frozen comparisons of the compiler, their subtype checks accept an undefined type whenever it could be constrained.
+   *
+   * @param isSubtype whether the first type is a subtype of the second one, possibly after constraining
+   */
+  def lubConstraining(lhs: ScType, rhs: ScType)(isSubtype: (ScType, ScType) => Boolean)(implicit context: Context): ScType =
+    mergedLub(lhs, rhs, checkWeak = true)(isSubtype)(using stopAddingUpperBound = false, context = context)
+
+  private def mergedLub(
+    lhs:       ScType,
+    rhs:       ScType,
+    checkWeak: Boolean
+  )(
+    isSubtype: (ScType, ScType) => Boolean
+  )(implicit
+    stopAddingUpperBound: Boolean,
+    context:              Context
   ): ScType = {
     /**
      * Merge `lhs` into `rhs` if `lhs` is a super type of some |-summand in `rhs`.
      */
     def mergeIfSuper(lhs: ScType, rhs: ScType): Option[ScType] =
-      if (rhs.conforms(lhs)) Option(lhs)
+      if (isSubtype(rhs, lhs)) Option(lhs)
       else
         rhs match {
           case ScOrType(l, r) =>

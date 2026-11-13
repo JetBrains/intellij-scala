@@ -98,6 +98,15 @@ sealed trait ConstraintSystem extends ConstraintsResult {
   def removeTypeParamIds(ids: Set[Long]): ConstraintSystem
 
   /**
+   * The constraints after `typeParameter` was unified with `into`, as `ConstraintHandling.unify` in the Scala 3
+   * compiler does: the bounds of `typeParameter` become bounds of `into`.
+   *
+   * The constraints never relate two undefined types of the same level, so the caller has to replace
+   * `typeParameter` by `into` in the types that it compares afterwards.
+   */
+  def withUnified(typeParameter: TypeParameter, into: TypeParameter): ConstraintSystem
+
+  /**
    * Solves the constraints, i.e. picks a type between the lower and the upper bounds of every
    * constrained type parameter, `None` if there is no such type for one of them.
    *
@@ -276,6 +285,24 @@ private final case class ConstraintSystemImpl(
     upperMap = upperMap.removeIds(ids),
     lowerMap = lowerMap.removeIds(ids)
   )
+
+  override def withUnified(typeParameter: TypeParameter, into: TypeParameter): ConstraintSystem = {
+    val id = typeParameter.typeParamId
+
+    if (!upperMap.contains(id) && !lowerMap.contains(id)) this
+    else {
+      val intoId = into.typeParamId
+
+      def moved(map: LongMap[Set[ScType]]): LongMap[Set[ScType]] =
+        map.get(id).fold(map)(bounds => (map - id).updated(intoId, map.getOrDefault(intoId) ++ bounds))
+
+      copy(
+        upperMap              = moved(upperMap),
+        lowerMap              = moved(lowerMap),
+        constrainedTypeParams = (constrainedTypeParams - id).updated(intoId, into)
+      )
+    }
+  }
 
   private def substitutionBoundsImpl(
     canThrowSCE:                Boolean,
@@ -567,6 +594,10 @@ private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
 
   override def removeTypeParamIds(ids: Set[Long]): ConstraintSystem = map {
     _.removeTypeParamIds(ids)
+  }
+
+  override def withUnified(typeParameter: TypeParameter, into: TypeParameter): ConstraintSystem = map {
+    _.withUnified(typeParameter, into)
   }
 
   override def +(constraints: ConstraintSystem)(implicit context: Context): ConstraintSystem = {
