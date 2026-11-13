@@ -104,6 +104,20 @@ class OpenTypeVariablesTest_Scala3 extends TypeInferenceTestBase {
 
   def testFunctionLiteralWithoutExpectedType(): Unit = doTest("val a = () => if (c) (xs: Set[Foo]) else Set.empty", "a", "() => Set[Foo]")
 
+  // The type of the if itself, e.g. for Show Type Info or Extract Variable (the compiler's is Set[Foo] | Set[Foo])
+  def testTypeOfIfItself(): Unit = doTest(
+    s"""trait Foo
+       |
+       |object Test {
+       |  val xs: Set[Foo] = ???
+       |  val c: Boolean = ???
+       |
+       |  val a = ${START}if (c) (xs: Set[Foo]) else Set.empty$END
+       |}
+       |//Set[Foo]
+       |""".stripMargin
+  )
+
   // The compiler instantiates the type variables of a scrutinee without constraining them, so it infers
   // Set[? <: Foo] (Set[Foo] | Set[Nothing] joined), which is presented as Set[SyntheticLub], SCL-26357
   def testScrutinee(): Unit = doTest("val a = (if (c) (xs: Set[Foo]) else Set.empty) match { case s => s }", "a", "Set[SyntheticLub]")
