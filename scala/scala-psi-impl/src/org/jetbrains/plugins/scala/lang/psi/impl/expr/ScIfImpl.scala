@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, OpenTypeVariables, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -75,6 +75,10 @@ class ScIfImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIf with 
 
   override protected def innerType(expectedType: Option[ScType]): TypeResult = {
     (thenExpression, elseExpression) match {
+      // Typed without an expected type in Scala 3, the branches leave the type variables that occur non-variantly
+      // in their types open, they are solved when the types are joined, see OpenTypeVariables
+      case _ if OpenTypeVariables.leftOpenBy(expectedType) && this.joinedBranches.isDefined =>
+        this.typeWithOpenTypeVariables.map(OpenTypeVariables.solve(_)(using Context(this)))
       case (Some(t), Some(e)) => for (tt <- t.`type`(ExpectedTypePropagation.nested(expectedType, t));
                                       et <- e.`type`(ExpectedTypePropagation.nested(expectedType, e))) yield {
         tt.lub(et) // TODO Union type in Scala 3, SCL-23806

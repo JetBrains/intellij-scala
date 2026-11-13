@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.Tracing
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{ImplicitArgumentsClause, SafeCheckException}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, InferUtil, ScalaPsiElement, ScalaRecursiveElementVisitor}
@@ -438,10 +439,93 @@ object ScExpression {
       }
     }
 
+    /**
+     * The branches of this `if`, `match` or `try` expression, whose types are joined to the type of the expression,
+     * when it is typed without an expected type in Scala 3, see [[typeWithOpenTypeVariables]].
+     * `None` for any other expression, or if the type of the expression is computed differently.
+     */
+    def joinedBranches: Option[Seq[ScExpression]] =
+      expr match {
+        case _ if !expr.isInScala3File => None
+        case ifExpr: ScIf =>
+          for {
+            t <- ifExpr.thenExpression
+            e <- ifExpr.elseExpression
+          } yield Seq(t, e)
+        case matchExpr: ScMatch =>
+          Option(matchExpr.clauses.flatMap(_.expr)).filter(_.nonEmpty)
+        case tryExpr: ScTry =>
+          val handlerBodies = tryExpr.catchBlock.flatMap(_.expression) match {
+            case Some(block: ScBlock) if block.hasCaseClauses =>
+              block.getChildren.collectFirst { case clauses: ScCaseClauses => clauses.caseClauses.flatMap(_.expr) }
+            case None => Option(Seq.empty)
+            case _    => None
+          }
+
+          for {
+            body     <- tryExpr.expression
+            handlers <- handlerBodies
+          } yield body +: handlers
+        case _ => None
+      }
+
+    /**
+     * The type of this expression typed without an expected type in Scala 3, where the type variables that
+     * occur non-variantly in it are left open, see [[OpenTypeVariables]].
+     *
+     * The open type variables of the branches of an `if`, a `match` or a `try` (see [[joinedBranches]]),
+     * of the result expression of a block and of a parenthesised expression are passed on,
+     * so that they are solved when the branches are joined.
+     */
+    def typeWithOpenTypeVariables: TypeResult =
+      cachedWithRecursionGuard(
+        "typeWithOpenTypeVariables",
+        expr,
+        Failure(NlsString.force("Recursive typeWithOpenTypeVariables")),
+        BlockModificationTracker(expr)
+      ) {
+        def withoutOpenTypeVariables: TypeResult = expr.`type`(expectedType = None)
+
+        expr match {
+          case _ if !expr.isInScala3File => withoutOpenTypeVariables
+          case parenthesised: ScParenthesisedExpr =>
+            parenthesised.innerElement.fold(withoutOpenTypeVariables)(_.typeWithOpenTypeVariables)
+          case block: ScBlock if !block.hasCaseClauses =>
+            block.resultExpression.fold(withoutOpenTypeVariables)(_.typeWithOpenTypeVariables)
+          case _: ScIf | _: ScMatch | _: ScTry =>
+            joinedBranches.fold(withoutOpenTypeVariables)(joinedTypeWithOpenTypeVariables)
+          case _ =>
+            if (CompilerType(expr).isDefined) withoutOpenTypeVariables
+            else getTypeWithoutImplicits0(
+              ignoreBaseType        = false,
+              fromUnderscore        = false,
+              expectedType          = None,
+              keepOpenTypeVariables = true
+            )
+        }
+      }
+
+    /**
+     * The union of the types of `branches`, with their open type variables, see [[typeWithOpenTypeVariables]].
+     *
+     * If a branch has open type variables, it is the plain union, as `thenp1.tpe | elsep1.tpe` in `Typer.typedIf`:
+     * a lub would merge a branch into another one with an open type variable without constraining it,
+     * they are joined when the type variables are solved, see [[OpenTypeVariables.solve]].
+     */
+    private def joinedTypeWithOpenTypeVariables(branches: Seq[ScExpression]): TypeResult =
+      branches
+        .map(_.typeWithOpenTypeVariables)
+        .reduceLeft { (l, r) =>
+          for (lt <- l; rt <- r) yield
+            if (OpenTypeVariables.existIn(lt) || OpenTypeVariables.existIn(rt)) ScOrType(lt, rt)
+            else                                                                lt.lub(rt)
+        }
+
     private def getTypeWithoutImplicits0(
-      ignoreBaseType: Boolean,
-      fromUnderscore: Boolean,
-      expectedType:   Option[ScType]
+      ignoreBaseType:        Boolean,
+      fromUnderscore:        Boolean,
+      expectedType:          Option[ScType],
+      keepOpenTypeVariables: Boolean = false
     ): TypeResult = {
       expr match {
         case literals.ScNullLiteral(typeWithoutImplicits) => Right(typeWithoutImplicits)
@@ -478,6 +562,7 @@ object ScExpression {
 
             def inferValueType(tpe: ScType): ScType =
               if (expr.is[ScPolyFunctionExpr])                 tpe
+              else if (keepOpenTypeVariables)                  OpenTypeVariables.interpolate(tpe)
               else if (expr.getContext.is[ScArgumentExprList]) inferValueTypeRetractingNothing(tpe)
               else                                             tpe.inferValueType
 

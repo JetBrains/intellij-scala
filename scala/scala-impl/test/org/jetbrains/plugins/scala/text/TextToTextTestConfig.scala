@@ -260,7 +260,6 @@ private object TextToTextTestConfig {
         "io.getquill.context.ExtractLifts", // [?, ?, ?] | [_$1, _$2, _$3]]) forSome {type _$1; type _$2; type _$3}]
         "io.getquill.context.Extraction", // Extraction.Simple | Extraction with Extraction.Simple
         "io.getquill.context.Particularize", // ?=> | N/A
-        "io.getquill.context.PrepareDynamicExecution", // [ResultRow, Session, T] | [scala.Nothing, scala.Nothing, T]
         "io.getquill.context.QueryExecution", // quoted.Expr[Res] | Res
         "io.getquill.context.QueryExecutionBatch", // ... | Cannot define expected type
         "io.getquill.context.ReflectivePathChainLookup", // scala.Option[java.lang.Object] | scala.Any

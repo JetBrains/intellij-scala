@@ -2775,7 +2775,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part27 extends ReferenceCompar
   def test_seqliteral_union_singletons(): Unit = doTest("seqliteral-union-singletons", true) // #intersectionType
   def test_seqtest2(): Unit = doTest("seqtest2", true)
   def test_sequence_argument(): Unit = doTest("sequence-argument", true)
-  def test_sets(): Unit = doTest("sets", false)
+  def test_sets(): Unit = doTest("sets", true)
   def test_sets_tc(): Unit = doTest("sets-tc", false) // #extension
   def test_SI_4012_a(): Unit = doTest("SI-4012-a", true)
   def test_SI_4012_b(): Unit = doTest("SI-4012-b", true)
