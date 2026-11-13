@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, Context, OpenTypeVariables, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
@@ -27,7 +27,11 @@ class ScTryImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTry wit
   override def finallyBlock: Option[ScFinallyBlock] = findChild[ScFinallyBlock]
 
   protected override def innerType(expectedType: Option[ScType]): TypeResult =
-    expression.map(e => e.`type`(ExpectedTypePropagation.nested(expectedType, e)).flatMap { tryBlockType =>
+    // Typed without an expected type in Scala 3, the branches leave the type variables that occur non-variantly
+    // in their types open, they are solved when the types are joined, see OpenTypeVariables
+    if (expectedType.isEmpty && this.joinedBranches.isDefined)
+      this.typeWithOpenTypeVariables.map(OpenTypeVariables.solve(_)(using Context(this)))
+    else expression.map(e => e.`type`(ExpectedTypePropagation.nested(expectedType, e)).flatMap { tryBlockType =>
       val maybeExpression = catchBlock.flatMap(_.expression)
 
       // the bodies of the case clauses of a catch block are typed against the expected type of the try expression
