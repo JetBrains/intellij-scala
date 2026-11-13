@@ -193,7 +193,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.libs.Jsonp
     //play.api.libs.concurrent.ActorRefProvider
     //play.api.libs.concurrent.ActorSystemProvider
-    //play.api.libs.concurrent.Akka
+    play.api.libs.concurrent.Akka
     //play.api.libs.concurrent.AkkaComponents
     //play.api.libs.concurrent.AkkaSchedulerProvider
     play.api.libs.concurrent.AkkaTypedComponents
@@ -203,7 +203,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.libs.concurrent.DefaultFutures
     //play.api.libs.concurrent.ExecutionContextProvider
     play.api.libs.concurrent.Futures
-    //play.api.libs.concurrent.InjectedActorSupport
+    play.api.libs.concurrent.InjectedActorSupport
     play.api.libs.concurrent.LowPriorityFuturesImplicits
     //play.api.libs.concurrent.MaterializerProvider
     play.api.libs.crypto.CSRFTokenSigner
@@ -344,7 +344,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.mvc.ActionBuilderImpl
     play.api.mvc.ActionFilter
     //play.api.mvc.ActionFunction
-    //play.api.mvc.ActionRefiner
+    play.api.mvc.ActionRefiner
     //play.api.mvc.ActionTransformer
     play.api.mvc.AnyContent
     play.api.mvc.AnyContentAsEmpty

@@ -21,9 +21,9 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.ApplySemigroup
     //cats.ArrowApplicative
     cats.Bifoldable
-    //cats.Bifunctor
+    cats.Bifunctor
     cats.Bimonad
-    //cats.Bitraverse
+    cats.Bitraverse
     cats.CoflatMap
     //cats.CommutativeApplicative
     //cats.CommutativeApply
@@ -61,7 +61,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.ContravariantSemigroupal
     cats.ContravariantSemigroupalSemigroup
     //cats.Defer
-    //cats.Distributive
+    cats.Distributive
     //cats.Eval
     //cats.EvalGroup
     //cats.EvalInstances
@@ -74,7 +74,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.Foldable
     //cats.FoldableNFunctions
     //cats.Functor
-    //cats.FunctorFilter
+    cats.FunctorFilter
     cats.FunctorFilterInstances0
     cats.Inject
     //cats.InjectInstances
@@ -89,25 +89,25 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.InvariantSemigroupal
     cats.InvariantSemigroupalSemigroup
     cats.Later
-    //cats.LeftFunctor
+    cats.LeftFunctor
     //cats.Monad
     //cats.MonadError
     cats.MonoidK
     cats.NonEmptyAlternative
     //cats.NonEmptyParallel
     //cats.NonEmptyReducible
-    //cats.NonEmptyTraverse
+    cats.NonEmptyTraverse
     //cats.NotNull
     cats.Now
     //cats.Parallel
     //cats.ParallelArityFunctions
-    //cats.ParallelArityFunctions2
+    cats.ParallelArityFunctions2
     //cats.Reducible
     //cats.Representable
     cats.RepresentableBimonad
     cats.RepresentableDistributive
     //cats.RepresentableMonad
-    //cats.RightFunctor
+    cats.RightFunctor
     cats.ScalaVersionSpecificAlignInstances
     cats.ScalaVersionSpecificInvariantInstances
     cats.ScalaVersionSpecificMonoidKInstances
@@ -131,9 +131,9 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.TupleInstances2
     //cats.UnorderedFoldable
     cats.UnorderedFoldableLowPriority
-    //cats.UnorderedTraverse
+    cats.UnorderedTraverse
     //cats.arrow.Arrow
-    //cats.arrow.ArrowChoice
+    cats.arrow.ArrowChoice
     cats.arrow.Category
     cats.arrow.Choice
     cats.arrow.CommutativeArrow
@@ -141,7 +141,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.arrow.FunctionK
     //cats.arrow.FunctionKLift
     //cats.arrow.FunctionKMacroMethods
-    //cats.arrow.Profunctor
+    cats.arrow.Profunctor
     cats.arrow.Strong
     //cats.compat.FoldableCompat
     //cats.compat.Seq
@@ -437,7 +437,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.data.OptionTEq
     cats.data.OptionTFoldable
     cats.data.OptionTFunctor
-    //cats.data.OptionTFunctorFilter
+    cats.data.OptionTFunctorFilter
     //cats.data.OptionTInstances
     //cats.data.OptionTInstances0
     cats.data.OptionTInstances1
@@ -646,23 +646,23 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.instances.SetInstances
     cats.instances.ShortInstances
     cats.instances.ShowInstances
-    //cats.instances.SortedMapCommutativeMonoid
+    cats.instances.SortedMapCommutativeMonoid
     //cats.instances.SortedMapEq
-    //cats.instances.SortedMapHash
+    cats.instances.SortedMapHash
     //cats.instances.SortedMapInstances
     cats.instances.SortedMapInstances1
     cats.instances.SortedMapInstances2
     //cats.instances.SortedMapInstancesBinCompat0
     cats.instances.SortedMapInstancesBinCompat1
     cats.instances.SortedMapInstancesBinCompat2
-    //cats.instances.SortedMapMonoid
+    cats.instances.SortedMapMonoid
     //cats.instances.SortedSetHash
     //cats.instances.SortedSetInstances
     //cats.instances.SortedSetInstances1
     cats.instances.SortedSetInstancesBinCompat0
     //cats.instances.SortedSetInstancesBinCompat1
-    //cats.instances.SortedSetOrder
-    //cats.instances.SortedSetSemilattice
+    cats.instances.SortedSetOrder
+    cats.instances.SortedSetSemilattice
     //cats.instances.StaticMethods
     //cats.instances.StreamInstances
     cats.instances.StreamInstancesBinCompat0
@@ -797,7 +797,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.kernel.instances.DurationInstances
     cats.kernel.instances.DurationOrder
     cats.kernel.instances.EitherEq
-    //cats.kernel.instances.EitherHash
+    cats.kernel.instances.EitherHash
     cats.kernel.instances.EitherInstances
     //cats.kernel.instances.EitherInstances0
     cats.kernel.instances.EitherInstances1
@@ -866,7 +866,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.kernel.instances.OrderInstances
     cats.kernel.instances.PartialOrderInstances
     cats.kernel.instances.QueueEq
-    //cats.kernel.instances.QueueHash
+    cats.kernel.instances.QueueHash
     cats.kernel.instances.QueueInstances
     cats.kernel.instances.QueueInstances1
     cats.kernel.instances.QueueInstances2
@@ -874,7 +874,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.kernel.instances.QueueOrder
     cats.kernel.instances.QueuePartialOrder
     cats.kernel.instances.SeqEq
-    //cats.kernel.instances.SeqHash
+    cats.kernel.instances.SeqHash
     cats.kernel.instances.SeqInstances
     cats.kernel.instances.SeqInstances1
     cats.kernel.instances.SeqInstances2
@@ -891,15 +891,15 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.kernel.instances.ShortGroup
     cats.kernel.instances.ShortInstances
     cats.kernel.instances.ShortOrder
-    //cats.kernel.instances.SortedMapCommutativeMonoid
-    //cats.kernel.instances.SortedMapCommutativeSemigroup
+    cats.kernel.instances.SortedMapCommutativeMonoid
+    cats.kernel.instances.SortedMapCommutativeSemigroup
     //cats.kernel.instances.SortedMapEq
     //cats.kernel.instances.SortedMapHash
-    //cats.kernel.instances.SortedMapInstances
-    //cats.kernel.instances.SortedMapInstances1
+    cats.kernel.instances.SortedMapInstances
+    cats.kernel.instances.SortedMapInstances1
     cats.kernel.instances.SortedMapInstances2
     cats.kernel.instances.SortedMapInstances3
-    //cats.kernel.instances.SortedMapMonoid
+    cats.kernel.instances.SortedMapMonoid
     //cats.kernel.instances.SortedMapOrder
     //cats.kernel.instances.SortedMapPartialOrder
     //cats.kernel.instances.SortedMapSemigroup
@@ -949,7 +949,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.kernel.instances.UnitInstances
     cats.kernel.instances.UnitOrder
     cats.kernel.instances.VectorEq
-    //cats.kernel.instances.VectorHash
+    cats.kernel.instances.VectorHash
     cats.kernel.instances.VectorInstances
     cats.kernel.instances.VectorInstances1
     cats.kernel.instances.VectorInstances2

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
-import com.intellij.psi.{PsiElement, PsiMethod, PsiTypeParameterList}
+import com.intellij.psi.{PsiAnnotationMethod, PsiClass, PsiElement, PsiMethod, PsiTypeParameterList}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.InvocationDetails._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, TypeParamIdOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -32,17 +33,21 @@ import scala.collection.immutable.LongMap
 private[psi] object InvocationDetailsImpl {
   private type InvocationDetailsExpr = InvocationDetailsOwner & ScExpression
   
-  def of(invocation: ConstructorInvocationLike): InvocationDetails =
+  def of(invocation: ConstructorInvocationLike): Option[InvocationDetails] =
     cachedInUserData(
       "InvocationDetailsImpl.constructorCall",
       invocation,
       BlockModificationTracker(invocation)
     ) {
-      detailsOfConstructorInvocation(invocation)
+      invocation match {
+        case constructor: ScConstructorInvocation
+          if constructor.arguments.isEmpty && constructor.templateDefinitionContext.exists(_.is[ScTrait]) => None
+        case _ => Some(detailsOfConstructorInvocation(invocation))
+      }
     }
 
   def of(owner: InvocationDetailsOwner): Option[InvocationDetails] = owner match {
-    case invocation: ConstructorInvocationLike => Some(of(invocation))
+    case invocation: ConstructorInvocationLike => of(invocation)
     case expression: ScExpression =>
       invocationsInExpr(syntaxRootOf(expression)).get(expression)
     case _ => None
@@ -64,6 +69,25 @@ private[psi] object InvocationDetailsImpl {
       case call: ScSelfInvocation        => (call.multiResolve.headOption, call.thisElement)
     }
     val call = Call.initial(invocation, target, None, anchor, isConstructor = true)
+    target.map(_.element) match {
+      case Some(annotation: PsiClass) if annotation.isAnnotationType =>
+        val methods = annotation.getMethods.toSeq.collect { case method: PsiAnnotationMethod => method }
+        val origin = invocation.arguments.headOption
+        val arguments = origin.toSeq.flatMap(_.exprs).flatMap {
+          case ScAssignment(reference: ScReferenceExpression, Some(expression)) =>
+            methods.find(_.getName == reference.refName).map(expression -> _)
+          case expression =>
+            methods.find(_.getName == "value").map(expression -> _)
+        }
+        val defaults = methods.filterNot(method => arguments.exists(_._2 == method)).flatMap { method =>
+          Option(method.getDefaultValue).map(_ -> method)
+        }
+        val clause = JavaAnnotationClause(origin, arguments, defaults)(
+          ArgumentClauseTarget.JavaAnnotationParameters(annotation), anchor
+        )
+        return call.details.copy(argumentClauses = Seq(clause))
+      case _ =>
+    }
     val applicability = for {
       result <- target
       method <- result.element.asOptionOf[PsiMethod]
@@ -78,9 +102,12 @@ private[psi] object InvocationDetailsImpl {
     }
     val withInferredTypes = call.copy(inferred = LongMap.from(inferred))
     val withTypeArguments = invocation.typeArgList.fold(withInferredTypes)(withInferredTypes.typeArguments(_, anchor))
+    val withDefaults =
+      if (invocation.arguments.forall(_.isUsing)) withTypeArguments.autoApplyConstructorDefaults
+      else withTypeArguments
     val applied = invocation.arguments
       .zipWithIndex
-      .foldLeft(withTypeArguments) {
+      .foldLeft(withDefaults) {
         case (call, (args, clauseIndex)) =>
           val prepared = call.omittedBefore(isType = false, args.isUsing)
           prepared.nextValue
@@ -97,6 +124,8 @@ private[psi] object InvocationDetailsImpl {
               else None
               val matched = tupled
                 .map(result => args.exprs.map(_ -> result.matched.head.parameter))
+                // An omitted constructor clause can shift the argument-list indices.
+                .orElse(Option.when(plain.problems.isEmpty)(plain.matched.map(m => m.argument -> m.parameter)))
                 .orElse(invocation.matchedParametersByClauses.lift(clauseIndex))
                 .getOrElse(Seq.empty)
               prepared.valueArguments(args, matched, tupled.nonEmpty, prepared.anchor)
@@ -376,8 +405,12 @@ private[psi] object InvocationDetailsImpl {
     }
 
     def valueArguments(args: PsiElement, matched: Seq[(ScExpression, Parameter)], autoTupling: Boolean, anchor: PsiElement): Call =
+      valueArguments(Some(args), matched, autoTupling, anchor)
+
+    private def valueArguments(args: Option[PsiElement], matched: Seq[(ScExpression, Parameter)], autoTupling: Boolean, anchor: PsiElement): Call =
       nextValue.fold(this) { v =>
-        val defaults = v.parameters.filter(p => p.isDefault && !matched.exists(_._2.name == p.name)).flatMap { p =>
+        val parameters = v.parameters.map(substituteParameter(_, substitution(inferred)))
+        val defaults = parameters.filter(p => p.isDefault && !matched.exists(_._2.name == p.name)).flatMap { p =>
           p.paramInCode.flatMap(_.getDefaultExpression).map(_ -> p)
         }
         val hasPlaceholder = matched.exists { case (arg, _) => ScUnderScoreSectionUtil.isUnderscore(arg) }
@@ -385,6 +418,16 @@ private[psi] object InvocationDetailsImpl {
           details = details.copy(isPartiallyApplied = details.isPartiallyApplied || hasPlaceholder)
         )
       }
+
+    /** Like an omitted `()` in `new C`, only the first ordinary clause can be supplied this way. */
+    def autoApplyConstructorDefaults: Call = {
+      val prepared = omittedBefore(isType = false, isUsing = true)
+      prepared.nextValue match {
+        case Some(signature) if !signature.isImplicit && signature.parameters.nonEmpty && signature.parameters.forall(_.isDefault) =>
+          prepared.valueArguments(None, Seq.empty, autoTupling = false, prepared.anchor)
+        case _ => this
+      }
+    }
 
     def substitution(inferred: LongMap[ScType]): ScSubstitutor =
       details.target.fold(ScSubstitutor.empty)(_.substitutor).followed(ScSubstitutor(inferred ++ explicit))

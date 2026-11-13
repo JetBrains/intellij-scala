@@ -97,12 +97,13 @@ object InvocationInfo {
 
   def fromConstructorInvocation(newTemplateDefinition: ScNewTemplateDefinition): InvocationInfo =
     newTemplateDefinition.firstConstructorInvocation
-      .map(invocation => fromDetails(InvocationDetails.of(invocation), newTemplateDefinition))
+      .flatMap(InvocationDetails.of)
+      .map(fromDetails(_, newTemplateDefinition))
       .getOrElse(InvocationInfo(None, Nil, newTemplateDefinition))
 
   private def fromDetails(details: InvocationDetails, fallbackPlace: ScExpression): InvocationInfo = {
     val clauses = details.argumentClauses.collect { case clause: ValueClause => clause }
-    val invocations = clauses.flatMap(_.argsElement.getContext.asOptionOf[MethodInvocation])
+    val invocations = clauses.flatMap(_.origin.flatMap(_.getContext.asOptionOf[MethodInvocation]))
     // Keep the anchor at the first application, including an infix call inside a curried call.
     val place = invocations.headOption.getOrElse(fallbackPlace)
     val properArguments = if (clauses.nonEmpty) clauses.map(buildArguments).toList else fallbackPlace match {

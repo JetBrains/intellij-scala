@@ -5,6 +5,23 @@ import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{P
 
 class ClassConstructorInfoTest extends InvocationInfoTestBase {
 
+  def testConstructorWithoutArgumentListRetainsDefaults(): Unit = {
+    val invocationInfo = generateInvocationInfoFor {
+      s"""
+         |class Something(first: Int = 1, second: => String = "s")
+         |val something = ${markerStart}new Something${markerEnd}
+         |""".stripMargin
+    }
+
+    verifyInvokedElement(invocationInfo, "Something#Something")
+    verifyArgumentsWithSingleArgList(invocationInfo,
+      expectedArgCount = 3,
+      expectedProperArgsInText = List("<no-expr>", "<no-expr>"),
+      expectedMappedParamNames = List("first", "second"),
+      expectedPassingMechanisms = List(PassByValue, PassByValue, PassByName),
+      expectedParamToArgMapping = List(0, 1))
+  }
+
   def testMultipleConstructorClausesWithDefaults(): Unit = {
     val invocationInfo = generateInvocationInfoFor {
       s"""

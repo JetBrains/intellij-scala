@@ -35,7 +35,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.impl.engine.http2.FrameLogger
     akka.http.impl.engine.http2.GenericOutlet
     //akka.http.impl.engine.http2.GenericOutletSupport
-    //akka.http.impl.engine.http2.Http2
+    akka.http.impl.engine.http2.Http2
     //akka.http.impl.engine.http2.Http2AlpnSupport
     //akka.http.impl.engine.http2.Http2Blueprint
     //akka.http.impl.engine.http2.Http2ClientDemux
@@ -239,7 +239,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     akka.http.javadsl.server.Complete
     akka.http.javadsl.server.CustomRejection
     //akka.http.javadsl.server.Directives
-    //akka.http.javadsl.server.ExceptionHandler
+    akka.http.javadsl.server.ExceptionHandler
     akka.http.javadsl.server.ExpectedWebSocketRequestRejection
     akka.http.javadsl.server.InvalidOriginRejection
     akka.http.javadsl.server.InvalidRequiredValueForQueryParamRejection
@@ -466,26 +466,26 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.model.UriRendering
     akka.http.scaladsl.model.WithQValue
     //akka.http.scaladsl.model.headers.Accept
-    //akka.http.scaladsl.model.headers.Age
+    akka.http.scaladsl.model.headers.Age
     //akka.http.scaladsl.model.headers.Allow
-    //akka.http.scaladsl.model.headers.Authorization
+    akka.http.scaladsl.model.headers.Authorization
     //akka.http.scaladsl.model.headers.BasicHttpCredentials
     akka.http.scaladsl.model.headers.ByteRange
     //akka.http.scaladsl.model.headers.CacheDirective
     //akka.http.scaladsl.model.headers.CacheDirectives
-    //akka.http.scaladsl.model.headers.Connection
+    akka.http.scaladsl.model.headers.Connection
     akka.http.scaladsl.model.headers.ContentDispositionType
     //akka.http.scaladsl.model.headers.ContentDispositionTypes
     //akka.http.scaladsl.model.headers.Cookie
     akka.http.scaladsl.model.headers.CustomHeader
-    //akka.http.scaladsl.model.headers.Date
-    //akka.http.scaladsl.model.headers.ETag
+    akka.http.scaladsl.model.headers.Date
+    akka.http.scaladsl.model.headers.ETag
     //akka.http.scaladsl.model.headers.EmptyCompanion
     akka.http.scaladsl.model.headers.EmptyHeader
     //akka.http.scaladsl.model.headers.EntityTag
     akka.http.scaladsl.model.headers.EntityTagRange
     //akka.http.scaladsl.model.headers.Expect
-    //akka.http.scaladsl.model.headers.Expires
+    akka.http.scaladsl.model.headers.Expires
     //akka.http.scaladsl.model.headers.GenericHttpCredentials
     //akka.http.scaladsl.model.headers.Host
     //akka.http.scaladsl.model.headers.HttpChallenge
@@ -506,7 +506,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.model.headers.LinkParam
     //akka.http.scaladsl.model.headers.LinkParams
     //akka.http.scaladsl.model.headers.LinkValue
-    //akka.http.scaladsl.model.headers.Location
+    akka.http.scaladsl.model.headers.Location
     akka.http.scaladsl.model.headers.MaxAge
     //akka.http.scaladsl.model.headers.ModeledCompanion
     //akka.http.scaladsl.model.headers.ModeledCustomHeader
@@ -515,11 +515,11 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     akka.http.scaladsl.model.headers.OAuth2BearerToken
     //akka.http.scaladsl.model.headers.Origin
     //akka.http.scaladsl.model.headers.ProductVersion
-    //akka.http.scaladsl.model.headers.Range
+    akka.http.scaladsl.model.headers.Range
     akka.http.scaladsl.model.headers.RangeUnit
     akka.http.scaladsl.model.headers.RangeUnits
     akka.http.scaladsl.model.headers.RawHeader
-    //akka.http.scaladsl.model.headers.Referer
+    akka.http.scaladsl.model.headers.Referer
     //akka.http.scaladsl.model.headers.RequestHeader
     //akka.http.scaladsl.model.headers.RequestResponseHeader
     //akka.http.scaladsl.model.headers.ResponseHeader
@@ -527,11 +527,11 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     akka.http.scaladsl.model.headers.RetryAfterDuration
     akka.http.scaladsl.model.headers.RetryAfterParameter
     //akka.http.scaladsl.model.headers.SameSite
-    //akka.http.scaladsl.model.headers.Server
+    akka.http.scaladsl.model.headers.Server
     akka.http.scaladsl.model.headers.StrictTransportSecurityDirective
     //akka.http.scaladsl.model.headers.SyntheticHeader
     //akka.http.scaladsl.model.headers.TE
-    //akka.http.scaladsl.model.headers.Upgrade
+    akka.http.scaladsl.model.headers.Upgrade
     //akka.http.scaladsl.model.headers.UpgradeProtocol
     //akka.http.scaladsl.model.headers.WebSocketExtension
     //akka.http.scaladsl.model.headers.`Accept-Charset`

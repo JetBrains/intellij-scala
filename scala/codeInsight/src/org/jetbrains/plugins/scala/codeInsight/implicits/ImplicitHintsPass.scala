@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.extensions.{&, _}
 import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.InvocationDetails.{ArgumentClause, ArgumentClauseTarget, ImplicitValueClause, ValueClause}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
@@ -113,11 +112,6 @@ class ImplicitHintsPass(
     def invocationHints(invocation: InvocationDetails, includeTypeAndApply: Boolean = true): Seq[Hint] = {
       val owner = invocation.origin.asOptionOfUnsafe[ImplicitArgumentsOwner]
       val enabledForElement = showImplicitErrors(invocation.origin)
-      // A trait's parent constructor is invoked by the concrete class that mixes it in.
-      val isDeferredTraitParent = invocation.origin match {
-        case constructor: ScConstructorInvocation => constructor.templateDefinitionContext.exists(_.is[ScTrait])
-        case _ => false
-      }
       val typeParamIds = invocation.argumentClauses.collect {
         case clause: ArgumentClause.Type => clause.arguments.map(_.parameter.typeParamId)
       }.flatten.toSet
@@ -126,13 +120,13 @@ class ImplicitHintsPass(
         case clause: ArgumentClause.Type if includeTypeAndApply =>
           typeArgumentHints(clause, typeParamIds, editor)
         case clause: ImplicitValueClause
-          if !isDeferredTraitParent && shouldSearchForImplicits(enabledForElement) &&
+          if shouldSearchForImplicits(enabledForElement) &&
             shouldShowImplicitArgumentsOrErrors(enabledForElement, clause.arguments) =>
           Seq(implicitArgumentsHint(clause, owner)(using editor.getColorsScheme))
         case clause: ValueClause if ImplicitHints.enabled =>
           clause.target match {
             case ArgumentClauseTarget.ScalaParameters(parameters) if parameters.isImplicit =>
-              clause.argsElement.asOptionOf[ScArgumentExprList].toSeq.flatMap(explicitImplicitArgumentsHint)
+              clause.origin.toSeq.flatMap(_.asOptionOf[ScArgumentExprList]).flatMap(explicitImplicitArgumentsHint)
             case _ => Seq.empty
           }
         case _ => Seq.empty

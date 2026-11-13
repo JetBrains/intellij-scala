@@ -24,7 +24,7 @@ class CatsMtlSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-mtl"
     //cats.mtl.ListenEitherT
     //cats.mtl.ListenInductiveRWST
     //cats.mtl.ListenInductiveWriterT
-    //cats.mtl.ListenInstances
+    cats.mtl.ListenInstances
     //cats.mtl.ListenIorT
     //cats.mtl.ListenKleisli
     //cats.mtl.ListenOptionT
@@ -36,7 +36,7 @@ class CatsMtlSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-mtl"
     cats.mtl.LowPriorityAskInstances
     cats.mtl.LowPriorityAskInstancesCompat
     //cats.mtl.LowPriorityCensorInstances
-    //cats.mtl.LowPriorityListenInstances
+    cats.mtl.LowPriorityListenInstances
     cats.mtl.LowPriorityListenInstancesCompat
     cats.mtl.LowPriorityLocalInstances
     cats.mtl.LowPriorityLocalInstancesCompat

@@ -16,7 +16,7 @@ class AkkaCoordinationSemanticTest extends SemanticTestBase("com.typesafe.akka" 
     akka.coordination.lease.internal.LeaseAdapter
     //akka.coordination.lease.internal.LeaseAdapterToScala
     akka.coordination.lease.javadsl.Lease
-    //akka.coordination.lease.javadsl.LeaseProvider
+    akka.coordination.lease.javadsl.LeaseProvider
     akka.coordination.lease.scaladsl.Lease
     //akka.coordination.lease.scaladsl.LeaseProvider
   """)

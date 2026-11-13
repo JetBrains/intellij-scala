@@ -18,7 +18,7 @@ class CatsLawsSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-law
     //cats.laws.ArrowChoiceLaws
     //cats.laws.ArrowLaws
     cats.laws.BifoldableLaws
-    //cats.laws.BifunctorLaws
+    cats.laws.BifunctorLaws
     //cats.laws.BimonadLaws
     //cats.laws.BitraverseLaws
     cats.laws.CategoryLaws
@@ -38,7 +38,7 @@ class CatsLawsSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-law
     //cats.laws.DistributiveLaws
     //cats.laws.FlatMapLaws
     //cats.laws.FoldableLaws
-    //cats.laws.FunctorFilterLaws
+    cats.laws.FunctorFilterLaws
     cats.laws.FunctorLaws
     cats.laws.InjectKLaws
     cats.laws.InjectLaws
