@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.performance.FixtureDelegate
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest.relativePathOf
 import org.jetbrains.plugins.scala.projectHighlighting.base.ScalaProjectHighlightingTestBase.dumpLogsOnException
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
-import org.jetbrains.sbt.project.{SbtCachesSetupUtil, ScalaExternalSystemImportingTestBase}
+import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase
 import org.junit.Assert.fail
 import org.junit.experimental.categories.Category
 
@@ -139,9 +139,6 @@ abstract class ScalaProjectHighlightingTestBase extends ScalaExternalSystemImpor
 
     val BuildSystemId = s"${getExternalSystemId.getId}"
     reporter.notify(s"Finished $BuildSystemId setup, starting import")
-
-    //patch homes before importing projects
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
 
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
 
