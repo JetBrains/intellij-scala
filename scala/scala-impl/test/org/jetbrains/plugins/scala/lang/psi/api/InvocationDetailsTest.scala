@@ -2017,6 +2017,97 @@ abstract class InvocationDetailsTestBase extends ScalaLightCodeInsightFixtureTes
       |"""
   )
 
+  def testConstructorInvocationWithoutArgumentListUsesDefaults(): Unit = doTest(
+    """
+      |class A(i: Int = 1, s: String = "s")
+      |
+      |new A
+      |""",
+    """
+      |A
+      |  props:    constructor invocation
+      |  target:   A
+      |  (i = 1, s = "s") (auto applied, after `A`)
+      |"""
+  )
+
+  def testConstructorDefaultsWithImplicitClause(): Unit = doTest(
+    """
+      |class A(i: Int = 1)(implicit s: String)
+      |implicit val s: String = "s"
+      |
+      |new A
+      |""",
+    """
+      |A
+      |  props:    constructor invocation
+      |  target:   A
+      |  (i = 1) (auto applied, after `A`)
+      |  (using s) (inferred, after `A`)
+      |"""
+  )
+
+  def testGenericConstructorDefaultsAreSubstituted(): Unit = {
+    val file = configureFromFileText("class A[T](t: T = null.asInstanceOf[T]); new A[String]")
+    val invocation = file.depthFirst().filterByType[ConstructorInvocationLike].toSeq.last
+    val details = invocation.invocationDetails.get
+    val clause = details.argumentClauses.collectFirst { case c: ValueClause => c }.get
+    implicit val presentationContext: TypePresentationContext = TypePresentationContext(invocation)
+    implicit val context: Context = Context(invocation)
+
+    assertEquals("String", clause.arguments.head._2.paramType.presentableText)
+    assertEquals("null.asInstanceOf[T]", clause.arguments.head._1.getText)
+    assertEquals(None, clause.origin)
+    assertEquals(true, clause.isAutoApplied)
+    assertEquals(false, details.isPartiallyApplied)
+  }
+
+  def testParentConstructorInvocationUsesDefaults(): Unit = doTestOfLastConstructorInvocation(
+    """
+      |class A(i: Int = 1)
+      |class B extends A
+      |""",
+    """
+      |A
+      |  props:    constructor invocation
+      |  target:   A
+      |  (i = 1) (auto applied, after `A`)
+      |"""
+  )
+
+  def testTraitSuperclassReferenceIsNotACall(): Unit = doTestOfLastConstructorInvocation(
+    """
+      |class A(i: Int)
+      |trait B extends A
+      |""",
+    """
+      |A
+      |  no call
+      |"""
+  )
+
+  def testTraitGenericSuperclassReferenceIsNotACall(): Unit = doTestOfLastConstructorInvocation(
+    """
+      |class A[T](t: T)
+      |trait B extends A[String]
+      |""",
+    """
+      |A[String]
+      |  no call
+      |"""
+  )
+
+  def testTraitSuperclassDefaultsAreNotApplied(): Unit = doTestOfLastConstructorInvocation(
+    """
+      |class A(i: Int = 1)(implicit s: String)
+      |trait B extends A
+      |""",
+    """
+      |A
+      |  no call
+      |"""
+  )
+
   def testConstructorInvocationOfAn2EmptyClauseWithoutArgumentList(): Unit = doTest(
     """
       |class A()()
@@ -2351,7 +2442,7 @@ abstract class InvocationDetailsTestBase extends ScalaLightCodeInsightFixtureTes
 
     def renderClause(clause: ArgumentClause, arguments: String): String = {
       val explicitness = clause match {
-        case _: AutoAppliedClause        => "auto applied"
+        case clause: ArgumentClause.Value if clause.isAutoApplied => "auto applied"
         case _: EtaExpandedClause        => "eta expanded"
         case clause if clause.isExplicit => "explicit"
         case _                           => "inferred"
@@ -2419,6 +2510,32 @@ abstract class InvocationDetailsTestBase extends ScalaLightCodeInsightFixtureTes
 
 class InvocationDetailsTest_Scala3 extends InvocationDetailsTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  def testTraitContextualParentIsNotACall(): Unit = doTestOfLastConstructorInvocation(
+    """
+      |trait A(using i: Int)
+      |trait B(using i: Int) extends A
+      |""",
+    """
+      |A
+      |  no call
+      |"""
+  )
+
+  def testConstructorDefaultsBeforeExplicitUsing(): Unit = doTest(
+    """
+      |class A(i: Int = 1)(using s: String)
+      |
+      |new A(using "s")
+      |""",
+    """
+      |A(using "s")
+      |  props:    constructor invocation
+      |  target:   A
+      |  (i = 1) (auto applied, after `A`)
+      |  (s = "s") (explicit, after `A`)
+      |"""
+  )
 
   //-----------------------------------------------------------------------------------------------
   // type clauses

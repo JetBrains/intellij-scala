@@ -398,8 +398,10 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     }
     val call = InvocationDetails.of(ci)
     // The constructed type already contains the type arguments.
-    val clauses = call.argumentClauses.collect {
-      case clause: InvocationDetails.ArgumentClause.Value => textOfClause(clause, call, indent)
+    val clauses = call.toSeq.flatMap { call =>
+      call.argumentClauses.collect {
+        case clause: InvocationDetails.ArgumentClause.Value => textOfClause(clause, call, indent)
+      }
     }.mkString
     val arguments = if (!emptyParens && clauses == "()") "" else clauses
 

@@ -13,8 +13,8 @@ object ArgumentFactory {
   val ArgumentCountLimit = 10
 
   def buildArguments(clause: ValueClause): List[Argument] = {
-    implicit val context: ProjectContext = clause.argsElement.getProject
-    val expressions = clause.argsElement match {
+    implicit val context: ProjectContext = clause.anchor.getProject
+    val expressions = clause.origin.toSeq.flatMap {
       case args: ScArgumentExprList => args.exprs
       case argument => argument.getContext.asOptionOf[MethodInvocation].toSeq.flatMap(_.argumentExpressions)
     }
