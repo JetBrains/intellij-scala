@@ -2315,7 +2315,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part23 extends ReferenceCompariso
   def test_seqliteral_union_singletons(): Unit = doTest("seqliteral-union-singletons", true) // #intersectionType
   def test_seqtest2(): Unit = doTest("seqtest2", true)
   def test_sequence_argument(): Unit = doTest("sequence-argument", true)
-  def test_sets(): Unit = doTest("sets", false)
+  def test_sets(): Unit = doTest("sets", true)
   def test_SI_4012_a(): Unit = doTest("SI-4012-a", true)
   def test_SI_4012_b(): Unit = doTest("SI-4012-b", true)
   def test_SI_5788(): Unit = doTest("SI-5788", true)
