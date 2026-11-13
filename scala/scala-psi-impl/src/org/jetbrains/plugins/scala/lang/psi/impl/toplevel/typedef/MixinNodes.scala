@@ -66,7 +66,7 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
         val map = new MapImpl[T](templateDefinitionOpt)
 
         if (withSupers) {
-          addSuperSignatures(SuperTypesData(clazz), map, SourceKind.NominalSuper)
+          addSuperSignatures(SuperTypesData(clazz), map, SourceKind.NominalSuper, subst)
         }
 
         map.supersFinished(templateDefinitionOpt)
@@ -118,15 +118,30 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
     map
   }
 
-  private def addSuperSignatures(superTypesData: SuperTypesData, map: MapImpl[T], sourceKind: SourceKind): Unit = {
+  /**
+   * @param subst the substitutor of the type whose members are built, if it is not the class itself, e.g.
+   *              `[B := MyClass]` for an operand `Child[MyClass]` of an intersection type (see `build(andTpe)`).
+   *              It is applied after the substitutors of the supertypes, which are relative to the class,
+   *              e.g. `[TypeParam := B]` for `trait Child[B] extends Parent[B]`, SCL-23844.
+   */
+  private def addSuperSignatures(
+    superTypesData: SuperTypesData,
+    map:            MapImpl[T],
+    sourceKind:     SourceKind,
+    subst:          ScSubstitutor = ScSubstitutor.empty
+  ): Unit = {
     map.useSource(sourceKind)
 
-    for ((superClass, subst) <- superTypesData.substitutors) {
-      signatureCollector.processPsiClass(superClass, subst, map)
+    for ((superClass, superSubst) <- superTypesData.substitutors) {
+      signatureCollector.processPsiClass(superClass, superSubst.followed(subst), map)
     }
 
     for (compoundType <- superTypesData.refinements) {
-      signatureCollector.processRefinement(compoundType, map)
+      val substituted = subst(compoundType) match {
+        case cp: ScCompoundType => cp
+        case _                  => compoundType
+      }
+      signatureCollector.processRefinement(substituted, map)
     }
   }
 }
