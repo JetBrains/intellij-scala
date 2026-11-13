@@ -71,7 +71,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.CofreeInstances3
     scalaz.CofreeInstances4
     //scalaz.CofreeInstancesVersionSpecific
-    //scalaz.CofreeInstancesVersionSpecific0
+    scalaz.CofreeInstancesVersionSpecific0
     scalaz.CofreeMonad
     //scalaz.CofreeTraverse
     //scalaz.CofreeTraverse1
@@ -185,7 +185,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.DayInstances3
     scalaz.DayInstances4
     //scalaz.Decidable
-    //scalaz.Density
+    scalaz.Density
     scalaz.DensityComonad
     scalaz.DensityInstances
     //scalaz.DensityInstances0
@@ -558,7 +558,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.LazyTuple4Show
     scalaz.Left3
     //scalaz.LeftFoldable
-    //scalaz.LeftFunctor
+    scalaz.LeftFunctor
     scalaz.LeftTraverse
     //scalaz.Leibniz
     //scalaz.LeibnizF
@@ -599,7 +599,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.MaybeTDecidable
     //scalaz.MaybeTFoldable
     scalaz.MaybeTFunctor
-    //scalaz.MaybeTHoist
+    scalaz.MaybeTHoist
     scalaz.MaybeTInstances
     scalaz.MaybeTInstances0
     scalaz.MaybeTInstances1
@@ -662,7 +662,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.OneAndMonad
     scalaz.OneAndPlus
     //scalaz.OneAndTraverse
-    //scalaz.OneAndTraverse1
+    scalaz.OneAndTraverse1
     //scalaz.OneOr
     scalaz.OneOrApplicative
     scalaz.OneOrCobind
@@ -690,7 +690,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.OptionTDecidable
     //scalaz.OptionTFoldable
     scalaz.OptionTFunctor
-    //scalaz.OptionTHoist
+    scalaz.OptionTHoist
     scalaz.OptionTInstances
     scalaz.OptionTInstances0
     //scalaz.OptionTInstances1
@@ -764,7 +764,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.RepresentableInstances
     scalaz.Right3
     //scalaz.RightFoldable
-    //scalaz.RightFunctor
+    scalaz.RightFunctor
     scalaz.RightTraverse
     scalaz.Scalaz
     scalaz.ScalazBuildInfo
@@ -836,7 +836,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.TagKind
     scalaz.Tags
     scalaz.Tannen
-    //scalaz.TannenInstances
+    scalaz.TannenInstances
     //scalaz.TannenInstances0
     scalaz.TheseInstances
     //scalaz.TheseInstances0
@@ -1144,7 +1144,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.syntax.AlignSyntax
     //scalaz.syntax.AltOps
     //scalaz.syntax.AltSyntax
-    //scalaz.syntax.ApplicativeBuilder
+    scalaz.syntax.ApplicativeBuilder
     //scalaz.syntax.ApplicativeErrorOps
     //scalaz.syntax.ApplicativeErrorSyntax
     //scalaz.syntax.ApplicativeOps
@@ -1227,7 +1227,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.syntax.MonadErrorOps
     //scalaz.syntax.MonadErrorSyntax
     //scalaz.syntax.MonadListenOps
-    //scalaz.syntax.MonadListenSyntax
+    scalaz.syntax.MonadListenSyntax
     //scalaz.syntax.MonadOps
     //scalaz.syntax.MonadPlusOps
     //scalaz.syntax.MonadPlusSyntax

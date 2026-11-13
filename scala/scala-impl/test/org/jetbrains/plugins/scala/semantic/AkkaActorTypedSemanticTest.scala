@@ -77,7 +77,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     //akka.actor.typed.internal.LogMessagesInterceptor
     akka.actor.typed.internal.LoggerClass
     akka.actor.typed.internal.MiscMessageSerializer
-    //akka.actor.typed.internal.MonitorInterceptor
+    akka.actor.typed.internal.MonitorInterceptor
     akka.actor.typed.internal.NoMessage
     akka.actor.typed.internal.NoOpActorFlightRecorder
     akka.actor.typed.internal.NoOpDeliveryFlightRecorder

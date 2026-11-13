@@ -485,7 +485,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.pattern.BackoffSupervisor
     //akka.pattern.CircuitBreaker
     //akka.pattern.CircuitBreakerOpenException
-    //akka.pattern.CircuitBreakersRegistry
+    akka.pattern.CircuitBreakersRegistry
     akka.pattern.ExplicitAskSupport
     //akka.pattern.ExplicitlyAskableActorRef
     akka.pattern.ExplicitlyAskableActorSelection

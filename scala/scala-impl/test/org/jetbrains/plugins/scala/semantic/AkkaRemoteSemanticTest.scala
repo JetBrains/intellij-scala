@@ -42,7 +42,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.remote.RemoteTransportExceptionNoStackTrace
     //akka.remote.RemoteWatcher
     akka.remote.UniqueAddress
-    //akka.remote.artery.ActorRefResolveCacheWithAddress
+    akka.remote.artery.ActorRefResolveCacheWithAddress
     akka.remote.artery.ActorSystemTerminating
     akka.remote.artery.ActorSystemTerminatingAck
     akka.remote.artery.ArteryMessage
@@ -99,7 +99,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.remote.artery.ReusableInboundEnvelope
     akka.remote.artery.ReusableOutboundEnvelope
     //akka.remote.artery.SendQueue
-    //akka.remote.artery.SerializationFormatCache
+    akka.remote.artery.SerializationFormatCache
     //akka.remote.artery.SharedTestState
     akka.remote.artery.SystemMessageAcker
     //akka.remote.artery.SystemMessageDelivery
@@ -135,8 +135,8 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.artery.tcp.ssl.X509Readers
     //akka.remote.routing.RemoteRouterConfig
     akka.remote.security.provider.SeedSize
-    //akka.remote.serialization.AbstractActorRefResolveCache
-    //akka.remote.serialization.ActorRefResolveCache
+    akka.remote.serialization.AbstractActorRefResolveCache
+    akka.remote.serialization.ActorRefResolveCache
     akka.remote.serialization.ActorRefResolveThreadLocalCache
     //akka.remote.serialization.ArteryMessageSerializer
     akka.remote.serialization.ByteStringSerializer

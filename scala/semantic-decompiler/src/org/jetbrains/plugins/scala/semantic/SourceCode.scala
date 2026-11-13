@@ -209,14 +209,21 @@ object SourceCode {
             printTypeTree(parent)(using Some(cdef.symbol))
           case TypeApply(fun, targs) =>
             printParent(fun)
-          case Apply(fun@Apply(_,_), args) =>
-            printParent(fun, true)
-            if (args.nonEmpty || needEmptyParens)
-              inParens(printTrees(args, ", ")(using Some(cdef.symbol)))
           case Apply(fun, args) =>
-            printParent(fun)
+            fun match {
+              case Apply(_, _) => printParent(fun, true)
+              case _ => printParent(fun)
+            }
             if (args.nonEmpty || needEmptyParens)
-              inParens(printTrees(args, ", ")(using Some(cdef.symbol)))
+              inParens {
+                if (args.nonEmpty) {
+                  fun.tpe.widen match {
+                    case mt: MethodType if mt.isImplicit => this += "using "
+                    case _ =>
+                  }
+                }
+                printTrees(args, ", ")(using Some(cdef.symbol))
+              }
           case Select(newTree: New, _) =>
             printType(newTree.tpe)(using Some(cdef.symbol))
           case parent: Term =>
