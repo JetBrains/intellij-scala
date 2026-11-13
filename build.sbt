@@ -364,7 +364,7 @@ lazy val sbtKotlinIjPluginInterop =
           val requiredJars = Set(
             "intellij.kotlin.base.facet.jar", // KTIJ-39613
             "intellij.libraries.kotlinc.kotlin.compiler.common.jar",
-            "intellij.libraries.kotlinc.kotlin.jps.common.jar",
+            "intellij.kotlin.jps.util.runtime.jar",
             "kotlin-plugin.jar"
           )
 

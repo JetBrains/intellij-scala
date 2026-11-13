@@ -2,7 +2,7 @@
 <idea-plugin>
     <dependencies>
         <module name="intellij.kotlin.base.facet"/>
-        <module name="intellij.libraries.kotlinc.kotlin.jps.common"/>
+        <module name="intellij.kotlin.jps.util.runtime"/>
         <module name="intellij.platform.core"/>
         <module name="intellij.platform.externalSystem"/>
         <module name="intellij.platform.lang.core"/>
