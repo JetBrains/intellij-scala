@@ -77,7 +77,7 @@ class ScIfImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIf with 
     (thenExpression, elseExpression) match {
       // Typed without an expected type in Scala 3, the branches leave the type variables that occur non-variantly
       // in their types open, they are solved when the types are joined, see OpenTypeVariables
-      case _ if expectedType.isEmpty && this.joinedBranches.isDefined =>
+      case _ if OpenTypeVariables.leftOpenBy(expectedType) && this.joinedBranches.isDefined =>
         this.typeWithOpenTypeVariables.map(OpenTypeVariables.solve(_)(using Context(this)))
       case (Some(t), Some(e)) => for (tt <- t.`type`(ExpectedTypePropagation.nested(expectedType, t));
                                       et <- e.`type`(ExpectedTypePropagation.nested(expectedType, e))) yield {

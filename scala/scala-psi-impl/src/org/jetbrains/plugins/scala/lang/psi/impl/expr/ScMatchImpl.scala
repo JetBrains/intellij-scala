@@ -14,7 +14,7 @@ class ScMatchImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScMatch
   protected override def innerType(expectedType: Option[ScType]): TypeResult = {
     // Typed without an expected type in Scala 3, the branches leave the type variables that occur non-variantly
     // in their types open, they are solved when the types are joined, see OpenTypeVariables
-    if (expectedType.isEmpty && this.joinedBranches.isDefined)
+    if (OpenTypeVariables.leftOpenBy(expectedType) && this.joinedBranches.isDefined)
       return this.typeWithOpenTypeVariables.map(OpenTypeVariables.solve(_)(using Context(this)))
 
     val branchesTypes = clauses.flatMap { clause =>

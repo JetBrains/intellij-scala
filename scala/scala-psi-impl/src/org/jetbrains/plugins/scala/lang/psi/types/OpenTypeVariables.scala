@@ -70,6 +70,19 @@ object OpenTypeVariables {
     case _ => tpe.inferValueType
   }
 
+  /**
+   * Whether the branches of an `if`, a `match` or a `try` typed against `expectedType` leave the type variables
+   * that occur non-variantly in their types open: if there is no expected type, or if it is an undetermined type
+   * parameter (e.g. the parameter type of a polymorphic method, for an argument), which the compiler represents
+   * by a type variable `?T`, that the types of the branches only bound from below.
+   */
+  def leftOpenBy(expectedType: Option[ScType]): Boolean = expectedType match {
+    case None                                  => true
+    case Some(ScAbstractType(_, lower, upper)) => lower.isNothing && upper.isAny
+    case Some(_: UndefinedType)                => true
+    case _                                     => false
+  }
+
   /** The open type variables in `tpe`. */
   def in(tpe: ScType): Seq[TypeParameter] = {
     val variables = Seq.newBuilder[TypeParameter]

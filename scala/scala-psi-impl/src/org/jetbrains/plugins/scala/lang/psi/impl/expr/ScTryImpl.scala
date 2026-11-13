@@ -29,7 +29,7 @@ class ScTryImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTry wit
   protected override def innerType(expectedType: Option[ScType]): TypeResult =
     // Typed without an expected type in Scala 3, the branches leave the type variables that occur non-variantly
     // in their types open, they are solved when the types are joined, see OpenTypeVariables
-    if (expectedType.isEmpty && this.joinedBranches.isDefined)
+    if (OpenTypeVariables.leftOpenBy(expectedType) && this.joinedBranches.isDefined)
       this.typeWithOpenTypeVariables.map(OpenTypeVariables.solve(_)(using Context(this)))
     else expression.map(e => e.`type`(ExpectedTypePropagation.nested(expectedType, e)).flatMap { tryBlockType =>
       val maybeExpression = catchBlock.flatMap(_.expression)
