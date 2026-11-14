@@ -36,7 +36,7 @@ class ConstructorResolveProcessor(
                                 (implicit state: ResolveState): Boolean = {
     val fromType = state.fromType
 
-    val defaultSubstitutor = state.substitutorWithThisType
+    val defaultSubstitutor = state.substitutorWithThisType(ScSubstitutor.declarationAnchor(namedElement))
 
     if (nameMatches(namedElement)) {
       val accessible = isAccessible(namedElement, ref)

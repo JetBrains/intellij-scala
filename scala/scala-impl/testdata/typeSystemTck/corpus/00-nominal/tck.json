@@ -1,0 +1,18 @@
+{
+  "description": "Nominal subtyping via class/trait inheritance.",
+  "concepts": ["trait", "class", "inheritance"],
+  "types": [
+    { "name": "Animal", "expr": "Animal" },
+    { "name": "Mammal", "expr": "Mammal" },
+    { "name": "Dog", "expr": "Dog" },
+    { "name": "Cat", "expr": "Cat" }
+  ],
+  "conformance": [
+    { "lhs": "Dog", "rhs": "Mammal", "expect": true },
+    { "lhs": "Dog", "rhs": "Animal", "expect": true },
+    { "lhs": "Mammal", "rhs": "Animal", "expect": true },
+    { "lhs": "Animal", "rhs": "Dog", "expect": false },
+    { "lhs": "Dog", "rhs": "Cat", "expect": false }
+  ],
+  "baseTypeSeq": ["Dog", "Cat", "Mammal"]
+}

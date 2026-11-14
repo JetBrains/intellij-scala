@@ -19,4 +19,40 @@ class StructuralsTest extends TypeInferenceTestBase {
       |//Int
     """.stripMargin.trim
   }
+
+  def testSCL5423(): Unit = doTest {
+    """
+      |trait Test {
+      |  trait SettValue {
+      |    type T
+      |    def value: T
+      |  }
+      |  trait Foo { def foo: Int }
+      |  type Sett <: SettValue
+      |  type BSetting <: Sett { type T = Foo }
+      |  def foo(b: BSetting) = /*start*/b.value.foo/*end*/
+      |
+      |}
+      |
+      |//Int
+    """.stripMargin
+  }
+
+  def testSCL12125(): Unit = doTest {
+    """
+      |trait A {
+      |  type X
+      |  def getX: X
+      |  def printX(x: X): String
+      |}
+      |
+      |object B {
+      |  def printProxy(a: A): String = {
+      |    a.printX(/*start*/getProxy(a)/*end*/) // Type mismatch, expected: a.X, actual: A#X
+      |  }
+      |  def getProxy(a: A): a.X = a.getX
+      |}
+      |//a.X
+    """.stripMargin.trim
+  }
 }

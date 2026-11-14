@@ -65,7 +65,7 @@ class MostSpecificUtil(
   ): InnerScalaResolveResult = {
     val subst =
       if (withSubst) r.substitutor
-      else           r.implicitScopeType.fold(ScSubstitutor.empty)(ScSubstitutor.apply)
+      else           r.implicitScopeType.fold(ScSubstitutor.empty)(ScSubstitutor(_, ScSubstitutor.declarationAnchor(r.element)))
 
     InnerScalaResolveResult(
       r,

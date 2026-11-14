@@ -1,0 +1,17 @@
+{
+  "description": "F-bounded polymorphism: recursive type-parameter bounds (trait Ord[A <: Ord[A]]).",
+  "concepts": ["f-bounds", "recursive-bounds"],
+  "types": [
+    { "name": "Num", "expr": "Num" },
+    { "name": "Str", "expr": "Str" },
+    { "name": "OrdNum", "expr": "Ord[Num]" },
+    { "name": "OrdStr", "expr": "Ord[Str]" }
+  ],
+  "conformance": [
+    { "lhs": "Num", "rhs": "OrdNum", "expect": true },
+    { "lhs": "Num", "rhs": "OrdStr", "expect": false },
+    { "lhs": "Str", "rhs": "OrdStr", "expect": true },
+    { "lhs": "OrdNum", "rhs": "OrdStr", "expect": false }
+  ],
+  "baseTypeSeq": ["Num", "OrdNum"]
+}

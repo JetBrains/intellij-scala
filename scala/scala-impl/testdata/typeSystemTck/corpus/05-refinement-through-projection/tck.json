@@ -1,0 +1,21 @@
+{
+  "description": "Substitute a type-member refinement through a projection type (SCL-21585).",
+  "concepts": ["type-projection", "refinement-substitution", "type-alias-projection", "with"],
+  "types": [
+    { "name": "B", "expr": "B" },
+    { "name": "Base", "expr": "Base" },
+    { "name": "ProjDirect", "expr": "(M { type A = B })#A" },
+    { "name": "ProjViaAlias", "expr": "M_A[M { type A = B }]" },
+    { "name": "Combined", "expr": "(B { type T = Repro }) with M_A[M { type A = B }]" }
+  ],
+  "conformance": [
+    { "lhs": "ProjDirect", "rhs": "B", "expect": true },
+    { "lhs": "B", "rhs": "ProjDirect", "expect": true },
+    { "lhs": "ProjDirect", "rhs": "Base", "expect": true },
+    { "lhs": "ProjViaAlias", "rhs": "B", "expect": true },
+    { "lhs": "B", "rhs": "ProjViaAlias", "expect": true },
+    { "lhs": "Combined", "rhs": "B", "expect": true },
+    { "lhs": "Combined", "rhs": "Base", "expect": true }
+  ],
+  "baseTypeSeq": ["ProjDirect", "ProjViaAlias", "Combined", "B"]
+}

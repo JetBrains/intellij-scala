@@ -1,0 +1,89 @@
+{
+  "conformance": [
+    {
+      "lhs": "DogSingleton",
+      "rhs": "Dog",
+      "holds": true
+    },
+    {
+      "lhs": "Dog",
+      "rhs": "DogSingleton",
+      "holds": false
+    },
+    {
+      "lhs": "BoxedT",
+      "rhs": "Dog",
+      "holds": true
+    },
+    {
+      "lhs": "Dog",
+      "rhs": "BoxedT",
+      "holds": true
+    },
+    {
+      "lhs": "Lit",
+      "rhs": "IntT",
+      "holds": true
+    },
+    {
+      "lhs": "IntT",
+      "rhs": "Lit",
+      "holds": false
+    }
+  ],
+  "equivalence": [
+    {
+      "lhs": "DogSingleton",
+      "rhs": "Dog",
+      "holds": false
+    },
+    {
+      "lhs": "BoxedT",
+      "rhs": "Dog",
+      "holds": true
+    },
+    {
+      "lhs": "Lit",
+      "rhs": "IntT",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {
+    "DogSingleton": [
+      "Dog",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "BoxedT": [
+      "Dog",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "Lit": [
+      "scala.Int",
+      "scala.AnyVal",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "DogSingleton": [
+      "Dog",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "BoxedT": [
+      "Dog",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "Lit": [
+      "scala.Int",
+      "scala.AnyVal",
+      "scala.Any"
+    ]
+  }
+}

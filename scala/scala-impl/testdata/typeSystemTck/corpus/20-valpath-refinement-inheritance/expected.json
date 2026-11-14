@@ -1,0 +1,32 @@
+{
+  "conformance": [
+    {
+      "lhs": "ChainedTree",
+      "rhs": "Tree",
+      "holds": true
+    },
+    {
+      "lhs": "ChainedBlock",
+      "rhs": "Tree",
+      "holds": true
+    },
+    {
+      "lhs": "Tree",
+      "rhs": "ChainedBlock",
+      "holds": false
+    }
+  ],
+  "equivalence": [
+    {
+      "lhs": "ChainedTree",
+      "rhs": "Tree",
+      "holds": true
+    },
+    {
+      "lhs": "ChainedBlock",
+      "rhs": "Tree",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {}
+}

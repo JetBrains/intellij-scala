@@ -1,0 +1,19 @@
+{
+  "description": "Existential types / wildcards: Box[_], Box[_ <: Animal], forSome.",
+  "concepts": ["existential", "wildcard", "forSome"],
+  "types": [
+    { "name": "BoxDog", "expr": "Box[Dog]" },
+    { "name": "BoxWild", "expr": "Box[_]" },
+    { "name": "BoxAnimalWild", "expr": "Box[_ <: Animal]" },
+    { "name": "BoxForSome", "expr": "Box[T] forSome { type T <: Animal }" }
+  ],
+  "conformance": [
+    { "lhs": "BoxDog", "rhs": "BoxWild", "expect": true },
+    { "lhs": "BoxWild", "rhs": "BoxDog", "expect": false },
+    { "lhs": "BoxDog", "rhs": "BoxAnimalWild", "expect": true },
+    { "lhs": "BoxAnimalWild", "rhs": "BoxWild", "expect": true },
+    { "lhs": "BoxForSome", "rhs": "BoxAnimalWild", "expect": true },
+    { "lhs": "BoxAnimalWild", "rhs": "BoxForSome", "expect": true }
+  ],
+  "baseTypeSeq": ["BoxWild", "BoxAnimalWild"]
+}

@@ -1,0 +1,55 @@
+{
+  "conformance": [
+    {
+      "lhs": "Named",
+      "rhs": "StructName",
+      "holds": true
+    },
+    {
+      "lhs": "StructName",
+      "rhs": "Named",
+      "holds": false
+    },
+    {
+      "lhs": "AnimalNamed",
+      "rhs": "StructName",
+      "holds": true
+    },
+    {
+      "lhs": "AnimalNamed",
+      "rhs": "Animal",
+      "holds": true
+    },
+    {
+      "lhs": "AnimalNamed",
+      "rhs": "Named",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {
+    "Named": [
+      "Named",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "AnimalNamed": [
+      "Animal { def name: java.lang.String }",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "Named": [
+      "Named",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "AnimalNamed": [
+      "<refinement>",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  }
+}
