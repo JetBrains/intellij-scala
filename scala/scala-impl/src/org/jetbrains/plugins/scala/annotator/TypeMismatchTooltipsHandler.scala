@@ -32,7 +32,7 @@ private object TypeMismatchTooltipsHandler {
     private var mouseMotionEvent: EditorMouseEvent = scala.compiletime.uninitialized
 
     private val mouseMotionTimer = {
-      val timer = new Timer(20, _ => {
+      val timer = new Timer(/*delay = */20/* ms*/, _ => {
         handleMouseMoved(mouseMotionEvent)
         mouseMotionEvent = null
       })
@@ -41,7 +41,7 @@ private object TypeMismatchTooltipsHandler {
     }
 
     override def mouseMoved(e: EditorMouseEvent): Unit = {
-      if (handlingRequired(e) && !e.isConsumed) {
+      if (!e.isConsumed && handlingRequired(e)) {
         mouseMotionEvent = e
         mouseMotionTimer.restart()
       }
