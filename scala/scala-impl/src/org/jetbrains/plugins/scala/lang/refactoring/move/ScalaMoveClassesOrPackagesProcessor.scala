@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.move
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiPackage}
 import com.intellij.refactoring.MoveDestination
 import com.intellij.refactoring.move.MoveCallback
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesProcessor
@@ -10,6 +10,7 @@ import com.intellij.util.containers.MultiMap
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 import scala.jdk.CollectionConverters._
@@ -27,7 +28,7 @@ class ScalaMoveClassesOrPackagesProcessor(project: Project,
   extends MoveClassesOrPackagesProcessor(project, elements, destination, searchInComments, searchInNonJavaFiles, callback) {
 
   override protected def showConflicts(conflicts: MultiMap[PsiElement, String], usages: Array[UsageInfo]): Boolean = {
-    ScalaMoveClassesOrPackagesProcessor.scalaConflicts(getElements.asScala.toSeq).foreach {
+    ScalaMoveClassesOrPackagesProcessor.scalaConflicts(getElements.asScala.toSeq, getTargetPackage.getQualifiedName).foreach {
       case (element, message) => conflicts.putValue(element, message)
     }
     super.showConflicts(conflicts, usages)
@@ -42,9 +43,9 @@ object ScalaMoveClassesOrPackagesProcessor {
     (classes ++ classes.flatMap(companionModule(_, moveCompanion))).distinct
   }
 
-  private[move] def scalaConflicts(elements: Seq[PsiElement]): Seq[(PsiElement, String @Nls)] = {
+  private[move] def scalaConflicts(elements: Seq[PsiElement], targetPackage: String): Seq[(PsiElement, String @Nls)] = {
     val moved = movedTypeDefinitions(elements)
-    sealedConflicts(moved)
+    sealedConflicts(moved) ++ qualifiedAccessConflicts(moved, targetPackage)
   }
 
   /**
@@ -69,4 +70,17 @@ object ScalaMoveClassesOrPackagesProcessor {
 
     subtypesLeavingTheirParent ++ sealedTypesLeavingTheirSubtypes
   }
+
+  /**
+   * `private [p]` and `protected [p]` name a package enclosing the definition. Moved to a package outside `p`, the
+   * modifier no longer compiles ("no enclosing class or object is named 'p'").
+   */
+  private def qualifiedAccessConflicts(moved: Seq[ScTypeDefinition], targetPackage: String): Seq[(PsiElement, String @Nls)] =
+    for {
+      definition <- moved
+      modifier <- definition.depthFirst().collect { case m: ScAccessModifier => m }.toSeq
+      reference <- Option(modifier.getReference)
+      pkg <- Option(reference.resolve()).collect { case p: PsiPackage => p.getQualifiedName }
+      if targetPackage != pkg && !targetPackage.startsWith(pkg + ".")
+    } yield modifier -> ScalaBundle.message("move.conflict.qualified.access", modifier.getText, definition.name, pkg, targetPackage)
 }

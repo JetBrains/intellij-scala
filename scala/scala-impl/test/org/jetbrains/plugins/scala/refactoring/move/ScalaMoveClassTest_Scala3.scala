@@ -45,4 +45,16 @@ class ScalaMoveClassTest_Scala3 extends ScalaMoveClassTestBase {
     doTestConflicts(Seq("com.Node"), "org",
       "Sealed Node cannot be moved out of Tree.scala: its subtype Leaf stays there")
   }
+
+  @Test
+  def testMoveClassWithQualifiedPrivateOutOfThatPackage(): Unit = {
+    doTestConflicts(Seq("com.hex.Tree"), "com.tree",
+      "'private[hex]' in Tree refers to package com.hex, which does not enclose com.tree",
+      "'private[hex]' in Tree refers to package com.hex, which does not enclose com.tree")
+  }
+
+  @Test
+  def testMoveClassWithQualifiedPrivateToSubpackageOfThatPackage(): Unit = {
+    doTest(Seq("com.hex.Tree"), "com.tree", Kinds.onlyClasses)
+  }
 }
