@@ -42,7 +42,7 @@ class BspConfigRegenerationIntegrationTest extends SbtOverBspExternalSystemImpor
   override protected def generateSbtBspConfigurationFileIfNeeded(): Unit = {}
 
   override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
-    // TODO: SCL-25750 disabled on Windows, see SbtOverBspTestsOnWindows
+    // TODO: SCL-26441 disabled on Windows, see SbtOverBspTestsOnWindows
     if (SbtOverBspTestsOnWindows.disabled) return
 
     super.runTestRunnable(testRunnable)
