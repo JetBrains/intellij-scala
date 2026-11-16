@@ -53,7 +53,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TermSignature}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaInheritorsFinder, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.{areClassesEquivalent, couldBeTupleNTupleHListCompatibility}
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 
@@ -1114,14 +1114,22 @@ package object extensions {
       case _ => false
     }
 
-    def isTransparentTrait: Boolean = {
+    /**
+     * @see `dotty.tools.dotc.core.SymDenotations.SymDenotation.isTransparentClass`
+     */
+    def isTransparentTrait(implicit context: Context): Boolean = {
       val hasTransparentKW =
         clazz
           .asOptionOf[ScTypeDefinition]
           .exists(_.hasModifierPropertyScala(ScalaModifier.TRANSPARENT))
 
+      // Scala 3.8 deprecated the annotation, and the compiler no longer takes it into account
+      def hasTransparentTraitAnnotation =
+        context.scalaLanguageLevel < ScalaLanguageLevel.Scala_3_8 &&
+          clazz.hasAnnotation("scala.annotation.transparentTrait")
+
       hasTransparentKW ||
-        clazz.hasAnnotation("scala.annotation.transparentTrait") ||
+        hasTransparentTraitAnnotation ||
         transparentTraitsFqns.contains(clazz.qualifiedName)
     }
 

@@ -2,8 +2,21 @@ package org.jetbrains.plugins.scala.lang.typeInference
 
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-class TransparentTraitsTypeInferenceTest extends TypeInferenceTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3
+abstract class TransparentTraitsTypeInferenceTestBase extends TypeInferenceTestBase {
+  // Scala 3.8 deprecated `@transparentTrait`, and the compiler no longer takes it into account
+  private def isSince3_8: Boolean = version >= LatestScalaVersions.Scala_3_8
+
+  private def byVersion(before3_8: String, since3_8: String): String =
+    if (isSince3_8) since3_8 else before3_8
+
+  private val annotatedS =
+    """@scala.annotation.transparentTrait trait S
+      |trait Kind
+      |object Var extends Kind, S
+      |object Val extends Kind, S
+      |object Other extends Kind
+      |""".stripMargin
+
   def testTransparentKW(): Unit = doTest {
     s"""
        |transparent trait S
@@ -25,15 +38,78 @@ class TransparentTraitsTypeInferenceTest extends TypeInferenceTestBase {
        |""".stripMargin
   }
 
+  def testTransparentKWErrors(): Unit = assertNoErrors(
+    """transparent trait S
+      |trait Kind
+      |object Var extends Kind, S
+      |object Val extends Kind, S
+      |object Other extends Kind
+      |
+      |val x = Set(if true then Val else Var)
+      |val y: Set[Kind] = x
+      |val z = x + Other
+      |""".stripMargin
+  )
+
   def testTransparentAnnot(): Unit = doTest {
     s"""
-       |@scala.annotation.transparentTrait trait S
-       |trait Kind
-       |object Var extends Kind, S
-       |object Val extends Kind, S
+       |$annotatedS
        |val x = ${START}Set(if true then Val else Var)$END
-       |//Set[Kind]
+       |//${byVersion("Set[Kind]", "Set[Kind & S]")}
        |""".stripMargin
+  }
+
+  def testTransparentAnnotVarargs(): Unit = doTest {
+    s"""
+       |$annotatedS
+       |val x = ${START}List(Val, Var)$END
+       |//${byVersion("List[Kind]", "List[Kind & S]")}
+       |""".stripMargin
+  }
+
+  def testTransparentAnnotVal(): Unit = doTest {
+    s"""
+       |$annotatedS
+       |val x = if true then Val else Var
+       |${START}x$END
+       |//${byVersion("Kind", "Kind & S")}
+       |""".stripMargin
+  }
+
+  def testTransparentAnnotDef(): Unit = doTest {
+    s"""
+       |$annotatedS
+       |def x = if true then Val else Var
+       |${START}x$END
+       |//${byVersion("Kind", "Kind & S")}
+       |""".stripMargin
+  }
+
+  def testTransparentAnnotFunctionLiteral(): Unit = doTest {
+    s"""
+       |$annotatedS
+       |val x = (b: Boolean) => if b then Val else Var
+       |${START}x$END
+       |//${byVersion("Boolean => Kind", "Boolean => Kind & S")}
+       |""".stripMargin
+  }
+
+  def testTransparentAnnotErrors(): Unit = {
+    val code =
+      s"""$annotatedS
+         |val x = Set(if true then Val else Var)
+         |val y: Set[Kind] = x
+         |val z = x + Other
+         |""".stripMargin
+
+    if (isSince3_8)
+      assertErrorsText(
+        code,
+        """Error(x,Expression of type Set[Kind & S] doesn't conform to expected type Set[Kind])
+          |Error(Other,Type mismatch, expected: Kind & S, actual: Other.type)""".stripMargin
+      )
+    else
+      assertNoErrors(code)
   }
 
   def testBuiltinTransparent(): Unit = doTest {
@@ -48,4 +124,20 @@ class TransparentTraitsTypeInferenceTest extends TypeInferenceTestBase {
        |//Set[A.Item]
        |""".stripMargin
   }
+}
+
+class TransparentTraitsTypeInferenceTest_Scala_3_3 extends TransparentTraitsTypeInferenceTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_3
+}
+
+class TransparentTraitsTypeInferenceTest_Scala_3_7 extends TransparentTraitsTypeInferenceTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_7
+}
+
+class TransparentTraitsTypeInferenceTest_Scala_3_8 extends TransparentTraitsTypeInferenceTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_8
+}
+
+class TransparentTraitsTypeInferenceTest_Scala_3_10 extends TransparentTraitsTypeInferenceTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_10
 }
