@@ -41,10 +41,26 @@ private object TypeMismatchTooltipsHandler {
     }
 
     override def mouseMoved(e: EditorMouseEvent): Unit = {
-      if (!e.isConsumed) {
+      if (handlingRequired(e) && !e.isConsumed) {
         mouseMotionEvent = e
         mouseMotionTimer.restart()
       }
+    }
+
+    private def handlingRequired(e: EditorMouseEvent) = {
+      val project = e.getEditor.getProject
+
+      val isFromValidProject = project != null && project.isInitialized && !project.isDisposed
+
+      def isScalaFile = {
+        // Optimization: test extension rather than file type, which might depend on extra providers and file contents (see VirtualFile.getFileType)
+        val file = e.getEditor.getVirtualFile
+        file != null && (file.getExtension == "scala" || file.getExtension == "sc" || file.getExtension == "sbt" || file.getExtension == "mill")
+      }
+
+      def typeMismatchHintsEnabled = ScalaProjectSettings.getInstance(project).isTypeMismatchHints
+
+      isFromValidProject && isScalaFile && typeMismatchHintsEnabled
     }
 
     private def handleMouseMoved(e: EditorMouseEvent): Unit = {
