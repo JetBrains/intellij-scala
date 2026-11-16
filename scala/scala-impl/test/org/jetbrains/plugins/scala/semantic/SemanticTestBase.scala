@@ -149,7 +149,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
                 }
                 val packageDirectory = fqn.split('.').dropRight(1).foldLeft(ComparisonDirectory)(_.resolve(_))
                 Files.createDirectories(packageDirectory)
-                val javaClassName = inReadAction((cls: PsiClass).getName)
+                val javaClassName = inReadAction((cls: PsiClass).getName).stripSuffix("$")
                 Files.write(packageDirectory.resolve(s"$javaClassName.scala"), sourceText.getBytes)
                 Files.write(packageDirectory.resolve(s"$javaClassName$CompilerSuffix.scala"), compilerText.getBytes)
                 val pluginFile = packageDirectory.resolve(s"$javaClassName$PluginSuffix.scala")
