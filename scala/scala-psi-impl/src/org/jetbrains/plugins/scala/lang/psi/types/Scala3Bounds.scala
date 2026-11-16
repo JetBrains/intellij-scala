@@ -23,7 +23,7 @@ final case class Scala3Bounds(project: Project)
     context: Context
   ): ScType =
     if (lhs.isAny || rhs.isNothing)      rhs
-    else if (rhs.isAny || rhs.isNothing) lhs
+    else if (rhs.isAny || lhs.isNothing) lhs
     else {
       val tp1 = dropIfSuper(lhs, rhs).getOrElse(return rhs)
 
@@ -139,7 +139,7 @@ final case class Scala3Bounds(project: Project)
         )
       )
 
-  private def distributeAnd(lhs: ScType, rhs: ScType): Option[ScType] =
+  private def distributeAnd(lhs: ScType, rhs: ScType)(implicit context: Context): Option[ScType] =
     (lhs, rhs) match {
       case (ParameterizedType(des1, args1), ParameterizedType(des2, args2)) if checkEquiv(des1, des2) =>
         val typeParams = extractTypeParameters(des1)
@@ -148,7 +148,7 @@ final case class Scala3Bounds(project: Project)
       case _ => None
     }
 
-  private def checkEquiv(lhs: ScType, rhs: ScType): Boolean =
+  private def checkEquiv(lhs: ScType, rhs: ScType)(implicit context: Context): Boolean =
     lhs.equiv(rhs, ConstraintSystem.empty, falseUndef = false).isRight
 
   /**
@@ -199,7 +199,7 @@ final case class Scala3Bounds(project: Project)
     args1:      Seq[ScType],
     args2:      Seq[ScType],
     typeParams: Seq[TypeParameter]
-  ): Option[Seq[ScType]] = {
+  )(implicit context: Context): Option[Seq[ScType]] = {
     val zippedArgs = args1.lazyZip(args2).lazyZip(typeParams).iterator
     val jointArgs  = Seq.newBuilder[ScType]
 
@@ -266,7 +266,7 @@ final case class Scala3Bounds(project: Project)
   /**
    * if some &-summand of `tp` is a supertype of `sub` — drop it.
    */
-  private def dropIfSuper(tp: ScType, sub: ScType): Option[ScType] =
+  private def dropIfSuper(tp: ScType, sub: ScType)(implicit context: Context): Option[ScType] =
     if (sub.conforms(tp)) None
     else
       tp match {
