@@ -347,8 +347,9 @@ object BspCommunication {
   }
 
   def forWorkspace(baseDir: Path, project: Project): BspCommunication = {
-    val bspSettings = BspUtil.bspSettings(project).getLinkedProjectSettings(baseDir.toCanonicalPath.toString)
-    val config = bspSettings.serverConfig
-    forWorkspace(baseDir, config)
+    val bspSettings = BspUtil.getBspProjectSettings(project, baseDir).getOrElse {
+      throw IllegalArgumentException(s"No BSP project is linked at $baseDir in project '${project.getName}'")
+    }
+    forWorkspace(baseDir, bspSettings.serverConfig)
   }
 }
