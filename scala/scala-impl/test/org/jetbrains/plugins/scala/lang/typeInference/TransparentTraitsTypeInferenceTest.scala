@@ -112,6 +112,40 @@ abstract class TransparentTraitsTypeInferenceTestBase extends TypeInferenceTestB
       assertNoErrors(code)
   }
 
+  // `Product` and `Serializable`
+  def testCaseClasses(): Unit = doTest {
+    s"""
+       |case class C1(i: Int)
+       |case class C2(i: Int)
+       |val x = if true then C1(1) else C2(1)
+       |${START}x$END
+       |//C1 | C2
+       |""".stripMargin
+  }
+
+  // Before 3.8, the compiler assumes the collection traits of the 2.13 standard library to be
+  // transparent, since 3.8 the standard library declares them `transparent`
+  private def doCollectionTest(lhs: String, rhs: String, expected: String): Unit = doTest {
+    s"""
+       |import scala.collection.{immutable, mutable}
+       |val x = if true then $lhs else $rhs
+       |${START}x$END
+       |//$expected
+       |""".stripMargin
+  }
+
+  def testCollectionSeqOps(): Unit =
+    doCollectionTest("List(1)", "Vector(1)", "AbstractSeq[Int]")
+
+  def testCollectionIndexedSeqOps(): Unit =
+    doCollectionTest("Vector(1)", "immutable.ArraySeq(1)", "AbstractSeq[Int] & IndexedSeq[Int]")
+
+  def testCollectionSortedMapOps(): Unit =
+    doCollectionTest("immutable.TreeMap(1 -> 1)", "mutable.TreeMap(1 -> 1)", "AbstractMap[Int, Int] & SortedMap[Int, Int]")
+
+  def testCollectionSortedSetOps(): Unit =
+    doCollectionTest("immutable.BitSet(1)", "mutable.BitSet(1)", "AbstractSet[Int] & BitSet")
+
   def testBuiltinTransparent(): Unit = doTest {
     s"""
        |object A {
