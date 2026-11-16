@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.startup.ProjectActivity
 
+import javax.swing.Timer
+
 // Annotation.setTooltip is shown both on mouse hover (EditorMouseHoverPopupManager), and on Ctrl / Cmd + F1 (ShowErrorDescriptionAction)
 // But when type mismatch hints are enabled, we don't want tooltips on mouse hover (on the expression), but still want tooltips on the explicit action.
 // https://youtrack.jetbrains.com/issue/SCL-15782
@@ -27,7 +29,41 @@ private object TypeMismatchTooltipsHandler {
     // See com.intellij.openapi.editor.impl.EditorMouseHoverPopupControl
     private var popupsWereDisabled = false
 
+    private var mouseMotionEvent: EditorMouseEvent = scala.compiletime.uninitialized
+
+    private val mouseMotionTimer = {
+      val timer = new Timer(20, _ => {
+        handleMouseMoved(mouseMotionEvent)
+        mouseMotionEvent = null
+      })
+      timer.setRepeats(false)
+      timer
+    }
+
     override def mouseMoved(e: EditorMouseEvent): Unit = {
+      if (handlingRequired(e) && !e.isConsumed) {
+        mouseMotionEvent = e
+        mouseMotionTimer.restart()
+      }
+    }
+
+    private def handlingRequired(e: EditorMouseEvent) = {
+      val project = e.getEditor.getProject
+
+      val isFromValidProject = project != null && project.isInitialized && !project.isDisposed
+
+      def isScalaFile = {
+        // Optimization: test extension rather than file type, which might depend on extra providers and file contents (see VirtualFile.getFileType)
+        val file = e.getEditor.getVirtualFile
+        file != null && (file.getExtension == "scala" || file.getExtension == "sc" || file.getExtension == "sbt" || file.getExtension == "mill")
+      }
+
+      def typeMismatchHintsEnabled = ScalaProjectSettings.getInstance(project).isTypeMismatchHints
+
+      isFromValidProject && isScalaFile && typeMismatchHintsEnabled
+    }
+
+    private def handleMouseMoved(e: EditorMouseEvent): Unit = {
       if (!e.isConsumed && project.isInitialized && !project.isDisposed) {
         val editor = e.getEditor
 
