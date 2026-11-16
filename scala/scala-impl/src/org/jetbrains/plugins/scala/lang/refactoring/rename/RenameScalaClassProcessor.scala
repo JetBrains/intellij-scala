@@ -21,6 +21,8 @@ import javax.swing.{JCheckBox, JComponent, JPanel}
 import scala.jdk.CollectionConverters.SetHasAsScala
 
 class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenameProcessor {
+  import RenameScalaClassProcessor._
+
   override def canProcessElement(element: PsiElement): Boolean = {
     element.is[ScTypeDefinition, PsiClassWrapper, ScTypeParam]
   }
@@ -48,29 +50,36 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
       case _ =>
     }
 
-    val allRenamedTypeDefs = allRenames.keySet.asScala.clone.collect {
-      case td: ScTypeDefinitionLike if td.canHaveCompanion => td
-    }
-    for {
-      renamedTypeDef <- allRenamedTypeDefs
-    } {
-      fakeCompanionClassRename(renamedTypeDef, newName).foreach { case (clazz, newName) =>
-        allRenames.put(clazz, newName)
-      }
-    }
+    collectFakeCompanionClassRenames(newName, allRenames)
 
     ScalaElementToRenameContributor.addAllElements(element, newName, allRenames)
   }
 
-  private def fakeCompanionClassRename(typeDef: ScTypeDefinitionLike, newName: String): Option[(PsiClass, String)] =
-    typeDef match {
-      case o: ScObject => o.fakeCompanionClass.map(_ -> newName)
-      //Q: shouldn't we handle trait differently since scala 2.12? Does it matter in this code?
-      case t: ScTrait  => Some(t.fakeCompanionClass -> (newName + TraitImplementationClassSuffix_211))
-      case _           => None
+  override def getElementToSearchInStringsAndComments(element: PsiElement): PsiElement = {
+    element match {
+      case o: ScObject => o.fakeCompanionClassOrCompanionClass
+      case PsiClassWrapper(_: ScObject) => element
+      case PsiClassWrapper(definition) => definition
+      case _ => element
     }
+  }
 
-  private def collectRenamesForTypeDefinition(
+  override def createRenameDialog(project: Project, element: PsiElement, nameSuggestionContext: PsiElement, editor: Editor): RenameDialog =
+    new ScalaClassRenameDialog(project, element, nameSuggestionContext, editor)
+
+  override def renameElement(element: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener): Unit = {
+    ScalaRenameUtil.doRenameGenericNamedElement(element, newName, usages, listener)
+  }
+}
+
+object RenameScalaClassProcessor {
+
+  /**
+   * Adds the companion of `typeDefinition` (unless the user opted out in the rename dialog), and its file when the
+   * file is named after it. Shared with [[RenameScalaTypeAliasProcessor]]: a Scala 3 `type` or `opaque type` can
+   * have a companion object too.
+   */
+  private[rename] def collectRenamesForTypeDefinition(
     typeDefinition: ScTypeDefinitionLike,
     newName: String,
     allRenames: util.Map[PsiElement, String]
@@ -89,21 +98,27 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
     }
   }
 
-  override def getElementToSearchInStringsAndComments(element: PsiElement): PsiElement = {
-    element match {
-      case o: ScObject => o.fakeCompanionClassOrCompanionClass
-      case PsiClassWrapper(_: ScObject) => element
-      case PsiClassWrapper(definition) => definition
-      case _ => element
+  /** Adds the fake companion classes of the objects and traits already being renamed. */
+  private[rename] def collectFakeCompanionClassRenames(newName: String, allRenames: util.Map[PsiElement, String]): Unit = {
+    val allRenamedTypeDefs = allRenames.keySet.asScala.clone.collect {
+      case td: ScTypeDefinitionLike if td.canHaveCompanion => td
+    }
+    for {
+      renamedTypeDef <- allRenamedTypeDefs
+    } {
+      fakeCompanionClassRename(renamedTypeDef, newName).foreach { case (clazz, newName) =>
+        allRenames.put(clazz, newName)
+      }
     }
   }
 
-  override def createRenameDialog(project: Project, element: PsiElement, nameSuggestionContext: PsiElement, editor: Editor): RenameDialog =
-    new ScalaClassRenameDialog(project, element, nameSuggestionContext, editor)
-
-  override def renameElement(element: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener): Unit = {
-    ScalaRenameUtil.doRenameGenericNamedElement(element, newName, usages, listener)
-  }
+  private def fakeCompanionClassRename(typeDef: ScTypeDefinitionLike, newName: String): Option[(PsiClass, String)] =
+    typeDef match {
+      case o: ScObject => o.fakeCompanionClass.map(_ -> newName)
+      //Q: shouldn't we handle trait differently since scala 2.12? Does it matter in this code?
+      case t: ScTrait  => Some(t.fakeCompanionClass -> (newName + TraitImplementationClassSuffix_211))
+      case _           => None
+    }
 }
 
 class ScalaClassRenameDialog(
