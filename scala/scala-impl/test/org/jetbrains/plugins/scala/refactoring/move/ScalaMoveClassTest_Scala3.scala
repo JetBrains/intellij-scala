@@ -33,4 +33,16 @@ class ScalaMoveClassTest_Scala3 extends ScalaMoveClassTestBase {
   def testWithTopLevelDefsInFile_MoveClass(): Unit = {
     doTest(Seq("MyClass"), "")
   }
+
+  @Test
+  def testMoveSubtypeOfSealedTrait(): Unit = {
+    doTestConflicts(Seq("com.Leaf"), "org",
+      "Leaf extends sealed Node and cannot be moved out of Tree.scala, the file that defines Node")
+  }
+
+  @Test
+  def testMoveSealedTraitWithoutItsSubtypes(): Unit = {
+    doTestConflicts(Seq("com.Node"), "org",
+      "Sealed Node cannot be moved out of Tree.scala: its subtype Leaf stays there")
+  }
 }

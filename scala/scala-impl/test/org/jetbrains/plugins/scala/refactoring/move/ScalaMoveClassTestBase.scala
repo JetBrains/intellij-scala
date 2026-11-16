@@ -4,13 +4,17 @@ import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaDirectoryService, JavaPsiFacade, PsiClass, PsiDirectory, PsiDocumentManager, PsiPackage}
 import com.intellij.refactoring.PackageWrapper
-import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackagesProcessor, SingleSourceRootMoveDestination}
+import com.intellij.refactoring.move.moveClassesOrPackages.SingleSourceRootMoveDestination
 import com.intellij.testFramework.{PlatformTestUtil, PsiTestUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesProcessor
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.WriteCommandActionEx
-import org.junit.Assert.{assertNotNull, assertTrue}
+import com.intellij.refactoring.BaseRefactoringProcessor
+import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
+
+import scala.jdk.CollectionConverters._
 
 abstract class ScalaMoveClassTestBase extends ScalaMoveTestBase {
 
@@ -38,6 +42,20 @@ abstract class ScalaMoveClassTestBase extends ScalaMoveTestBase {
       System.err.println(s"Folder before path: $getRootBefore")
       System.err.println(s"Folder after path: $getRootAfter")
       throw ex
+  }
+
+  /** The move is refused: it reports exactly `expectedConflicts`, and changes nothing. */
+  protected def doTestConflicts(classNames: Seq[String], newPackageName: String, expectedConflicts: String*): Unit = {
+    val conflicts = try {
+      performAction(classNames, newPackageName, Kinds.onlyClasses)
+      Seq.empty
+    } catch {
+      case e: BaseRefactoringProcessor.ConflictsInTestsException => e.getMessages.asScala.toSeq
+    } finally {
+      PsiTestUtil.removeSourceRoot(getModule, getRootBefore)
+    }
+    assertEquals(expectedConflicts.sorted.mkString("\n"), conflicts.sorted.mkString("\n"))
+    PlatformTestUtil.assertDirectoriesEqual(getRootAfter, getRootBefore)
   }
 
   private def performAction(classNames: Seq[String], targetPackageName: String, mode: Kinds.Value): Unit = {
@@ -72,7 +90,7 @@ abstract class ScalaMoveClassTestBase extends ScalaMoveTestBase {
       ScalaFileImpl.performMoveRefactoring {
         val targetPackageWrapper = PackageWrapper.create(JavaDirectoryService.getInstance.getPackage(targetDirectory))
         val destination = new SingleSourceRootMoveDestination(targetPackageWrapper, targetDirectory)
-        val processor = new MoveClassesOrPackagesProcessor(
+        val processor = new ScalaMoveClassesOrPackagesProcessor(
           getProject,
           classesToMove.toArray,
           destination,
