@@ -78,7 +78,7 @@ class ContextFunctionTypeInferenceTest extends TypeInferenceTestBase {
        |    123
        |  }$END
        |}
-       |//Int & String
+       |//String & Int
        |""".stripMargin
   )
 
@@ -93,7 +93,7 @@ class ContextFunctionTypeInferenceTest extends TypeInferenceTestBase {
        |    123
        |  }$END
        |}
-       |//Int | String
+       |//String | Int
        |""".stripMargin
   )
 
@@ -134,7 +134,7 @@ class ContextFunctionTypeInferenceTest extends TypeInferenceTestBase {
        |    123
        |  }$END
        |}
-       |//A.Foo[Int, Int & String]
+       |//A.Foo[Int, String & Int]
        |""".stripMargin
   )
 
