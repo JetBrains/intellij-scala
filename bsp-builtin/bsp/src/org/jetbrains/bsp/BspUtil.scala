@@ -202,6 +202,10 @@ object BspUtil {
     }
   }
 
-  private[bsp] def getBspProjectSettings(project: Project, linkedProjectPath: Path): Option[BspProjectSettings] =
-    Option(BspSettings.getInstance(project).getLinkedProjectSettings(linkedProjectPath.toCanonicalPath.toString))
+  /**
+   * The settings are stored under the canonical path with slashes only (see [[BspProjectSettings.setExternalProjectPath]]),
+   * so the key must not depend on the platform separator, which is a backslash on Windows.
+   */
+  private[bsp] def getBspProjectSettings(project: Project, workspace: Path): Option[BspProjectSettings] =
+    Option(BspSettings.getInstance(project).getLinkedProjectSettings(workspace.toCanonicalPath.systemIndependentPathString))
 }

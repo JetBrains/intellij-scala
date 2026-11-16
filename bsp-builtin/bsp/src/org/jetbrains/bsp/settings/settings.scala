@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.settings.BspProjectSettings._
 import org.jetbrains.bsp.settings.PreImportConfig.AutoPreImport
-import org.jetbrains.plugins.scala.extensions.PathExt
 
 import java.nio.file.{Path, Paths}
 import java.util
@@ -347,9 +346,8 @@ object BspExecutionSettings {
 
   def executionSettingsFor(project: Project, basePath: Path): BspExecutionSettings = {
     if (project == null) executionSettingsFor(basePath)
-    val bspSettings = BspSettings.getInstance(project)
     val bspTraceLog = BspSystemSettings.getInstance.getState.traceBsp
-    val linkedSettings = Option(bspSettings.getLinkedProjectSettings(basePath.toCanonicalPath.toString))
+    val linkedSettings = BspUtil.getBspProjectSettings(project, basePath)
     val runPreImportTask = linkedSettings.forall(_.runPreImportTask)
     val preImportConfig = linkedSettings.map(_.preImportConfig).getOrElse(AutoPreImport)
     val serverConfig = linkedSettings.map(_.serverConfig).getOrElse(AutoConfig)

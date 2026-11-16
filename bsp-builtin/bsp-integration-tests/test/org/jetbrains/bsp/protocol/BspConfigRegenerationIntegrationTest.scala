@@ -1,7 +1,6 @@
 package org.jetbrains.bsp.protocol
 
 import com.intellij.notification.{Notification, NotificationType}
-import com.intellij.util.ThrowableRunnable
 import org.jetbrains.bsp.settings.BspProjectSettings
 import org.jetbrains.bsp.settings.BspProjectSettings.{AutoConfig, BspConfigFile, BspServerConfig}
 import org.jetbrains.bsp.{BSP, BspBundle, BspProjectStructureImportingTestUtils, BspUtil, SbtOverBspExternalSystemImportingTestCase}
@@ -12,7 +11,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl.*
 import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.TestProjectCopyOptions
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
-import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureAssertionsFixture, ProjectStructureMatcher, SbtOverBspTestsOnWindows}
+import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureAssertionsFixture, ProjectStructureMatcher}
 import org.junit.Assert.{assertEquals, assertNotNull, assertTrue, fail}
 import org.junit.experimental.categories.Category
 
@@ -40,13 +39,6 @@ class BspConfigRegenerationIntegrationTest extends SbtOverBspExternalSystemImpor
   // connection file exists or the existing one is broken. In such cases, the
   // connection file should not be regenerated in advance.
   override protected def generateSbtBspConfigurationFileIfNeeded(): Unit = {}
-
-  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
-    // TODO: SCL-26441 disabled on Windows, see SbtOverBspTestsOnWindows
-    if (SbtOverBspTestsOnWindows.disabled) return
-
-    super.runTestRunnable(testRunnable)
-  }
 
   protected lazy val projectStructureAssertions: ProjectStructureAssertionsFixture =
     new ProjectStructureAssertionsFixture(getMyProject)
