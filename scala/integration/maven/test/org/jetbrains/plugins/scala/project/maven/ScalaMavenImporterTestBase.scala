@@ -44,7 +44,8 @@ abstract class ScalaMavenImporterTestBase(projectJdkVersion: Option[LanguageLeve
       "bundled",                          // mavenVersion
       MavenConstants.MODEL_VERSION_4_0_0, // modelVersion
       true,                               // skipPluginResolution
-      null                                // initialPom: each test imports its own pom from testdata
+      null,                               // initialPom: each test imports its own pom from testdata,
+      false                               // useCleanLocalRepository
     )
 
   protected def mavenTestFixture: MavenImportingTestFixture = mavenFixture.get()
