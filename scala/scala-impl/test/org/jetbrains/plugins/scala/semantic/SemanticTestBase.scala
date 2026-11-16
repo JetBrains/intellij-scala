@@ -3,13 +3,16 @@ package org.jetbrains.plugins.scala.semantic
 import com.intellij.openapi.diff.impl.patch.{TextFilePatch, TextPatchBuilder, UnifiedDiffWriter}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{PsiClass, PsiComment, PsiElement, PsiWhiteSpace}
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
 import org.jetbrains.plugins.scala.corpus.scala3.Scala3ProjectCorpusTestDef
 import org.jetbrains.plugins.scala.corpus.{ProjectCorpusTestBase, ProjectCorpusTestDef}
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, inReadAction}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
@@ -131,11 +134,22 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
                 foundClasses ::= (if (compilerText != pluginText) "//" else "") + fqn
                 val sourceText = inReadAction {
                   val sourceClass = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
-                  sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
+                  val header = {
+                    val isHeaderElement = (_: PsiElement).is[PsiComment, PsiWhiteSpace, ScPackaging, ScImportStmt]
+                    def headerIn(e: PsiElement): Iterator[PsiElement] = e match {
+                      case f: ScalaFile => f.children.takeWhile(isHeaderElement).flatMap(headerIn)
+                      case p: ScPackaging => p.children.take(3) ++ p.children.drop(3).takeWhile(isHeaderElement).flatMap(headerIn)
+                      case e => Iterator(e)
+                    }
+                    val sourceFile = sourceClass.getContainingFile.asInstanceOf[ScalaFile]
+                    headerIn(sourceFile).map(_.getText).mkString.stripSuffix("\n")
+                  }
+                  val body = sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
+                  header + body
                 }
                 val packageDirectory = fqn.split('.').dropRight(1).foldLeft(ComparisonDirectory)(_.resolve(_))
                 Files.createDirectories(packageDirectory)
-                val javaClassName = inReadAction((cls: PsiClass).getName)
+                val javaClassName = inReadAction((cls: PsiClass).getName).stripSuffix("$")
                 Files.write(packageDirectory.resolve(s"$javaClassName.scala"), sourceText.getBytes)
                 Files.write(packageDirectory.resolve(s"$javaClassName$CompilerSuffix.scala"), compilerText.getBytes)
                 val pluginFile = packageDirectory.resolve(s"$javaClassName$PluginSuffix.scala")
