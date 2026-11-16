@@ -106,6 +106,8 @@ trait ScalaEquivalence extends api.Equivalence {
         case (_, _: ScExistentialType) => right.equivInner(left, empty, falseUndef)
         case (_, _: ScProjectionType)  => right.equivInner(left, empty, falseUndef)
         case (_, _: ScCompoundType)    => right.equivInner(left, empty, falseUndef)
+        // an intersection or a union may be the same type as a type of another kind, e.g. `B & A` as `B` if `B <: A`
+        case (_, _: ScAndType | _: ScOrType) => right.equivInner(left, empty, falseUndef)
         case _                         => left.equivInner(right, empty, falseUndef)
       }
     }
