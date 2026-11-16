@@ -18,21 +18,30 @@ final case class ScOrType private (lhs: ScType, rhs: ScType) extends ScalaType w
     r:           ScType,
     constraints: ConstraintSystem,
     falseUndef:  Boolean
+  )(implicit context: Context): ConstraintsResult =
+    if (r eq this) constraints
+    else
+      equivOperands(r, constraints, falseUndef) match {
+        case ConstraintsResult.Left => AndOrTypeEquivalence.equivBySubtyping(this, r, constraints, falseUndef)
+        case cs: ConstraintSystem   => cs
+      }
+
+  private def equivOperands(
+    r:           ScType,
+    constraints: ConstraintSystem,
+    falseUndef:  Boolean
   )(implicit context: Context): ConstraintsResult = r match {
     case ScOrType(rLhs, rRhs) =>
-      if (r eq this) constraints
-      else {
-        val lhsConstraints = lhs.equiv(rLhs, constraints, falseUndef)
+      val lhsConstraints = lhs.equiv(rLhs, constraints, falseUndef)
 
-        lhsConstraints match {
-          case ConstraintsResult.Left =>
-            val swapped = lhs.equiv(rRhs, constraints, falseUndef)
-            swapped match {
-              case ConstraintsResult.Left => ConstraintsResult.Left
-              case cs: ConstraintSystem   => rhs.equiv(rLhs, cs, falseUndef)
-            }
-          case cs: ConstraintSystem   => rhs.equiv(rRhs, cs, falseUndef)
-        }
+      lhsConstraints match {
+        case ConstraintsResult.Left =>
+          val swapped = lhs.equiv(rRhs, constraints, falseUndef)
+          swapped match {
+            case ConstraintsResult.Left => ConstraintsResult.Left
+            case cs: ConstraintSystem   => rhs.equiv(rLhs, cs, falseUndef)
+          }
+        case cs: ConstraintSystem   => rhs.equiv(rRhs, cs, falseUndef)
       }
     case _ => ConstraintsResult.Left
   }

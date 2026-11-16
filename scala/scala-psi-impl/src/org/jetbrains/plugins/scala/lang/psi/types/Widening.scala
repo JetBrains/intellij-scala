@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumSingletonCase
 import org.jetbrains.plugins.scala.lang.psi.types.api.Singleton
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaLanguageLevel}
 
 /**
  * The single place that implements the widening rules of the Scala compilers.
@@ -235,11 +236,38 @@ object Widening {
   }
 
   /**
+   * Normalizes the intersections and unions in an inferred type, which substitution doesn't do, e.g.
+   * `foo[IO, IO & Bar]` of `def foo[S, S2]: List[S & S2]` is a `List[IO & Bar]` rather than a `List[IO & (IO & Bar)]`.
+   *
+   * Corresponds to `TypeOps.simplify` outside of `Mode.Type` in the Scala 3 compiler:
+   *  - `A & B` becomes the glb of the simplified operands.
+   *  - Since Scala 3.5, `A | B` becomes their lub. Before, only a union with a bottom operand does, e.g. `Null | A`;
+   *    the compiler also simplifies a soft union, but the plugin doesn't distinguish soft unions from hard ones.
+   *
+   * The rest of the type, including the operands of the unions that are kept, is simplified as well.
+   * A declared type isn't simplified: `val x: A & (A & B)` keeps its type, while `val y = x` is an `A & B`.
+   */
+  private def simplify(tpe: ScType)(implicit context: Context): ScType = {
+    val simplifiesAllUnions = context.scalaLanguageLevel >= ScalaLanguageLevel.Scala_3_5
+
+    def isBottom(tpe: ScType): Boolean = tpe.isNothing || tpe.isNull
+
+    def simplified(tpe: ScType): ScType = tpe.updateRecursively {
+      case ScAndType(l, r) => simplified(l).glb(simplified(r))
+      case ScOrType(l, r) if simplifiesAllUnions || isBottom(l) || isBottom(r) =>
+        simplified(l).lub(simplified(r), checkWeak = false)
+    }
+
+    if (tpe.subtypeExists(_.is[ScAndType, ScOrType])) simplified(tpe)
+    else                                              tpe
+  }
+
+  /**
    * The type a compiler infers for a definition without an explicit type annotation.
    *
    * Scala 2 (`Namers.widenIfNecessary`) only drops the constant type of a `val`, but widens `var`s
    * and `def`s completely, while Scala 3 (`Namer.inferredResultType`) always widens, except for the
-   * constant type of a `final val`.
+   * constant type of a `final val`, and [[simplify simplifies]] the type before widening it.
    *
    * @example {{{
    *   val c: Any = ???
@@ -249,7 +277,7 @@ object Widening {
    */
   def widenInferredDefinitionType(tpe: ScType, kind: DefinitionKind)(implicit context: Context): ScType =
     if (context.isScala3) {
-      widenTermRef(tpe) match {
+      simplify(widenTermRef(tpe)) match {
         case lit: ScLiteralType if kind == DefinitionKind.ConstantVal => lit
         case widened                                                  => widenInferred(widened, None)
       }

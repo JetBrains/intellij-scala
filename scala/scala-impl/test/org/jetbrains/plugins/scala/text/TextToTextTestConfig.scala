@@ -498,6 +498,7 @@ private object TextToTextTestConfig {
         "scala.collection.IndexedSeqSlidingIterator", // { def hasNext: _root_.scala.Boolean = ???; def next(): C = ??? } | N/A
         "scala.collection.concurrent.INode", // Object | AnyRef
         "scala.collection.convert.StreamExtensions", // self type, private type
+        "scala.collection.convert.impl.BinaryTreeStepper", // Array[AnyRef | Null] | Array[AnyRef], explicit nulls
         "scala.collection.convert.impl.IteratorStepperBase", // final var Int | 16
         "scala.collection.generic.DefaultSerializationProxy", // { ... } | N/A
         "scala.collection.immutable.::", // private | private[::]

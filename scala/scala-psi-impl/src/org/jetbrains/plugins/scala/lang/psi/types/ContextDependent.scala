@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 import scala.collection.immutable.SeqMap
 
@@ -21,7 +22,7 @@ private class ContextDependent[A] private (stateToValue: Map[SeqMap[ScTypeAliasD
         isInScope
       }
 
-      override def isScala3: Boolean = context.isScala3
+      override def scalaLanguageLevel: ScalaLanguageLevel = context.scalaLanguageLevel
 
       override def toString: String = context.toString
 

@@ -4,6 +4,7 @@ import com.intellij.psi.{PsiDirectory, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 
 import scala.annotation.tailrec
 
@@ -26,7 +27,11 @@ import scala.annotation.tailrec
  */
 trait Context {
   def isInScopeOf(opaqueTypeAlias: ScTypeAliasDefinition): Boolean
-  def isScala3: Boolean
+
+  /** The language level of the Scala compiler, for semantics that changed between compiler versions. */
+  def scalaLanguageLevel: ScalaLanguageLevel
+
+  final def isScala3: Boolean = scalaLanguageLevel.isScala3
 }
 
 object Context {
@@ -44,7 +49,7 @@ object Context {
       containingFileOf(opaqueTypeAlias).getOriginalFile == containingFileOf(place).getOriginalFile &&
         place.contexts.takeWhile(p).contains(opaqueTypeAlias.getContext)
     }
-    override lazy val isScala3: Boolean = place.isInScala3File
+    override lazy val scalaLanguageLevel: ScalaLanguageLevel = place.scalaLanguageLevelOrDefault
     override def toString: String = place.toString
   }
 
@@ -70,7 +75,7 @@ object Context {
   object Empty extends Context {
     override def isInScopeOf(opaqueTypeAlias: ScTypeAliasDefinition): Boolean = true
 
-    override def isScala3: Boolean = false
+    override def scalaLanguageLevel: ScalaLanguageLevel = ScalaLanguageLevel.getDefault
 
     override def toString: String = "<empty>"
   }
@@ -92,7 +97,7 @@ object Context {
   implicit val Default: Context = new Context {
     override def isInScopeOf(opaqueTypeAlias: ScTypeAliasDefinition): Boolean = true
 
-    override def isScala3: Boolean = false
+    override def scalaLanguageLevel: ScalaLanguageLevel = ScalaLanguageLevel.getDefault
 
     override def toString: String = "<default>"
   }

@@ -53,7 +53,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TermSignature}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaInheritorsFinder, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.{areClassesEquivalent, couldBeTupleNTupleHListCompatibility}
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 
@@ -1092,16 +1092,62 @@ package object extensions {
         member.hasAnnotation("kotlin.Deprecated")
   }
 
-  val transparentTraitsFqns: Set[String] =
+  /**
+   * The classes that the Scala 3 compiler treats as transparent, although they aren't declared
+   * `transparent` in what the plugin sees, see `Definitions.assumedTransparentNames`.
+   *
+   * Since 3.8, the compiler assumes only `Comparable` and `Serializable`, and it marks `Any`,
+   * `Matchable` and `Object` as transparent itself. The standard library, now compiled by
+   * Scala 3, declares `AnyVal`, `Product` and the collection traits `transparent`. The plugin reads
+   * that modifier, except for `AnyVal`, which is a synthetic class here.
+   *
+   * Scala 3.0-3.2 assumed fewer traits and joined unions differently, which isn't modeled.
+   */
+  private val assumedTransparentSince3_8: Set[String] =
     Set(
       "scala.Any",
       "scala.AnyVal",
       "scala.Matchable",
-      "scala.Product",
       "java.lang.Object",
       "java.lang.Comparable",
       "java.io.Serializable",
     )
+
+  /** Before 3.8, the compiler assumes the traits of the 2.13 standard library too. */
+  private val assumedTransparentBefore3_8: Set[String] =
+    assumedTransparentSince3_8 ++ Map(
+      "Product"                     -> Seq("scala"),
+      "BitSetOps"                   -> Seq("scala.collection"),
+      "IndexedSeqOps"               -> Seq("scala.collection", "scala.collection.mutable", "scala.collection.immutable"),
+      "IterableOnceOps"             -> Seq("scala.collection"),
+      "IterableOps"                 -> Seq("scala.collection"),
+      "LinearSeqOps"                -> Seq("scala.collection", "scala.collection.immutable"),
+      "MapOps"                      -> Seq("scala.collection", "scala.collection.mutable", "scala.collection.immutable"),
+      "SeqOps"                      -> Seq("scala.collection", "scala.collection.mutable", "scala.collection.immutable"),
+      "SetOps"                      -> Seq("scala.collection", "scala.collection.mutable", "scala.collection.immutable"),
+      "SortedMapOps"                -> Seq("scala.collection", "scala.collection.mutable", "scala.collection.immutable"),
+      "SortedOps"                   -> Seq("scala.collection"),
+      "SortedSetOps"                -> Seq("scala.collection", "scala.collection.mutable", "scala.collection.immutable"),
+      "StrictOptimizedIterableOps"  -> Seq("scala.collection"),
+      "StrictOptimizedLinearSeqOps" -> Seq("scala.collection"),
+      "StrictOptimizedMapOps"       -> Seq("scala.collection", "scala.collection.immutable"),
+      "StrictOptimizedSeqOps"       -> Seq("scala.collection", "scala.collection.immutable"),
+      "StrictOptimizedSetOps"       -> Seq("scala.collection", "scala.collection.immutable"),
+      "StrictOptimizedSortedMapOps" -> Seq("scala.collection", "scala.collection.immutable"),
+      "StrictOptimizedSortedSetOps" -> Seq("scala.collection", "scala.collection.immutable"),
+      "ArrayDequeOps"               -> Seq("scala.collection.mutable"),
+      "DefaultSerializable"         -> Seq("scala.collection.generic"),
+      "IsIterable"                  -> Seq("scala.collection.generic"),
+      "IsIterableLowPriority"       -> Seq("scala.collection.generic"),
+      "IsIterableOnce"              -> Seq("scala.collection.generic"),
+      "IsIterableOnceLowPriority"   -> Seq("scala.collection.generic"),
+      "IsMap"                       -> Seq("scala.collection.generic"),
+      "IsSeq"                       -> Seq("scala.collection.generic"),
+    ).flatMap { case (name, packages) => packages.map(_ + "." + name) }
+
+  private def assumedTransparent(languageLevel: ScalaLanguageLevel): Set[String] =
+    if (languageLevel >= ScalaLanguageLevel.Scala_3_8) assumedTransparentSince3_8
+    else                                                assumedTransparentBefore3_8
 
   implicit class PsiClassExt(val clazz: PsiClass) extends AnyVal {
     def directInheritorsOfSealed: Iterable[PsiClass] =
@@ -1114,15 +1160,23 @@ package object extensions {
       case _ => false
     }
 
-    def isTransparentTrait: Boolean = {
+    /**
+     * @see `dotty.tools.dotc.core.SymDenotations.SymDenotation.isTransparentClass`
+     */
+    def isTransparentTrait(implicit context: Context): Boolean = {
       val hasTransparentKW =
         clazz
           .asOptionOf[ScTypeDefinition]
           .exists(_.hasModifierPropertyScala(ScalaModifier.TRANSPARENT))
 
+      // Scala 3.8 deprecated the annotation, and the compiler no longer takes it into account
+      def hasTransparentTraitAnnotation =
+        context.scalaLanguageLevel < ScalaLanguageLevel.Scala_3_8 &&
+          clazz.hasAnnotation("scala.annotation.transparentTrait")
+
       hasTransparentKW ||
-        clazz.hasAnnotation("scala.annotation.transparentTrait") ||
-        transparentTraitsFqns.contains(clazz.qualifiedName)
+        hasTransparentTraitAnnotation ||
+        assumedTransparent(context.scalaLanguageLevel).contains(clazz.qualifiedName)
     }
 
     /**
