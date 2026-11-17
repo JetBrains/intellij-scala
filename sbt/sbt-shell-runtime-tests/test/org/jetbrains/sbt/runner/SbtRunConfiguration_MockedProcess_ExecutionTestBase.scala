@@ -104,11 +104,11 @@ abstract class SbtRunConfiguration_MockedProcess_ExecutionTestBase extends JavaM
     PlatformTestUtil.getOrCreateProjectBaseDir(getProject).toNioPath
 
   /**
-   * The sbt shell scenarios are disabled on Windows, see [[SbtShellTestsOnWindows]].
-   * Scenario helpers return early when this is `true`; the no-shell scenarios keep running.
+   * The new sbt shell scenarios are disabled on Windows, see [[SbtShellTestsOnWindows.mockProcessInputTestsDisabled]].
+   * Scenario helpers return early when this is `true`; the old sbt shell and no-shell scenarios keep running.
    */
   protected final def isDisabledOnWindows(options: TestExecutionOptions): Boolean =
-    SbtShellTestsOnWindows.disabled && options.useSbtShellInRunConfig
+    SbtShellTestsOnWindows.mockProcessInputTestsDisabled && options.useSbtShellInRunConfig && options.useNewSbtShell
 
   protected final def initSbtShellIfNeeded(options: TestExecutionOptions): Unit = {
     options.sbtProcessMode match {

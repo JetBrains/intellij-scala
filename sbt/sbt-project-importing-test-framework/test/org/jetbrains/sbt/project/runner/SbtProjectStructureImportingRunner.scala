@@ -27,7 +27,7 @@ object SbtProjectStructureImportingRunner:
 
   // TODO: SCL-26340 the new sbt shell variants are not created on Windows, see SbtShellTestsOnWindows
   private def isDisabledOnWindows(importMode: ImportMode): Boolean =
-    importMode == ImportMode.NewShell && SbtShellTestsOnWindows.disabled
+    importMode == ImportMode.NewShell && SbtShellTestsOnWindows.newShellWithRealSbtTestsDisabled
 
   private final class ImportModeRunner(
     testClass: Class[?],
