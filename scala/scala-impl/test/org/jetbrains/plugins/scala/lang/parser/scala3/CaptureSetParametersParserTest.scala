@@ -3,13 +3,14 @@ package org.jetbrains.plugins.scala.lang.parser.scala3
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.CaptureCheckingTestUtils
+import org.jetbrains.plugins.scala.lang.parser.ParserTreeTestData
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.parser.scala3.CaptureCheckingParserTestUtils._
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert.assertEquals
 
-import java.nio.file.{Files, Path}
+import java.nio.file.Path
 
 /**
  * Tests capture-set parameter and bound syntax, tree ownership and parser recovery.
@@ -20,8 +21,16 @@ import java.nio.file.{Files, Path}
 class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
   override def scalaCodeParsingFeatures: ScalaFeatures = CaptureCheckingTestUtils.parsingFeatures
 
-  def test_unbounded(): Unit = checkTree(
-    checkParseErrors("def f[C^](x: Object^{C}): Unit = ()"),
+  private val compilerTestDataDirectory: Path =
+    Path.of(
+      TestUtils.getTestDataPath,
+      "parser",
+      "scala3",
+      "captureSetParameters"
+    )
+
+  def test_unbounded(): Unit = checkTreeAndErrors(
+    "def f[C^](x: Object^{C}): Unit = ()",
     """ScalaFile
       |  ScFunctionDefinition: f
       |    AnnotationsList
@@ -75,8 +84,8 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_mixed(): Unit = checkTree(
-    checkParseErrors("def f[T, C^, U, D^](x: T): U = ???"),
+  def test_mixed(): Unit = checkTreeAndErrors(
+    "def f[T, C^, U, D^](x: T): U = ???",
     """ScalaFile
       |  ScFunctionDefinition: f
       |    AnnotationsList
@@ -134,8 +143,8 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_capture_bounds(): Unit = checkTree(
-    checkParseErrors("def f[C^ >: {} <: {any}, T](x: Object^{C}): T = ???"),
+  def test_capture_bounds(): Unit = checkTreeAndErrors(
+    "def f[C^ >: {} <: {any}, T](x: Object^{C}): T = ???",
     """ScalaFile
       |  ScFunctionDefinition: f
       |    AnnotationsList
@@ -207,10 +216,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_ordinary_and_capture_bounds(): Unit = checkTree(
-    checkParseErrors("""def f[C^ >: {} <: caps.CapSet, T >: Nothing <: { def value: Int }](x: T): Unit = ()
+  def test_ordinary_and_capture_bounds(): Unit = checkTreeAndErrors(
+    """def f[C^ >: {} <: caps.CapSet, T >: Nothing <: { def value: Int }](x: T): Unit = ()
       |def g[C^ >: caps.CapSet <: {any}, T](x: T): Unit = ()
-      |""".stripMargin),
+      |""".stripMargin,
     """ScalaFile
       |  ScFunctionDefinition: f
       |    AnnotationsList
@@ -372,8 +381,8 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
 
   // Multiple captures in bounds, as in scala/scala3 3.10.1
   // tests/pos-custom-args/captures/cap-paramlists4.scala.
-  def test_commas_and_symbolic_names(): Unit = checkTree(
-    checkParseErrors("class Box[U^, V^, W^, E^ >: {V, W, +, -, `+`, `-`} <: {U}, F[_]]"),
+  def test_commas_and_symbolic_names(): Unit = checkTreeAndErrors(
+    "class Box[U^, V^, W^, E^ >: {V, W, +, -, `+`, `-`} <: {U}, F[_]]",
     """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
@@ -468,9 +477,8 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_symbolic_reach(): Unit = checkTree(
-    checkParseErrors("""class Box[C^ <: {any, + *}, T]
-      |class After""".stripMargin),
+  def test_symbolic_reach(): Unit = checkTreeAndErrors(
+    classParameterRecoverySource("C^ <: {any, + *}, T"),
     """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
@@ -536,9 +544,8 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_filtered_symbolic_reach(): Unit = checkTree(
-    checkParseErrors("""class Box[C^ <: {any, + *.only[Capability].rd}, T]
-      |class After""".stripMargin),
+  def test_filtered_symbolic_reach(): Unit = checkTreeAndErrors(
+    classParameterRecoverySource("C^ <: {any, + *.only[Capability].rd}, T"),
     """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
@@ -613,9 +620,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_missing_ordinary_lower_bound(): Unit = checkTree(
-    checkParseErrors(s"class Box[T >:${err("Wrong type")} <: AnyRef, C^]"),
-    """ScalaFile
+  def test_missing_ordinary_lower_bound(): Unit = checkTreeAndErrors(
+    source = "class Box[T >: <: AnyRef, C^]",
+    expectedErrorMessages = Seq("Wrong type"),
+    expectedTree = """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
       |      <empty list>
@@ -726,8 +734,8 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_type_lambda(): Unit = checkTree(
-    checkParseErrors("type F = [C^] =>> Object^{C}"),
+  def test_type_lambda(): Unit = checkTreeAndErrors(
+    "type F = [C^] =>> Object^{C}",
     """ScalaFile
       |  ScTypeAliasDefinition: F
       |    AnnotationsList
@@ -764,8 +772,8 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_polymorphic_function(): Unit = checkTree(
-    checkParseErrors("type G = [C^] -> Object^{C}"),
+  def test_polymorphic_function(): Unit = checkTreeAndErrors(
+    "type G = [C^] -> Object^{C}",
     """ScalaFile
       |  ScTypeAliasDefinition: G
       |    AnnotationsList
@@ -802,8 +810,8 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_variant_capture_parameter(): Unit = checkTree(
-    checkParseErrors("class Box[+C^]"),
+  def test_variant_capture_parameter(): Unit = checkTreeAndErrors(
+    "class Box[+C^]",
     """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
@@ -832,10 +840,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_missing_upper_type(): Unit = checkTree(
-    checkParseErrors(s"""def f[C^ <:${err("Wrong type")} , T](x: Object): Unit = ()
-      |def after = ()""".stripMargin),
-    """ScalaFile
+  def test_missing_upper_type(): Unit = checkTreeAndErrors(
+    source = methodParameterRecoverySource("C^ <: , T"),
+    expectedErrorMessages = Seq("Wrong type"),
+    expectedTree = """ScalaFile
       |  ScFunctionDefinition: f
       |    AnnotationsList
       |      <empty list>
@@ -906,10 +914,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_missing_lower_type(): Unit = checkTree(
-    checkParseErrors(s"""def f[C^ >:${err("Wrong type")} <: {any}, T](x: Object): Unit = ()
-      |def after = ()""".stripMargin),
-    """ScalaFile
+  def test_missing_lower_type(): Unit = checkTreeAndErrors(
+    source = methodParameterRecoverySource("C^ >: <: {any}, T"),
+    expectedErrorMessages = Seq("Wrong type"),
+    expectedTree = """ScalaFile
       |  ScFunctionDefinition: f
       |    AnnotationsList
       |      <empty list>
@@ -988,10 +996,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_missing_brace_at_list_end(): Unit = checkTree(
-    checkParseErrors(s"""def f[C^ <: {any${err("'}' expected")}](x: Object): Unit = ()
-      |def after = ()""".stripMargin),
-    """ScalaFile
+  def test_missing_brace_at_list_end(): Unit = checkTreeAndErrors(
+    source = methodParameterRecoverySource("C^ <: {any"),
+    expectedErrorMessages = Seq("'}' expected"),
+    expectedTree = """ScalaFile
       |  ScFunctionDefinition: f
       |    AnnotationsList
       |      <empty list>
@@ -1063,10 +1071,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_following_capture_parameter(): Unit = checkTree(
-    checkParseErrors(s"""def f[C^ <: {any${err("'}' expected")}, D^](x: Object): Unit = ()
-      |def after = ()""".stripMargin),
-    """ScalaFile
+  def test_following_capture_parameter(): Unit = checkTreeAndErrors(
+    source = methodParameterRecoverySource("C^ <: {any, D^"),
+    expectedErrorMessages = Seq("'}' expected"),
+    expectedTree = """ScalaFile
       |  ScFunctionDefinition: f
       |    AnnotationsList
       |      <empty list>
@@ -1143,10 +1151,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_following_bounded_parameter(): Unit = checkTree(
-    checkParseErrors(s"""def f[C^ <: {any${err("'}' expected")}, T <: Object](x: Object): Unit = ()
-      |def after = ()""".stripMargin),
-    """ScalaFile
+  def test_following_bounded_parameter(): Unit = checkTreeAndErrors(
+    source = methodParameterRecoverySource("C^ <: {any, T <: Object"),
+    expectedErrorMessages = Seq("'}' expected"),
+    expectedTree = """ScalaFile
       |  ScFunctionDefinition: f
       |    AnnotationsList
       |      <empty list>
@@ -1228,10 +1236,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_following_higher_kinded_parameter(): Unit = checkTree(
-    checkParseErrors(s"""def f[C^ <: {any${err("'}' expected")}, F[_]](x: Object): Unit = ()
-      |def after = ()""".stripMargin),
-    """ScalaFile
+  def test_following_higher_kinded_parameter(): Unit = checkTreeAndErrors(
+    source = methodParameterRecoverySource("C^ <: {any, F[_]"),
+    expectedErrorMessages = Seq("'}' expected"),
+    expectedTree = """ScalaFile
       |  ScFunctionDefinition: f
       |    AnnotationsList
       |      <empty list>
@@ -1312,10 +1320,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_following_context_bound(): Unit = checkTree(
-    checkParseErrors(s"""def f[C^ <: {any${err("'}' expected")}, T: Ordering](x: Object): Unit = ()
-      |def after = ()""".stripMargin),
-    """ScalaFile
+  def test_following_context_bound(): Unit = checkTreeAndErrors(
+    source = methodParameterRecoverySource("C^ <: {any, T: Ordering"),
+    expectedErrorMessages = Seq("'}' expected"),
+    expectedTree = """ScalaFile
       |  ScFunctionDefinition: f
       |    AnnotationsList
       |      <empty list>
@@ -1397,11 +1405,13 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_incomplete_filter_argument(): Unit = checkTree(
-    checkParseErrors(s"""def f[C^ <: {any.except[${err("Wrong qualified identifier")}
-      |]${err("'}' expected")}, D^](x: Object): Unit = ()
-      |def after = ()""".stripMargin),
-    """ScalaFile
+  def test_incomplete_filter_argument(): Unit = checkTreeAndErrors(
+    source = methodParameterRecoverySource(
+      """C^ <: {any.except[
+        |], D^""".stripMargin
+    ),
+    expectedErrorMessages = Seq("Wrong qualified identifier", "'}' expected"),
+    expectedTree = """ScalaFile
       |  ScFunctionDefinition: f
       |    AnnotationsList
       |      <empty list>
@@ -1485,9 +1495,8 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_variant_complete(): Unit = checkTree(
-    checkParseErrors("""class Box[C^ <: {any}, +T]
-      |class After""".stripMargin),
+  def test_variant_complete(): Unit = checkTreeAndErrors(
+    classParameterRecoverySource("C^ <: {any}, +T"),
     """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
@@ -1547,10 +1556,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_variant_incomplete(): Unit = checkTree(
-    checkParseErrors(s"""class Box[C^ <: {any${err("'}' expected")}, +T]
-      |class After""".stripMargin),
-    """ScalaFile
+  def test_variant_incomplete(): Unit = checkTreeAndErrors(
+    source = classParameterRecoverySource("C^ <: {any, +T"),
+    expectedErrorMessages = Seq("'}' expected"),
+    expectedTree = """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
       |      <empty list>
@@ -1610,9 +1619,8 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_backticked_star_complete(): Unit = checkTree(
-    checkParseErrors("""class Box[C^ <: {any}, +`*`]
-      |class After""".stripMargin),
+  def test_backticked_star_complete(): Unit = checkTreeAndErrors(
+    classParameterRecoverySource("C^ <: {any}, +`*`"),
     """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
@@ -1672,10 +1680,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_backticked_star_incomplete(): Unit = checkTree(
-    checkParseErrors(s"""class Box[C^ <: {any${err("'}' expected")}, +`*`]
-      |class After""".stripMargin),
-    """ScalaFile
+  def test_backticked_star_incomplete(): Unit = checkTreeAndErrors(
+    source = classParameterRecoverySource("C^ <: {any, +`*`"),
+    expectedErrorMessages = Seq("'}' expected"),
+    expectedTree = """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
       |      <empty list>
@@ -1735,9 +1743,8 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_annotated_complete(): Unit = checkTree(
-    checkParseErrors("""class Box[C^ <: {any}, @ann T]
-      |class After""".stripMargin),
+  def test_annotated_complete(): Unit = checkTreeAndErrors(
+    classParameterRecoverySource("C^ <: {any}, @ann T"),
     """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
@@ -1805,10 +1812,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_annotated_incomplete(): Unit = checkTree(
-    checkParseErrors(s"""class Box[C^ <: {any${err("'}' expected")}, @ann T]
-      |class After""".stripMargin),
-    """ScalaFile
+  def test_annotated_incomplete(): Unit = checkTreeAndErrors(
+    source = classParameterRecoverySource("C^ <: {any, @ann T"),
+    expectedErrorMessages = Seq("'}' expected"),
+    expectedTree = """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
       |      <empty list>
@@ -1876,9 +1883,8 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_annotated_variant_complete(): Unit = checkTree(
-    checkParseErrors("""class Box[C^ <: {any}, @ann +T]
-      |class After""".stripMargin),
+  def test_annotated_variant_complete(): Unit = checkTreeAndErrors(
+    classParameterRecoverySource("C^ <: {any}, @ann +T"),
     """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
@@ -1947,10 +1953,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_annotated_variant_incomplete(): Unit = checkTree(
-    checkParseErrors(s"""class Box[C^ <: {any${err("'}' expected")}, @ann +T]
-      |class After""".stripMargin),
-    """ScalaFile
+  def test_annotated_variant_incomplete(): Unit = checkTreeAndErrors(
+    source = classParameterRecoverySource("C^ <: {any, @ann +T"),
+    expectedErrorMessages = Seq("'}' expected"),
+    expectedTree = """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
       |      <empty list>
@@ -2019,9 +2025,8 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_multiple_annotations_complete(): Unit = checkTree(
-    checkParseErrors("""class Box[C^ <: {any}, @ann(1) @other -T]
-      |class After""".stripMargin),
+  def test_multiple_annotations_complete(): Unit = checkTreeAndErrors(
+    classParameterRecoverySource("C^ <: {any}, @ann(1) @other -T"),
     """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
@@ -2103,10 +2108,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_multiple_annotations_incomplete(): Unit = checkTree(
-    checkParseErrors(s"""class Box[C^ <: {any${err("'}' expected")}, @ann(1) @other -T]
-      |class After""".stripMargin),
-    """ScalaFile
+  def test_multiple_annotations_incomplete(): Unit = checkTreeAndErrors(
+    source = classParameterRecoverySource("C^ <: {any, @ann(1) @other -T"),
+    expectedErrorMessages = Seq("'}' expected"),
+    expectedTree = """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
       |      <empty list>
@@ -2188,10 +2193,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_same_line_trailing_comma(): Unit = checkTree(
-    checkParseErrors(s"""class Box[C^ <: {any,${err("Capture reference expected")}}, T]
-      |class After""".stripMargin),
-    """ScalaFile
+  def test_same_line_trailing_comma(): Unit = checkTreeAndErrors(
+    source = classParameterRecoverySource("C^ <: {any,}, T"),
+    expectedErrorMessages = Seq("Capture reference expected"),
+    expectedTree = """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
       |      <empty list>
@@ -2252,10 +2257,11 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_multiline_trailing_comma(): Unit = checkTree(
-    checkParseErrors("""class Box[C^ <: {any,
-      |}, T]
-      |class After""".stripMargin),
+  def test_multiline_trailing_comma(): Unit = checkTreeAndErrors(
+    classParameterRecoverySource(
+      """C^ <: {any,
+        |}, T""".stripMargin
+    ),
     """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
@@ -2316,10 +2322,11 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_unfinished_parameter_list(): Unit = checkTree(
-    checkParseErrors(s"""class Box[C^${err("']' expected")}
-      |class After""".stripMargin),
-    """ScalaFile
+  def test_unfinished_parameter_list(): Unit = checkTreeAndErrors(
+    source = """class Box[C^
+      |class After""".stripMargin,
+    expectedErrorMessages = Seq("']' expected"),
+    expectedTree = """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
       |      <empty list>
@@ -2367,10 +2374,11 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
 
   // PsiBuilder reports only the first diagnostic at the same offset:
   // the missing capture-set brace precedes the missing parameter-list bracket.
-  def test_unfinished_bound_and_parameter_list(): Unit = checkTree(
-    checkParseErrors(s"""class Box[C^ <: {any${err("'}' expected")}
-      |class After""".stripMargin),
-    """ScalaFile
+  def test_unfinished_bound_and_parameter_list(): Unit = checkTreeAndErrors(
+    source = """class Box[C^ <: {any
+      |class After""".stripMargin,
+    expectedErrorMessages = Seq("'}' expected"),
+    expectedTree = """ScalaFile
       |  ScClass: Box
       |    AnnotationsList
       |      <empty list>
@@ -2424,8 +2432,8 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_abstract_alias_bounds(): Unit = checkTree(
-    checkParseErrors("trait Box[U^, V^, W^] { type Both >: {V,W} <: {U} }"),
+  def test_abstract_alias_bounds(): Unit = checkTreeAndErrors(
+    "trait Box[U^, V^, W^] { type Both >: {V,W} <: {U} }",
     """ScalaFile
       |  ScTrait: Box
       |    AnnotationsList
@@ -2498,8 +2506,8 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_opaque_alias_bounds(): Unit = checkTree(
-    checkParseErrors("trait Box[U^, V^, W^] { opaque type Both >: {V,W} <: {U} = caps.CapSet }"),
+  def test_opaque_alias_bounds(): Unit = checkTreeAndErrors(
+    "trait Box[U^, V^, W^] { opaque type Both >: {V,W} <: {U} = caps.CapSet }",
     """ScalaFile
       |  ScTrait: Box
       |    AnnotationsList
@@ -2584,40 +2592,54 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
 
   // Unmodified positive fixtures from scala/scala3 tag 3.10.1,
   // tests/pos-custom-args/captures/. Their capture-set semantics are outside SCL-26428.
-  def test_filtered_capture_set_bound(): Unit = checkCompilerFixture("except-disjoint-info")
+  def test_filtered_capture_set_bound(): Unit =
+    checkCompilerTestData("except-disjoint-info")
 
-  def test_compiler_except_projection(): Unit = checkCompilerFixture("except-poly")
+  def test_compiler_except_projection(): Unit =
+    checkCompilerTestData("except-poly")
 
-  def test_compiler_only_projection(): Unit = checkCompilerFixture("restrict-try-poly")
+  def test_compiler_only_projection(): Unit =
+    checkCompilerTestData("restrict-try-poly")
 
-  def test_compiler_nested_transaction_callback(): Unit = checkCompilerFixture("except-transaction-double")
+  def test_compiler_nested_transaction_callback(): Unit =
+    checkCompilerTestData("except-transaction-double")
 
-  private def checkCompilerFixture(name: String): Unit = {
-    val directory = Path.of(TestUtils.getTestDataPath, "parser", "scala3", "captureSetParameters")
-    val source = Files.readString(directory.resolve(s"$name.scala"))
-    val expectedTree = Files.readString(directory.resolve(s"$name.tree"))
-    checkTree(checkParseErrors(source), expectedTree)
-  }
+  /** Loads named Scala compiler test data and checks its complete tree and expected diagnostics. */
+  private def checkCompilerTestData(testDataName: String): Unit =
+    checkTreeAndErrors(loadCompilerTestData(testDataName))
+
+  private def loadCompilerTestData(testDataName: String): ParserTreeTestData =
+    ParserTreeTestData.load(compilerTestDataDirectory, testDataName)
 
   // Matrices retain diagnostics and recovery checks for operator, comment and prefix variants.
   def test_incomplete_capture_set_parameters_and_bounds(): Unit = {
     val cases = Seq(
-      (s"C^ <:${err("Wrong type")} , T", Seq("C", "T")),
-      (s"C^ >:${err("Wrong type")} <: {any}, T", Seq("C", "T")),
-      (s"C^ <: {any${err("'}' expected")}", Seq("C")),
-      (s"C^ <: {any${err("'}' expected")}, D^", Seq("C", "D")),
-      (s"C^ <: {any${err("'}' expected")}, T <: Object", Seq("C", "T")),
-      (s"C^ <: {any${err("'}' expected")}, F[_]", Seq("C", "F")),
-      (s"C^ <: {any${err("'}' expected")}, T: Ordering", Seq("C", "T")),
-      (s"C^ <: {any.except[${err("Wrong qualified identifier")}\n]${err("'}' expected")}, D^", Seq("C", "D"))
+      ("C^ <: , T", Seq("C", "T"), Seq("Wrong type")),
+      ("C^ >: <: {any}, T", Seq("C", "T"), Seq("Wrong type")),
+      ("C^ <: {any", Seq("C"), Seq("'}' expected")),
+      ("C^ <: {any, D^", Seq("C", "D"), Seq("'}' expected")),
+      ("C^ <: {any, T <: Object", Seq("C", "T"), Seq("'}' expected")),
+      ("C^ <: {any, F[_]", Seq("C", "F"), Seq("'}' expected")),
+      ("C^ <: {any, T: Ordering", Seq("C", "T"), Seq("'}' expected")),
+      (
+        """C^ <: {any.except[
+          |], D^""".stripMargin,
+        Seq("C", "D"),
+        Seq("Wrong qualified identifier", "'}' expected")
+      )
     )
-    for ((parameters, expectedNames) <- cases) {
-      checkIncompleteCaptureBounds(parameters, expectedNames)
+    for ((parameters, expectedNames, expectedErrorMessages) <- cases) {
+      checkIncompleteCaptureBounds(parameters, expectedNames, expectedErrorMessages)
     }
   }
 
-  private def checkIncompleteCaptureBounds(parameters: String, expectedNames: Seq[String]): Unit = {
-    val file = checkParseErrors(s"def f[$parameters](x: Object): Unit = ()\ndef after = ()")
+  private def checkIncompleteCaptureBounds(
+    parameters: String,
+    expectedNames: Seq[String],
+    expectedErrorMessages: Seq[String]
+  ): Unit = {
+    val file = checkParseErrorMessages(methodParameterRecoverySource(parameters), expectedErrorMessages)
+
     val functions = childrenOfType(file, FUNCTION_DEFINITION)
     assertEquals(parameters, Seq("f", "after"), functions.map(identifierText))
     assertEquals(parameters, expectedNames, typeParametersOf(functions.head).map(identifierText))
@@ -2644,9 +2666,12 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
   }
 
   private def checkParameterPreservedAfterCaptureBound(parameterText: String, expectedName: String, closingBrace: String): Unit = {
-    val error = if (closingBrace.isEmpty) err("'}' expected") else ""
-    val source = s"class Box[C^ <: {any$error$closingBrace, $parameterText]\nclass After"
-    val file = checkParseErrors(source)
+    val expectedErrorMessages = if (closingBrace.isEmpty) Seq("'}' expected") else Seq.empty
+    val source = classParameterRecoverySource(
+      s"C^ <: {any$closingBrace, $parameterText"
+    )
+    val file = checkParseErrorMessages(source, expectedErrorMessages)
+
     val parameters = assertClassAndParameterRecovery(file, Seq("C", expectedName))
     assertEquals(source, parameterText, parameters.last.getText)
     assertBoundCaptureReferences(parameters.head, Seq("any"))
@@ -2659,7 +2684,10 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
   }
 
   private def checkSymbolicReachCaptureAfterBoundComma(reference: String): Unit = {
-    val file = checkParseErrors(s"class Box[C^ <: {any, $reference}, T]\nclass After")
+    val file = checkParseErrorMessages(
+      classParameterRecoverySource(s"C^ <: {any, $reference}, T")
+    )
+
     val parameters = assertClassAndParameterRecovery(file, Seq("C", "T"))
     assertBoundCaptureReferences(parameters.head, Seq("any", reference))
   }
@@ -2669,7 +2697,11 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
   // tests/neg/trailingCommas.scala and tests/pos/trailingCommas/trailingCommas.scala.
   def test_same_line_trailing_comma_in_capture_bound_requires_capture(): Unit = {
     for (bound <- Seq(">:", "<:"); afterComma <- Seq("", " /* comment */")) {
-      checkCaptureBoundTrailingComma(bound, err("Capture reference expected") + afterComma)
+      checkCaptureBoundTrailingComma(
+        boundOperator = bound,
+        afterComma = afterComma,
+        expectedErrorMessages = Seq("Capture reference expected")
+      )
     }
   }
 
@@ -2679,11 +2711,33 @@ class CaptureSetParametersParserTest extends SimpleScala3ParserTestBase {
     }
   }
 
-  private def checkCaptureBoundTrailingComma(boundOperator: String, afterComma: String): Unit = {
-    val file = checkParseErrors(s"class Box[C^ $boundOperator {any,$afterComma}, T]\nclass After")
+  private def checkCaptureBoundTrailingComma(
+    boundOperator: String,
+    afterComma: String,
+    expectedErrorMessages: Seq[String] = Seq.empty
+  ): Unit = {
+    val file = checkParseErrorMessages(
+      source = classParameterRecoverySource(s"C^ $boundOperator {any,$afterComma}, T"),
+      expectedErrorMessages = expectedErrorMessages
+    )
+
     val parameters = assertClassAndParameterRecovery(file, Seq("C", "T"))
     assertBoundCaptureReferences(parameters.head, Seq("any"))
   }
+
+  /** Adds a following method to check recovery after the parameter clause. */
+  private def methodParameterRecoverySource(
+    parametersText: String
+  ): String =
+    s"""def f[$parametersText](x: Object): Unit = ()
+       |def after = ()""".stripMargin
+
+  /** Adds a following class to check recovery after the parameter clause. */
+  private def classParameterRecoverySource(
+    parametersText: String
+  ): String =
+    s"""class Box[$parametersText]
+       |class After""".stripMargin
 
   private def assertClassAndParameterRecovery(file: PsiElement, expectedNames: Seq[String]): Seq[PsiElement] = {
     val classes = childrenOfType(file, ClassDefinition)
