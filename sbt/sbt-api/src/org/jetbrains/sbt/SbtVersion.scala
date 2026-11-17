@@ -41,7 +41,7 @@ object SbtVersion {
     val Sbt_1_13 = SbtVersion("1.13.1")
 
     val Sbt_1: SbtVersion = Sbt_1_13
-    val Sbt_2: SbtVersion = SbtVersion("2.0.12")
+    val Sbt_2: SbtVersion = SbtVersion("2.1.0")
 
     val Sbt_LatestIncludingUnreleased: SbtVersion = Sbt_2
 
@@ -69,6 +69,7 @@ object SbtVersion {
      * List of latest stable SBT 2.x versions
      */
     val AllSbt2: Seq[SbtVersion] = Seq(
+      SbtVersion("2.0.12"),
       Sbt_2
     )
   }
