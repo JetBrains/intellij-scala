@@ -1,18 +1,13 @@
 package org.jetbrains.plugins.scala.lang.stubs
 
-import com.intellij.psi.PsiManager
-import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubTree
 import com.intellij.util.AstLoadingFilter
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScTypeAliasStub, ScTypeParamStub}
 import org.jetbrains.plugins.scala.lang.stubs.StubSerializationTestUtil.roundTripStubTree
 import org.jetbrains.plugins.scala.project.{ScalaFeaturePusher, ScalaFeatures}
 import org.junit.Assert._
-
-import scala.jdk.CollectionConverters._
 
 /**
  * Protects ordinary parameter/member bound metadata through binary stub serialization.
@@ -29,25 +24,30 @@ class ScTypeBoundsStubTest extends SimpleTestCase {
         |""".stripMargin
     val virtualFile = fixture.getTempDirFixture.createFile("Bounds.scala", source)
     ScalaFeaturePusher.setFeatures(virtualFile, ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_2_13))
-    val file = PsiManager.getInstance(fixture.getProject).findFile(virtualFile).asInstanceOf[PsiFileImpl]
-    assertFalse("The source AST must be unloaded before reading stubs", file.isContentsLoaded)
+    val context = s"ordinary bound lifecycle in `${virtualFile.getPath}`"
+    val file = StubTreeTestUtils.findUnloadedSourceFile(fixture.getProject, virtualFile)
 
     AstLoadingFilter.disallowTreeLoading[Exception] { () =>
       val tree = file.getStubTree
-      assertNotNull("Expected source stubs", tree)
-      assertStoredBounds(tree)
-      assertStubBackedPsiBounds(tree)
+      assertNotNull(s"$context: source stub creation must return a tree before AST loading", tree)
+      assertStoredBounds(tree, s"$context: source stubs before AST loading")
+      assertStubBackedPsiBounds(tree, s"$context: ordinary bound PSI before AST loading")
 
-      assertStoredBounds(roundTripStubTree(tree))
+      val restored = roundTripStubTree(tree)
+      assertStoredBounds(restored, s"$context: deserialized stubs")
     }
-    assertFalse("Bound accessors must keep the source AST unloaded", file.isContentsLoaded)
+    val sourceAstLoadedAfterSerialization = file.isContentsLoaded
+    assertFalse(
+      s"$context: bound access and serialization must keep the source AST unloaded",
+      sourceAstLoadedAfterSerialization
+    )
   }
 
-  private def assertStoredBounds(tree: StubTree): Unit = {
-    val stubs = tree.getPlainList.asScala.toSeq
-    assertStoredParameterBounds(stubs.filterByType[ScTypeParamStub])
+  private def assertStoredBounds(tree: StubTree, context: String): Unit = {
+    val parameters = StubTreeTestUtils.stubsOfType[ScTypeParamStub](tree, context)
+    assertStoredParameterBounds(parameters)
 
-    val Seq(member) = stubs.filterByType[ScTypeAliasStub]
+    val Seq(member) = StubTreeTestUtils.stubsOfType[ScTypeAliasStub](tree, context)
     assertStoredAliasBounds(member)
   }
 
@@ -82,10 +82,9 @@ class ScTypeBoundsStubTest extends SimpleTestCase {
     assertEquals(Some("AnyRef"), member.upperBoundText)
   }
 
-  private def assertStubBackedPsiBounds(tree: StubTree): Unit = {
-    val stubs = tree.getPlainList.asScala.toSeq
-    val Seq(a, _, _, _, t) = stubs.filterByType[ScTypeParamStub]
-    val Seq(member) = stubs.filterByType[ScTypeAliasStub]
+  private def assertStubBackedPsiBounds(tree: StubTree, context: String): Unit = {
+    val Seq(a, _, _, _, t) = StubTreeTestUtils.stubsOfType[ScTypeParamStub](tree, context)
+    val Seq(member) = StubTreeTestUtils.stubsOfType[ScTypeAliasStub](tree, context)
 
     assertEquals("A", a.getPsi.name)
     assertTrue(a.getPsi.isCovariant)
