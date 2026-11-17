@@ -33,9 +33,10 @@ final class MoveScalaClassHandler extends MoveClassHandler {
       restoreAssociations(clazz)
       // The companion moved with the class is not necessarily found from the class here (its new file has only just
       // changed), so restore the references recorded for it from the companion doMoveClass moved.
-      Option(clazz.getUserData(MovedCompanion)).foreach { companion =>
+      Option(clazz.getUserData(MovedCompanion)).foreach { case (companion, classPath) =>
         clazz.putUserData(MovedCompanion, null)
-        Associations.restoreFor(companion)
+        // Not the class itself: the companion's references to it were recorded under its old package.
+        Associations.restoreFor(companion, skipPaths = Set(classPath))
       }
       val documentManager = PsiDocumentManager.getInstance(scalaFile.getProject)
       val document = documentManager.getDocument(scalaFile)
@@ -85,12 +86,13 @@ final class MoveScalaClassHandler extends MoveClassHandler {
           }
       }
 
+      val classPath = definition.qualifiedName
       val (newClass, fileWasDeleted) = deleteClass(definition)(createNewClass)
       if (fileWasDeleted) newClass.navigate(true)
 
       maybeCompanion.foreach { companion =>
         val (newCompanion, _) = deleteClass(companion)(newClass.getContainingFile.add)
-        newClass.putUserData(MovedCompanion, newCompanion)
+        newClass.putUserData(MovedCompanion, (newCompanion, classPath))
       }
       newClass
     case _ => null
@@ -108,7 +110,8 @@ final class MoveScalaClassHandler extends MoveClassHandler {
 
 object MoveScalaClassHandler {
 
-  private val MovedCompanion: Key[PsiClass] = Key.create("MoveScalaClassHandler.MovedCompanion")
+  /** The companion moved with a class, and the class's qualified name before the move. */
+  private val MovedCompanion: Key[(PsiClass, String)] = Key.create("MoveScalaClassHandler.MovedCompanion")
 
   private def fileName(templateDefinition: ScTemplateDefinition) =
     templateDefinition.name + "." + ScalaFileType.INSTANCE.getDefaultExtension

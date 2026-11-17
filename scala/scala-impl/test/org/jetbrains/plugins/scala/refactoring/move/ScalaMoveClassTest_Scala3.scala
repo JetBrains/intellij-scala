@@ -38,4 +38,9 @@ class ScalaMoveClassTest_Scala3 extends ScalaMoveClassTestBase {
   def testMoveClassWithCompanionUsingDefinitionsOfItsFile(): Unit = {
     doTest(Seq("com.Tree"), "org", Kinds.onlyClasses)
   }
+
+  @Test
+  def testMoveCaseClassWithCompanionReferringToIt(): Unit = {
+    doTest(Seq("com.Index"), "org", Kinds.onlyClasses)
+  }
 }
