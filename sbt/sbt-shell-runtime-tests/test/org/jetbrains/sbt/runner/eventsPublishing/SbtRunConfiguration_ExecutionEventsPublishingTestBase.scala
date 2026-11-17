@@ -24,7 +24,7 @@ import scala.concurrent.duration.DurationInt
 abstract class SbtRunConfiguration_ExecutionEventsPublishingTestBase extends SbtRunConfiguration_MockedProcess_ExecutionTestBase {
 
   protected def assertSbtRunConfiguration_PublishesCompleteExecutionLifecycle(options: TestExecutionOptions): Unit = {
-    // TODO: SCL-26340 the sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
+    // TODO: SCL-26340 the new sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
     if (isDisabledOnWindows(options)) return
 
     try {

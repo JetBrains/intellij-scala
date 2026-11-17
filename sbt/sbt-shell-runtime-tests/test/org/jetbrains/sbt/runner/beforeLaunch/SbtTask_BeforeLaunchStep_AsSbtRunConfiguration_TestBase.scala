@@ -7,10 +7,12 @@ import com.intellij.execution.impl.DefaultJavaProgramRunner
 import com.intellij.execution.impl.RunManagerImpl
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.{ExecutionManager, RunnerAndConfigurationSettings}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.task.{ProjectTaskContext, ProjectTaskListener, ProjectTaskManager}
 import com.intellij.testFramework.{PlatformTestUtil, VfsTestUtil}
-import com.intellij.util.ThrowableRunnable
+import com.intellij.testFramework.common.ThreadLeakTracker
+import com.intellij.util.system.OS
 import org.jetbrains.plugins.scala.build.BuildDiagnosticsCollector
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.sbt.runner.TestExecutionOptions.ExecutionMode
@@ -20,7 +22,6 @@ import org.jetbrains.sbt.runner.beforeLaunch.utils.RunConfigurationBeforeLaunchT
 import org.jetbrains.sbt.runner.utils.ExecutionEventsCollector.ExecutionEvent
 import org.jetbrains.sbt.runner.utils.{ExecutionEventsCollector, RunConfigInTestsExecutor, RunConfigurationExecutionObserver, SbtRunConfigurationTestFactory}
 import org.jetbrains.sbt.runner.{SbtDebugProgramRunner, SbtProgramRunner, SbtRunConfiguration_MockedProcess_ExecutionTestBase, TestExecutionOptions}
-import org.jetbrains.sbt.shell.SbtShellTestsOnWindows
 import org.junit.Assert.{assertEquals, assertFalse, assertNotNull, assertSame, assertTrue, fail}
 
 import java.util.concurrent.CountDownLatch
@@ -40,14 +41,21 @@ import scala.concurrent.duration.{Duration, DurationInt}
  */
 abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends SbtRunConfiguration_MockedProcess_ExecutionTestBase {
 
-  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
-    // TODO: SCL-26340 disabled on Windows in every sbt process mode, the no-shell scenarios are flaky there as well, see SbtShellTestsOnWindows
-    if (SbtShellTestsOnWindows.disabled) return
+  override protected def setUp(): Unit = {
+    super.setUp()
 
-    super.runTestRunnable(testRunnable)
+    // On Windows, the platform's JavaProcessMonitor thread of the dependent application can outlive the test
+    // while it is still connecting to the application JVM
+    if (OS.CURRENT == OS.Windows) {
+      //noinspection ApiStatus,UnstableApiUsage
+      ThreadLeakTracker.longRunningThreadCreated(ApplicationManager.getApplication, "JavaProcessMonitor")
+    }
   }
 
   protected def assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationUsesExpectedRunnerDelegation(options: TestExecutionOptions): Unit = {
+    // TODO: SCL-26340 the new sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
+    if (isDisabledOnWindows(options)) return
+
     val (_, handler) = runAndAssertSbtTaskAsBeforeLaunchStepOfDependentConfiguration(options)
     val usesSbtShellDelegation = handler.getClass.getName.contains("DummyProcessHandler")
     if (shouldUseSyntheticSbtShellProcessHandler(options)) {
@@ -58,10 +66,16 @@ abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends S
   }
 
   protected def assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationNotifiesExecutionListeners(options: TestExecutionOptions): Unit = {
+    // TODO: SCL-26340 the new sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
+    if (isDisabledOnWindows(options)) return
+
     runAndAssertSbtTaskAsBeforeLaunchStepOfDependentConfiguration(options)
   }
 
   protected def assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationDoesNotBlockDependentRunConfiguration(options: TestExecutionOptions): Unit = {
+    // TODO: SCL-26340 the new sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
+    if (isDisabledOnWindows(options)) return
+
     val (result, _) = runAndAssertSbtTaskAsBeforeLaunchStepOfDependentConfiguration(options)
 
     val sbtTaskTerminated = singleEvent(result.sbtTaskEvents, "processTerminated")
