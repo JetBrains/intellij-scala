@@ -18,4 +18,6 @@ class ScalaMoveDirectoryWithClassesTest_Scala3 extends ScalaMoveDirectoryWithCla
   def testRenamePackageWithMixedToplevelDefs(): Unit = doRenamePackageTest("pack1.pack2", "pack0.pack1.pack2")
 
   def testRenamePackageWithMultipleToplevelDefs(): Unit = doRenamePackageTest("pack1.pack2", "pack1.pack2.pack3")
+
+  def testMoveFileOfOpaqueTypeUsingItsOwnDefinitions(): Unit = doMoveFileTest("pack1", "Id.scala", "pack2")
 }
