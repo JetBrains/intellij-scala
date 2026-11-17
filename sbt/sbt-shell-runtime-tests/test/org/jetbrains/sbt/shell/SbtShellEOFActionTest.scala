@@ -24,7 +24,7 @@ abstract class SbtShellEOFActionTestBase extends JavaModuleTestCase {
 
   override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
     // TODO: SCL-26340 disabled on Windows, see SbtShellTestsOnWindows
-    if (SbtShellTestsOnWindows.disabled) return
+    if (SbtShellTestsOnWindows.mockProcessInputTestsDisabled) return
 
     super.runTestRunnable(testRunnable)
   }

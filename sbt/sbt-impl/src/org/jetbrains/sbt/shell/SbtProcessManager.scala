@@ -286,11 +286,11 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
      Behavior:
        - New shell: applies on both Unix and Windows.
-       - Old shell: applies on Windows only.
+       - Old shell: applies on Windows only, in tests as well, which otherwise see the sbt output wrapped at 80 columns.
 
      Dynamic window size adjustments can be done in the custom TTY connector (see [[createTerminalConsole]]).
      */
-    val requireResizeForOldShell = !isUnitTestMode && OS.CURRENT == OS.Windows
+    val requireResizeForOldShell = OS.CURRENT == OS.Windows
     val shouldPatchInitialSize = requireResizeForOldShell || withNewShell
 
     if (shouldPatchInitialSize) {

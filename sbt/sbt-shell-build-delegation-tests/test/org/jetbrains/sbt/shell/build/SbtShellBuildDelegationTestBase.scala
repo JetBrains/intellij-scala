@@ -19,7 +19,7 @@ abstract class SbtShellBuildDelegationTestBase extends SbtExternalSystemImportin
 
   override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
     // TODO: SCL-26340 the new sbt shell tests are disabled on Windows, see SbtShellTestsOnWindows
-    if (SbtShellTestsOnWindows.disabled && useNewSbtShell) return
+    if (SbtShellTestsOnWindows.newShellWithRealSbtTestsDisabled && useNewSbtShell) return
 
     super.runTestRunnable(testRunnable)
   }

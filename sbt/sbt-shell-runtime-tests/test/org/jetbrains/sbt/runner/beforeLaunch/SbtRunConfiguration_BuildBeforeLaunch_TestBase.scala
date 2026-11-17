@@ -2,13 +2,11 @@ package org.jetbrains.sbt.runner.beforeLaunch
 
 import com.intellij.debugger.jvm.advanced.java.log.capture.LogCapture
 import com.intellij.execution.RunnerAndConfigurationSettings
-import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.util.CollectingLoggedMessagesProcessor
 import org.jetbrains.sbt.runner.TestExecutionOptions.ExecutionMode
 import org.jetbrains.sbt.runner.beforeLaunch.utils.{CompileStepBeforeRunTestUtil, CompileStepBeforeRunTracker, DebuggerSessionsAwaiter}
 import org.jetbrains.sbt.runner.utils.{RunConfigInTestsExecutor, RunConfigurationExecutionObserver, SbtRunConfigurationTestFactory}
 import org.jetbrains.sbt.runner.{SbtRunConfiguration, SbtRunConfiguration_MockedProcess_ExecutionTestBase, TestExecutionOptions}
-import org.jetbrains.sbt.shell.SbtShellTestsOnWindows
 import org.junit.Assert.assertEquals
 
 import scala.concurrent.duration.DurationInt
@@ -32,14 +30,10 @@ import scala.concurrent.duration.DurationInt
  */
 abstract class SbtRunConfiguration_BuildBeforeLaunch_TestBase extends SbtRunConfiguration_MockedProcess_ExecutionTestBase {
 
-  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
-    // TODO: SCL-26340 disabled on Windows in every sbt process mode, the no-shell scenarios are flaky there as well, see SbtShellTestsOnWindows
-    if (SbtShellTestsOnWindows.disabled) return
-
-    super.runTestRunnable(testRunnable)
-  }
-
   protected def assertFreshSbtRunConfiguration_DoesNotRunBuild(options: TestExecutionOptions): Unit = {
+    // TODO: SCL-26340 the new sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
+    if (isDisabledOnWindows(options)) return
+
     val buildTracker = runFreshSbtRunConfiguration_BuildBeforeLaunch(options) { _ =>
       ()
     }
@@ -47,6 +41,9 @@ abstract class SbtRunConfiguration_BuildBeforeLaunch_TestBase extends SbtRunConf
   }
 
   protected def assertFreshSbtRunConfiguration_RunsExplicitBuildBeforeLaunch(options: TestExecutionOptions): Unit = {
+    // TODO: SCL-26340 the new sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
+    if (isDisabledOnWindows(options)) return
+
     val buildTracker = runFreshSbtRunConfiguration_BuildBeforeLaunch(options) { configuration =>
       CompileStepBeforeRunTestUtil.addCompileStepBeforeRunTask(getProject, configuration)
     }
@@ -96,8 +93,10 @@ abstract class SbtRunConfiguration_BuildBeforeLaunch_TestBase extends SbtRunConf
         options.executionMode.executor,
         descriptorCallback = executionObserver.recordRunContentDescriptor,
       )
-      // We use small timeout because the run configuration starts a lightweight mock JVM instead of a real sbt process.
-      executionObserver.awaitSuccessfulTermination(timeout = 10.seconds)
+      // The run configuration starts a lightweight mock JVM instead of a real sbt process, but an explicit Build step
+      // runs first and may have to start the compile server. That has been observed to take longer than 10 seconds on
+      // the Windows CI agents, as the Make step in SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase did on macOS.
+      executionObserver.awaitSuccessfulTermination(timeout = 60.seconds)
       debuggerSessionsAwaiter.foreach(_.awaitAllSessionsDetached())
     }
     assertExpectedDebugOutput(options, executionObserver)
