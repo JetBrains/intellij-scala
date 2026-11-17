@@ -162,6 +162,20 @@ final class ChangeSignatureInScalaTest extends ChangeSignatureInScalaTestBase {
     )
     doTest(newName = "Color", newParams = params, newVisibility = null, newReturnType = null)
   }
+
+  @Test
+  def testReorderWithExplicitTypeArguments(): Unit = {
+    isAddDefaultValue = false
+    val params = Seq(parameterInfo("b", 1, Boolean), parameterInfo("a", 0, Int))
+    doTest(null, "foo", null, Seq(params))
+  }
+
+  @Test
+  def testReorderSecondClauseWithExplicitTypeArguments(): Unit = {
+    isAddDefaultValue = false
+    val params = Seq(Seq(parameterInfo("a", 0, Int)), Seq(parameterInfo("c", 2, Int), parameterInfo("b", 1, Boolean)))
+    doTest(null, "foo", null, params)
+  }
 }
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))

@@ -134,10 +134,17 @@ private[changeSignature] object isAnonFunUsage {
       case ChildOf(mc: MethodInvocation) if mc.argumentExpressions.exists(ScUnderScoreSectionUtil.isUnderscore) => Some(AnonFunUsageInfo(mc, ref))
       case ChildOf(und: ScUnderscoreSection) => Some(AnonFunUsageInfo(und, ref))
       case ResolvesTo(m: PsiMethod) & ChildOf(elem)
-        if m.getParameterList.getParametersCount > 0 && !elem.is[MethodInvocation] =>
+        if m.getParameterList.getParametersCount > 0 && !isInvoked(elem) =>
         Some(AnonFunUsageInfo(ref, ref))
       case _ => None
     }
+  }
+
+  /** The parent of a method reference calls it: `foo(...)`, or `foo[T](...)` through the generic call. */
+  private def isInvoked(parent: PsiElement): Boolean = parent match {
+    case _: MethodInvocation => true
+    case generic: ScGenericCall => generic.getParent.is[MethodInvocation]
+    case _ => false
   }
 }
 
