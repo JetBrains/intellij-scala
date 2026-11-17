@@ -70,7 +70,7 @@ class Scala3CaptureCheckingFormatterTest extends Scala3FormatterBaseTest {
     )
 
   def test_capture_set(): Unit =
-    doTextTest(
+    checkStableFormatting(
       """
         |x: A^{  id  .  id  .  rd  }
         |x: A^{  id  .  this  .  this  .  super  .  id  }
@@ -88,9 +88,7 @@ class Scala3CaptureCheckingFormatterTest extends Scala3FormatterBaseTest {
         |x: A^{this*}
         |x: A^{this*.as[x]}
         |x: A^{this*.rd}
-        |""".stripMargin,
-      repeats = 2,
-      checkAfterEachIteration = true
+        |""".stripMargin
     )
 
   def test_capture_filters(): Unit =
@@ -148,23 +146,27 @@ class Scala3CaptureCheckingFormatterTest extends Scala3FormatterBaseTest {
     )
 
   def test_same_line_trailing_comma_in_capture_bound(): Unit =
-    doTextTest(
-      "class Box[C ^ <: { any , }, T]\nclass After",
-      "class Box[C^ <: {any,}, T]\n\nclass After",
-      repeats = 2,
-      checkAfterEachIteration = true
+    checkStableFormatting(
+      """class Box[C ^ <: { any , }, T]
+        |class After""".stripMargin,
+      """class Box[C^ <: {any,}, T]
+        |
+        |class After""".stripMargin
     )
 
   def test_multiline_trailing_comma_in_capture_bound(): Unit =
-    doTextTest(
-      "class Box[C ^ <: { any ,\n}, T]\nclass After",
-      "class Box[C^ <: {any,\n}, T]\n\nclass After",
-      repeats = 2,
-      checkAfterEachIteration = true
+    checkStableFormatting(
+      """class Box[C ^ <: { any ,
+        |}, T]
+        |class After""".stripMargin,
+      """class Box[C^ <: {any,
+        |}, T]
+        |
+        |class After""".stripMargin
     )
 
   def test_capture_bounds_with_comments_and_line_breaks(): Unit =
-    doTextTest(
+    checkStableFormatting(
       """def f[
         |  C ^ >: /* lower */ { } <: /* upper */ { any . only [ Shared ] . except [ Control ] . rd },
         |  D ^ <: // capture upper
@@ -180,7 +182,22 @@ class Scala3CaptureCheckingFormatterTest extends Scala3FormatterBaseTest {
         |  T >: /* type lower */ Nothing <: // type upper
         |  AnyRef
         |](x: T): T = x
-        |""".stripMargin,
+        |""".stripMargin
+    )
+
+  /**
+   * Checks the expected document and PSI text after each of two passes on the same file.
+   *
+   * @param before source used to create the file before the first formatting pass
+   * @param expected text expected after each pass and during the final verification
+   */
+  private def checkStableFormatting(
+    before: String,
+    expected: String
+  ): Unit =
+    doTextTest(
+      before,
+      expected,
       repeats = 2,
       checkAfterEachIteration = true
     )

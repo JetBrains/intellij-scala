@@ -202,37 +202,47 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   private def doTextTest(testData: TestData): Unit = {
     val TestData(textBefore, textAfter, fileName, action, selectedRanges, actionRepeats, checkAfterEachIteration) =
       testData
+    val context = s"${getClass.getSimpleName}.$getName: $fileName, $action"
 
-    assertTrue("action should be applied at least once", actionRepeats >= 1)
+    assertTrue(s"$context: expected at least one formatting pass, actual=$actionRepeats", actionRepeats >= 1)
     if (actionRepeats > 1 && selectedRanges.nonEmpty)
-      fail("for now an action can not be applied multiple times for selection")
+      fail(s"$context: repeated formatting with a selection is unsupported; passes=$actionRepeats, ranges=$selectedRanges")
 
     val file = initFile(fileName, textBefore)
-    val manager  = PsiDocumentManager.getInstance(getProject)
-    val document = manager.getDocument(file).ensuring(_ != null, "Don't expect the document to be null")
+    assertNotNull(s"$context: initFile must return a PSI file", file)
+    val manager = PsiDocumentManager.getInstance(getProject)
+    val document = manager.getDocument(file)
+    assertNotNull(s"$context: expected an editable document for the PSI file", document)
 
-    def check(expected: String): Unit = {
-      val expected2 = prepareText(expected)
-      assertEquals(expected2, prepareText(document.getText))
+    def check(expected: String, checkpoint: String): Unit = {
+      val expectedText = prepareText(expected)
+      val actualDocumentText = prepareText(document.getText)
+      assertEquals(s"$context, $checkpoint: document text", expectedText, actualDocumentText)
+
       manager.commitDocument(document)
-      assertEquals(expected2, prepareText(file.getText))
+
+      val actualPsiText = prepareText(file.getText)
+      assertEquals(s"$context, $checkpoint: committed PSI text", expectedText, actualPsiText)
     }
 
     runCommandInWriteAction(() => try {
-      for (_ <- 0 until actionRepeats) {
+      for (iteration <- 0 until actionRepeats) {
         val ranges = if (selectedRanges.nonEmpty) selectedRanges else Seq(file.getTextRange)
         Actions(action).run(file, ranges)
         if (checkAfterEachIteration) {
-          textAfter.foreach(check)
+          textAfter.foreach { expected =>
+            check(expected, s"after formatting pass ${iteration + 1} of $actionRepeats")
+          }
         }
       }
     } catch {
       case e: IncorrectOperationException =>
-        fail(e.getLocalizedMessage)
+        fail(s"$context: formatting action failed: $e")
     }, "", "")
 
-
-    textAfter.foreach(check)
+    textAfter.foreach { expected =>
+      check(expected, s"final verification after $actionRepeats formatting pass(es)")
+    }
   }
 
   protected def prepareText(text: String): String = {
