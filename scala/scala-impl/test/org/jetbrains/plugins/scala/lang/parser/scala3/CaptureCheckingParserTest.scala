@@ -127,7 +127,7 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   )
 
   def test_capture_filter_scala3_examples(): Unit = {
-    checkParseErrors(
+    checkParseErrorMessages(
       """import scala.caps.{any, Classifier, Control, SharedCapability}
         |
         |trait C extends SharedCapability, Classifier
@@ -143,10 +143,10 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
     )
   }
 
-  def test_qualified_references(): Unit = checkTree(
-    checkParseErrors("""type F = () ->{this.c.only[p.C].except[p.D].rd} Unit
+  def test_qualified_references(): Unit = checkTreeAndErrors(
+    """type F = () ->{this.c.only[p.C].except[p.D].rd} Unit
       |type G = () ?->{c*.only[p.C]} Unit
-      |""".stripMargin),
+      |""".stripMargin,
     """ScalaFile
       |  ScTypeAliasDefinition: F
       |    AnnotationsList
@@ -244,8 +244,8 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   )
 
   // From scala/scala3 3.10.1 tests/pos-custom-args/captures/except-database.scala.
-  def test_this_only(): Unit = checkTree(
-    checkParseErrors("type F = () ->{this.only[UserTable]} List[User]"),
+  def test_this_only(): Unit = checkTreeAndErrors(
+    "type F = () ->{this.only[UserTable]} List[User]",
     """ScalaFile
       |  ScTypeAliasDefinition: F
       |    AnnotationsList
@@ -293,8 +293,8 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   )
 
   // From scala/scala3 3.10.1 tests/pos-custom-args/captures/except-database.scala.
-  def test_this_except(): Unit = checkTree(
-    checkParseErrors("type F = () ->{this.except[TransactionTable]} List[User]"),
+  def test_this_except(): Unit = checkTreeAndErrors(
+    "type F = () ->{this.except[TransactionTable]} List[User]",
     """ScalaFile
       |  ScTypeAliasDefinition: F
       |    AnnotationsList
@@ -342,8 +342,8 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   )
 
   // From scala/scala3 3.10.1 tests/pos-custom-args/captures/except-top.scala.
-  def test_adjacent_capture(): Unit = checkTree(
-    checkParseErrors("type T = Object^{c.except[Any], d}"),
+  def test_adjacent_capture(): Unit = checkTreeAndErrors(
+    "type T = Object^{c.except[Any], d}",
     """ScalaFile
       |  ScTypeAliasDefinition: T
       |    AnnotationsList
@@ -383,8 +383,8 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   )
 
   // From scala/scala3 3.10.1 tests/pos-custom-args/captures/except-captureexception.scala.
-  def test_inside_type_argument(): Unit = checkTree(
-    checkParseErrors("type T = Option[Failure^{f.only[Control]}]"),
+  def test_inside_type_argument(): Unit = checkTreeAndErrors(
+    "type T = Option[Failure^{f.only[Control]}]",
     """ScalaFile
       |  ScTypeAliasDefinition: T
       |    AnnotationsList
@@ -427,8 +427,8 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   )
 
   // From scala/scala3 3.10.1 tests/pos-custom-args/captures/except-multi-subsumes.scala.
-  def test_only_then_multiple_except(): Unit = checkTree(
-    checkParseErrors("type T = Object^{c.only[SharedCapability].except[Control].except[IOCap]}"),
+  def test_only_then_multiple_except(): Unit = checkTreeAndErrors(
+    "type T = Object^{c.only[SharedCapability].except[Control].except[IOCap]}",
     """ScalaFile
       |  ScTypeAliasDefinition: T
       |    AnnotationsList
@@ -477,8 +477,8 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   )
 
   // From scala/scala3 3.10.1 tests/pos-custom-args/captures/except-sep/Defs_1.scala.
-  def test_except_read_only(): Unit = checkTree(
-    checkParseErrors("type T = Object^{c.except[Control].rd}"),
+  def test_except_read_only(): Unit = checkTreeAndErrors(
+    "type T = Object^{c.except[Control].rd}",
     """ScalaFile
       |  ScTypeAliasDefinition: T
       |    AnnotationsList
@@ -515,8 +515,8 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   )
 
   // From scala/scala3 3.10.1 tests/neg-custom-args/captures/implied-ro.scala; its errors concern semantics.
-  def test_only_read_only(): Unit = checkTree(
-    checkParseErrors("type T = Object^{any.only[Unscoped].rd}"),
+  def test_only_read_only(): Unit = checkTreeAndErrors(
+    "type T = Object^{any.only[Unscoped].rd}",
     """ScalaFile
       |  ScTypeAliasDefinition: T
       |    AnnotationsList
@@ -553,8 +553,8 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   )
 
   // From scala/scala3 3.10.1 tests/pos-custom-args/captures/except-effects.scala.
-  def test_qualified_context_parameter(): Unit = checkTree(
-    checkParseErrors("type F = this.Raise ?->{any.except[ErrHandler]} A"),
+  def test_qualified_context_parameter(): Unit = checkTreeAndErrors(
+    "type F = this.Raise ?->{any.except[ErrHandler]} A",
     """ScalaFile
       |  ScTypeAliasDefinition: F
       |    AnnotationsList
@@ -597,8 +597,8 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   )
 
   // From scala/scala3 3.10.1 tests/pos-custom-args/captures/i19751.scala.
-  def test_context_parameter(): Unit = checkTree(
-    checkParseErrors("type F = Scope ?->{any.only[Shared]} A"),
+  def test_context_parameter(): Unit = checkTreeAndErrors(
+    "type F = Scope ?->{any.only[Shared]} A",
     """ScalaFile
       |  ScTypeAliasDefinition: F
       |    AnnotationsList
@@ -637,11 +637,10 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_missing_open_bracket(): Unit = checkTree(
-    checkParseErrors(s"""type T = Object^{c.only${err("'[' expected")}, next}
-      |type U = Object^{after}
-      |""".stripMargin),
-    """ScalaFile
+  def test_missing_open_bracket(): Unit = checkTreeAndErrors(
+    source = captureFilterRecoverySource("c.only"),
+    expectedErrorMessages = Seq("'[' expected"),
+    expectedTree = """ScalaFile
       |  ScTypeAliasDefinition: T
       |    AnnotationsList
       |      <empty list>
@@ -700,11 +699,10 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_missing_identifier(): Unit = checkTree(
-    checkParseErrors(s"""type T = Object^{c.only[${err("Wrong qualified identifier")}, next}
-      |type U = Object^{after}
-      |""".stripMargin),
-    """ScalaFile
+  def test_missing_identifier(): Unit = checkTreeAndErrors(
+    source = captureFilterRecoverySource("c.only["),
+    expectedErrorMessages = Seq("Wrong qualified identifier"),
+    expectedTree = """ScalaFile
       |  ScTypeAliasDefinition: T
       |    AnnotationsList
       |      <empty list>
@@ -764,11 +762,10 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_empty_argument(): Unit = checkTree(
-    checkParseErrors(s"""type T = Object^{c.only[${err("Wrong qualified identifier")}], next}
-      |type U = Object^{after}
-      |""".stripMargin),
-    """ScalaFile
+  def test_empty_argument(): Unit = checkTreeAndErrors(
+    source = captureFilterRecoverySource("c.only[]"),
+    expectedErrorMessages = Seq("Wrong qualified identifier"),
+    expectedTree = """ScalaFile
       |  ScTypeAliasDefinition: T
       |    AnnotationsList
       |      <empty list>
@@ -829,11 +826,10 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_missing_close_bracket(): Unit = checkTree(
-    checkParseErrors(s"""type T = Object^{c.only[C${err("']' expected")}, next}
-      |type U = Object^{after}
-      |""".stripMargin),
-    """ScalaFile
+  def test_missing_close_bracket(): Unit = checkTreeAndErrors(
+    source = captureFilterRecoverySource("c.only[C"),
+    expectedErrorMessages = Seq("']' expected"),
+    expectedTree = """ScalaFile
       |  ScTypeAliasDefinition: T
       |    AnnotationsList
       |      <empty list>
@@ -896,11 +892,10 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_unfinished_qualified_identifier(): Unit = checkTree(
-    checkParseErrors(s"""type T = Object^{c.only[p.${err("Wrong qualified identifier")}], next}
-      |type U = Object^{after}
-      |""".stripMargin),
-    """ScalaFile
+  def test_unfinished_qualified_identifier(): Unit = checkTreeAndErrors(
+    source = captureFilterRecoverySource("c.only[p.]"),
+    expectedErrorMessages = Seq("Wrong qualified identifier"),
+    expectedTree = """ScalaFile
       |  ScTypeAliasDefinition: T
       |    AnnotationsList
       |      <empty list>
@@ -965,11 +960,10 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_unfinished_filter_chain(): Unit = checkTree(
-    checkParseErrors(s"""type T = Object^{c.only[C].except[${err("Wrong qualified identifier")}], next}
-      |type U = Object^{after}
-      |""".stripMargin),
-    """ScalaFile
+  def test_unfinished_filter_chain(): Unit = checkTreeAndErrors(
+    source = captureFilterRecoverySource("c.only[C].except[]"),
+    expectedErrorMessages = Seq("Wrong qualified identifier"),
+    expectedTree = """ScalaFile
       |  ScTypeAliasDefinition: T
       |    AnnotationsList
       |      <empty list>
@@ -1037,13 +1031,13 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_ordinary_identifiers(): Unit = checkTree(
-    checkParseErrors("""def only[T](x: T): T = x
+  def test_ordinary_identifiers(): Unit = checkTreeAndErrors(
+    """def only[T](x: T): T = x
       |def except[T](x: T): T = x
       |val value = only[Int](except[Int](1))
       |val selected = value.only[Int].except[String]
       |type T = Object^{only, except, c.`only`, c.`except`}
-      |""".stripMargin),
+      |""".stripMargin,
     """ScalaFile
       |  ScFunctionDefinition: only
       |    AnnotationsList
@@ -1257,29 +1251,37 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   def test_incomplete_capture_filters(): Unit = {
     for (prefix <- Seq("c.only", "c.except", "c.only[C].except", "c.except[C].except")) {
       val incompleteFilters = Seq(
-        s"$prefix${err("'[' expected")}",
-        s"$prefix[${err("Wrong qualified identifier")}",
-        s"$prefix[${err("Wrong qualified identifier")}]",
-        s"$prefix[C${err("']' expected")}",
-        s"$prefix[p.${err("Wrong qualified identifier")}]"
+        (prefix, "'[' expected"),
+        (s"$prefix[", "Wrong qualified identifier"),
+        (s"$prefix[]", "Wrong qualified identifier"),
+        (s"${prefix}[C", "']' expected"),
+        (s"$prefix[p.]", "Wrong qualified identifier")
       )
-      for (incomplete <- incompleteFilters) {
-        checkIncompleteFilterRecovery(incomplete)
+      for ((incomplete, expectedErrorMessage) <- incompleteFilters) {
+        checkIncompleteFilterRecovery(incomplete, expectedErrorMessage)
       }
     }
   }
 
-  private def checkIncompleteFilterRecovery(incomplete: String): Unit = {
-    val file = checkParseErrors(
-      s"""type T = Object^{$incomplete, next}
-         |type U = Object^{after}
-         |""".stripMargin
+  private def checkIncompleteFilterRecovery(incomplete: String, expectedErrorMessage: String): Unit = {
+    val file = checkParseErrorMessages(
+      source = captureFilterRecoverySource(incomplete),
+      expectedErrorMessages = Seq(expectedErrorMessage)
     )
+
     val aliases = childrenOfType(file, TYPE_DEFINITION)
     assertEquals(incomplete, Seq("T", "U"), aliases.map(identifierText))
     assertEquals(incomplete, Seq("c", "next"), captureBaseReferenceTexts(aliases.head))
     assertEquals(incomplete, Seq("after"), captureBaseReferenceTexts(aliases.last))
   }
+
+  /** Adds an adjacent capture and following alias to check recovery. */
+  private def captureFilterRecoverySource(
+    captureText: String
+  ): String =
+    s"""type T = Object^{$captureText, next}
+       |type U = Object^{after}
+       |""".stripMargin
 
   private def captureBaseReferenceTexts(alias: PsiElement): Seq[String] = {
     val Seq(set) = descendantsOfType(alias, CAPTURE_SET)
@@ -1291,7 +1293,7 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   }
 
   def test_polymorphic_pure_function(): Unit = {
-    val file = checkParseErrors(
+    val file = checkParseErrorMessages(
       """object Repro:
         |  def map[F[_]](f: [T] -> T -> F[T]): Unit = ()
         |""".stripMargin
