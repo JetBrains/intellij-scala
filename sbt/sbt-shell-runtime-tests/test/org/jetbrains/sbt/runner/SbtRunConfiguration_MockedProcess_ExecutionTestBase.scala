@@ -154,7 +154,8 @@ abstract class SbtRunConfiguration_MockedProcess_ExecutionTestBase extends JavaM
 
   protected def waitUntilSbtShellIsReadyIfNeeded(options: TestExecutionOptions): Unit = {
     if (options.useSbtShellInRunConfig && options.prestartSbtShell) {
-      SbtShellTestUtil.waitUntilSbtShellIsReady(getProject, 5.seconds, "Can't start sbt shell")
+      // The wait returns as soon as the shell is ready; the generous timeout only covers slow CI agents
+      SbtShellTestUtil.waitUntilSbtShellIsReady(getProject, 30.seconds, "Can't start sbt shell")
     }
   }
 
