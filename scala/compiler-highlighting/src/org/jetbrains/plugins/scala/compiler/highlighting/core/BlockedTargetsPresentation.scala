@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.compiler.highlighting.core
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.NlsSafe
+import com.intellij.openapi.util.text.HtmlChunk
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.compiler.highlighting.core.ExternalHighlighting.RangeInfo
@@ -25,9 +26,12 @@ private[highlighting] object BlockedTargetsPresentation:
       .map(key => key.module.nameWithoutSourceSet -> key.module.displayNameWithoutSourceSet)
       .toMap
     val (named, more) = capped(shownNames(shortNameByFullName))
-    val listed = named.map(StringUtil.escapeXmlEntities).mkString(", ")
+    val listed = named.map(bold).mkString(", ")
     if more == 0 then listed
     else CompilerHighlightingBundle.message("highlighting.blocked.names.and.more", listed, more)
+
+  /** `name` escaped and in bold. Blockers are named by their modules, which are not localized. */
+  private def bold(@NlsSafe name: String): String = HtmlChunk.text(name).bold().toString
 
   /**
    * The names to list out of `names`, and how many are left out: all of them when there are at most [[MaxListed]],
