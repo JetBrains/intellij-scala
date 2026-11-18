@@ -161,13 +161,19 @@ private final class MouseHandler extends ProjectActivity {
     })
   }
 
+  private val allowedScalaFileNamesRegex = {
+    val twirlFileNames = raw"""(\.scala\.\w+)""".r
+    raw""".*(\.scala|\.sc|\.sbt|\.mill|$twirlFileNames)""".r
+  }
+
   private def handlingRequired(e: EditorMouseEvent) = {
-    val project = e.getEditor.getProject
+    val editor = e.getEditor
+    val project = editor.getProject
     val isFromValidProject = project != null && project.isInitialized && !project.isDisposed
 
     def isScalaFile = {
-      val file = e.getEditor.getVirtualFile
-      file != null && (file.getExtension == "scala" || file.getExtension == "sc" || file.getExtension == "sbt" || file.getExtension == "mill")
+      val file = editor.getVirtualFile
+      file != null && allowedScalaFileNamesRegex.matches(file.getName)
     }
 
     def checkSettings = {
