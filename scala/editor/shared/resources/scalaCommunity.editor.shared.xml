@@ -83,6 +83,9 @@
         <lang.syntaxHighlighter language="ScalaDirective"
                                 implementationClass="org.jetbrains.plugins.scalaDirective.highlighter.ScalaDirectiveSyntaxHighlighter"/>
 
+        <lang.quoteHandler language="Scala"
+                           implementationClass="org.jetbrains.plugins.scala.codeInsight.editorActions.ScalaQuoteHandler"/>
+
         <lineIndentProvider implementation="org.jetbrains.plugins.scala.editor.ScalaLineIndentProvider"/>
 
         <moveLeftRightHandler language="Scala"
