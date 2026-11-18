@@ -42,7 +42,6 @@ abstract class ScalaLibraryJarNavigationTestBase extends ScalaLightCodeInsightFi
     binaryIndexed: Boolean,
     sourceIndexed: Boolean,
     sourceFound: Boolean,
-    navigationExcluded: Boolean,
     navigationMatched: Boolean
   )
 
@@ -75,15 +74,6 @@ abstract class ScalaLibraryJarNavigationTestBase extends ScalaLightCodeInsightFi
     assertEquals(s"Scala ${version.minor} $jarName candidate count changed; review the library and update " +
       "ExpectedCandidateCounts if the change is intended", expectedCount, candidates.size)
 
-    // TreePrinter overflows on IsMap in Scala 3.8+; still check its binary and source indexing.
-    val navigationExceptions = if (version.isScala3 && version >= ScalaVersion.Latest.Scala_3_8)
-      Set("scala/collection/generic/IsMap.tasty")
-    else
-      Set.empty[String]
-    val candidatePaths = candidates.map(_.file.getPath.stripPrefix(binaryRoot.getPath)).toSet
-    assertTrue(s"Expected navigation exceptions missing from $jarName: ${navigationExceptions -- candidatePaths}",
-      navigationExceptions.subsetOf(candidatePaths))
-
     val scope = GlobalSearchScope.allScope(getProject)
     val names = (candidates.map(_.file.getName) ++ filesRecursively(sourceRoot).map(_.getName)).distinct
     val indexedByName = names.iterator.map { name =>
@@ -114,13 +104,13 @@ abstract class ScalaLibraryJarNavigationTestBase extends ScalaLightCodeInsightFi
     assertTrue(s"Explicit exclusions now have compiled Scala PSI: ${excludedWithScalaPsi.map(_.getPath)}",
       excludedWithScalaPsi.isEmpty)
 
-    val results = candidates.map(checkCandidate(_, binaryRoot, sourceRoot, indexedByName, psiManager, navigationExceptions))
+    val results = candidates.map(checkCandidate(_, binaryRoot, sourceRoot, indexedByName, psiManager))
 
     println(s"Scala ${version.minor} $jarName: ${candidates.size + excluded.size} inventory entries, " +
       s"${excluded.size} explicit exclusions, ${candidates.size} candidates, " +
       s"${results.count(_.binaryIndexed)} indexed binaries, ${results.count(_.sourceFound)} paired sources, " +
       s"${results.count(_.sourceIndexed)} indexed sources, ${results.count(_.navigationMatched)} correct navigation targets, " +
-      s"${results.count(_.navigationExcluded)} navigation exceptions, ${classesWithTasty.size} paired .class files hidden")
+      s"${classesWithTasty.size} paired .class files hidden")
     val failures = results.flatMap(_.errors)
     assertTrue(s"${failures.size} failures among ${candidates.size} candidates in $jarName:\n${failures.mkString("\n")}", failures.isEmpty)
   }
@@ -167,11 +157,9 @@ abstract class ScalaLibraryJarNavigationTestBase extends ScalaLightCodeInsightFi
   }
 
   private def checkCandidate(candidate: Candidate, binaryRoot: VirtualFile, sourceRoot: VirtualFile,
-                             indexedByName: Map[String, Set[VirtualFile]], psiManager: PsiManager,
-                             navigationExceptions: Set[String]): CheckResult = {
+                             indexedByName: Map[String, Set[VirtualFile]], psiManager: PsiManager): CheckResult = {
     val binaryIndexed = indexedByName.getOrElse(candidate.file.getName, Set.empty[VirtualFile]).contains(candidate.file)
     val binaryPath = candidate.file.getPath.stripPrefix(binaryRoot.getPath)
-    val navigationExcluded = navigationExceptions(binaryPath)
     val sourcePath = candidate.sourceName.map(binaryPath.take(binaryPath.lastIndexOf('/') + 1) + _)
     val sourceFile = sourcePath.flatMap(path => Option(sourceRoot.findFileByRelativePath(path)))
     val sourceFound = sourceFile.nonEmpty
@@ -188,11 +176,10 @@ abstract class ScalaLibraryJarNavigationTestBase extends ScalaLightCodeInsightFi
       Option.when(candidate.sourceName.isEmpty)(s"$binaryPath: no recorded source filename"),
       Option.when(!sourceFound)(s"$binaryPath: source ${sourcePath.getOrElse("<unknown>")} absent from $sourceRoot"),
       Option.when(!sourceIndexed && sourceFound)(s"$binaryPath: source ${sourcePath.get} absent from FilenameIndex"),
-      Option.when(navigationExcluded && compiledPsi.nonEmpty)(s"$binaryPath: compiled Scala PSI is now available; remove the navigation exception"),
-      Option.when(!navigationExcluded && compiledPsi.isEmpty)(s"$binaryPath: no compiled Scala PSI"),
-      Option.when(!navigationExcluded && !navigationMatched)(s"$binaryPath: navigation ${navigationFile.map(_.getPath).getOrElse("<none>")} != ${sourceFile.map(_.getPath).getOrElse("<missing source>")}")
+      Option.when(compiledPsi.isEmpty)(s"$binaryPath: no compiled Scala PSI"),
+      Option.when(!navigationMatched)(s"$binaryPath: navigation ${navigationFile.map(_.getPath).getOrElse("<none>")} != ${sourceFile.map(_.getPath).getOrElse("<missing source>")}")
     ).flatten
-    CheckResult(errors, binaryIndexed, sourceIndexed, sourceFound, navigationExcluded, navigationMatched)
+    CheckResult(errors, binaryIndexed, sourceIndexed, sourceFound, navigationMatched)
   }
 
   private def attachedRoot(jarName: String, rootType: OrderRootType): VirtualFile = {

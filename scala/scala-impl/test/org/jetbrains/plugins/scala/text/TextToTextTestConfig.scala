@@ -469,7 +469,6 @@ private object TextToTextTestConfig {
         "scala.collection.IterableOnceOps", // "\"
         "scala.collection.SeqView", // extends Appended | Appended[_root_.scala.Nothing]
         "scala.collection.SortedMapOps", // extends MapOps.LazyKeySet | MapOps.LazyKeySet[A, B, C, D]
-        "scala.collection.generic.IsIterableLowPriority", // Cannot resolve _root_.scala.collection.generic.IsMap
         "scala.collection.immutable.MapOps", // extends MapOps.LazyKeySet | MapOps.LazyKeySet[A, B, C, D]
         "scala.collection.immutable.NumericRange", // extends NumericRange | NumericRange[T]
         "scala.collection.mutable.CheckedIndexedSeqView", // Id | Id[Nothing]
