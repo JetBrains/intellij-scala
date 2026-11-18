@@ -9,8 +9,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.editor.AutoBraceUtils.{canBeContinuedWith, continuesConstructAfterIndentationContext, couldBeContinuationAfterIndentationContext, indentationContextContinuation, isBeforeIndentationContext, nextExpressionInIndentationContext, previousExpressionInIndentationContext}
-import org.jetbrains.plugins.scala.editor.{AutoBraceAdvertiser, DocumentExt}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.editor.{AutoBraceAdvertiser, AutoBraceUtils, DocumentExt}
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -18,19 +18,10 @@ import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil.calcIndent
 
-import java.{util => ju}
+import java.util as ju
 import scala.annotation.tailrec
 
 object AutoBraceInsertionTools {
-  def autoBraceInsertionActivated: Boolean =
-    ScalaApplicationSettings.getInstance.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY
-
-  def shouldHandleAutoBracesBeforeTyped(typedChar: Char): Boolean = {
-    autoBraceInsertionActivated &&
-      !typedChar.isWhitespace &&
-      typedChar != '{' && typedChar != '}'
-  }
-
   private val continuesPreviousLine = Set('.')
 
   def findAutoBraceInsertionOpportunity(c: Option[Char], caretOffset: Int, element: PsiElement)
@@ -98,7 +89,7 @@ object AutoBraceInsertionTools {
           // in that case the postfix expr will be continued into an infix expression
           // but only check if there is now new line between the operator and the rhs operand
           val emptyNewlineBeforeCaret = caretWSText.lastIndexOf('\n', newlinePosBeforeCaret - 1) >= 0
-          if (!emptyNewlineBeforeCaret && isBehindPostfixExpr(element)) {
+          if (!emptyNewlineBeforeCaret && AutoBraceUtils.isBehindPostfixExpr(element)) {
             return None
           }
 
@@ -318,7 +309,7 @@ object AutoBraceInsertionTools {
   def findAutoBraceInsertionOpportunityWhenStartingStatement(c: Char, caretOffset: Int, element: PsiElement)
                                                             (implicit project: Project, file: PsiFile, editor: Editor): Option[AutoBraceInsertionInfo] = {
     assert(c.isWhitespace)
-    if (!autoBraceInsertionActivated) {
+    if (!AutoBraceUtils.autoBraceInsertionActivated) {
       return None
     }
     // TODO: temporary disabled auto-braces feature for Scala3, cause Scala3 doesn't require braces
@@ -433,31 +424,6 @@ object AutoBraceInsertionTools {
       document.commit(project)
     }
   }
-
-  def isBehindPostfixExpr(element: PsiElement): Boolean = {
-    val start = element.startOffset
-    PsiTreeUtil.prevVisibleLeaf(element).nullSafe
-      .exists(prev =>
-        prev
-          .withParentsInFile
-          .takeWhile(_.endOffset <= start)
-          .exists(_.is[ScPostfixExpr])
-      )
-  }
-  /*
-    todo: use for caret being at the end of the file
-    def isBehindPostfixExpr(element: Option[PsiElement], file: PsiFile): Boolean = {
-      val prevElement = element.map(PsiTreeUtil.prevVisibleLeaf).orElse(file.lastChild)
-      prevElement
-        .exists { prev =>
-          val start = element.fold(file.endOffset)(_.startOffset)
-          prev
-            .withParentsInFile
-            .takeWhile(_.endOffset <= start)
-            .exists(_.is[ScPostfixExpr])
-        }
-    }
-   */
 
   /**
    * @param openBraceOffset       the position where the opening braces should be put

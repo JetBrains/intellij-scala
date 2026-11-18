@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
  * @see [[org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler.charTyped]]
- * @see [[org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools.shouldHandleAutoBracesBeforeTyped]]
+ * @see [[org.jetbrains.plugins.scala.editor.AutoBraceUtils.shouldHandleAutoBracesBeforeTyped]]
  */
 final class AutoBraceEnterHandler extends EnterHandlerDelegateAdapter {
 

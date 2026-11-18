@@ -4,9 +4,8 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleManager
-import org.jetbrains.plugins.scala.editor.{DocumentExt, EditorExt}
-import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools.isBehindPostfixExpr
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.editor.{AutoBraceUtils, DocumentExt, EditorExt}
+import org.jetbrains.plugins.scala.extensions.*
 
 trait IndentAdjustor {
   def shouldAdjustIndentAfterDot(editor: Editor): Boolean =
@@ -54,6 +53,6 @@ trait IndentAdjustor {
     val caretLine = document.getLineNumber(offset)
     val lastElementLine = document.getLineNumber(element.startOffset)
     (caretLine - lastElementLine == 1) &&
-      isBehindPostfixExpr(element)
+      AutoBraceUtils.isBehindPostfixExpr(element)
   }
 }

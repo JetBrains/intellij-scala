@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.editor
 
 import com.intellij.psi.tree.IElementType
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiErrorElement}
 import org.jetbrains.plugins.scala.editor.enterHandler.Scala3IndentationBasedSyntaxEnterHandler
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import scala.util.matching.Regex
 
@@ -17,6 +19,15 @@ import scala.util.matching.Regex
  * Also see [[org.jetbrains.plugins.scala.util.IndentUtil]]
  */
 object AutoBraceUtils {
+  def autoBraceInsertionActivated: Boolean =
+    ScalaApplicationSettings.getInstance.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY
+
+  def shouldHandleAutoBracesBeforeTyped(typedChar: Char): Boolean = {
+    autoBraceInsertionActivated &&
+      !typedChar.isWhitespace &&
+      typedChar != '{' && typedChar != '}'
+  }
+
   def nextExpressionInIndentationContext(element: PsiElement): Option[ScExpression] = {
     element.nextSiblingNotWhitespaceComment match {
       case Some(e) => toIndentedExpression(e)
@@ -134,4 +145,29 @@ object AutoBraceUtils {
 
   def startsWithContinuationPrefix(text: String): Boolean =
     continuationPrefixRegexPattern.matcher(text).lookingAt()
+
+  def isBehindPostfixExpr(element: PsiElement): Boolean = {
+    val start = element.startOffset
+    PsiTreeUtil.prevVisibleLeaf(element).nullSafe
+      .exists(prev =>
+        prev
+          .withParentsInFile
+          .takeWhile(_.endOffset <= start)
+          .exists(_.is[ScPostfixExpr])
+      )
+  }
+  /*
+    todo: use for caret being at the end of the file
+    def isBehindPostfixExpr(element: Option[PsiElement], file: PsiFile): Boolean = {
+      val prevElement = element.map(PsiTreeUtil.prevVisibleLeaf).orElse(file.lastChild)
+      prevElement
+        .exists { prev =>
+          val start = element.fold(file.endOffset)(_.startOffset)
+          prev
+            .withParentsInFile
+            .takeWhile(_.endOffset <= start)
+            .exists(_.is[ScPostfixExpr])
+        }
+    }
+   */
 }

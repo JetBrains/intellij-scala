@@ -265,6 +265,8 @@
                             serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager$ClassLookupProvider"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensions$Provider"
                             serviceImplementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager$ExtensionsProvider"/>
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypingSupport"
+                            serviceImplementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypingSupportImpl" overrides="true"/>
         <registryKey key="scala.incremental.highlighting.lookaround" defaultValue="15" description="Number of lines to highlight beyond the visible area"/>
 
         <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaLocalVarCouldBeValPassFactory"/>

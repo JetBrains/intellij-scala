@@ -5,11 +5,11 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.editor.AutoBraceUtils._
-import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools._
+import org.jetbrains.plugins.scala.editor.AutoBraceUtils.*
+import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools.*
 import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceLookupListenerService.AutoBraceLookupListener
-import org.jetbrains.plugins.scala.editor.{DocumentExt, EditorExt}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.editor.{AutoBraceUtils, DocumentExt, EditorExt}
+import org.jetbrains.plugins.scala.extensions.*
 
 /**
  * This Service watches for completion popups and interferes in the very rare occasion
@@ -37,7 +37,7 @@ final class AutoBraceLookupListenerService(project: Project) extends Disposable 
       .subscribe(LookupManagerListener.TOPIC,
         new LookupManagerListener {
           override def activeLookupChanged(oldLookup: Lookup, newLookup: Lookup): Unit = {
-            if (newLookup != null && AutoBraceInsertionTools.autoBraceInsertionActivated) {
+            if (newLookup != null && AutoBraceUtils.autoBraceInsertionActivated) {
               newLookup.addLookupListener(new AutoBraceLookupListener)
             }
           }

@@ -11,8 +11,7 @@ import com.intellij.psi.*
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools.*
-import org.jetbrains.plugins.scala.editor.{DocumentExt, ScalaEditorUtils, adjustLineIndentIfNeeded, indentKeyword}
+import org.jetbrains.plugins.scala.editor.{AutoBraceUtils, DocumentExt, ScalaEditorUtils, adjustLineIndentIfNeeded, indentKeyword}
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
@@ -182,7 +181,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
       if (ScalaTypingSupport.getInstance().handleLeftBraceWrap(offset, element))
         Result.STOP
       else Result.CONTINUE
-    } else if (shouldHandleAutoBracesBeforeTyped(c)) {
+    } else if (AutoBraceUtils.shouldHandleAutoBracesBeforeTyped(c)) {
       if (ScalaTypingSupport.getInstance().handleAutoBraces(c, offset, element)) {
         // prevent other beforeTyped-handlers from being executed because psi tree is out of sync now
         Result.DEFAULT
