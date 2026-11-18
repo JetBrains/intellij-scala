@@ -23,6 +23,8 @@ import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.components.panels.HorizontalLayout
 import com.intellij.ui.components.{JBCheckBox, JBTextField}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
+import com.intellij.util.concurrency.ThreadingAssertions
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.ui.JBUI
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
@@ -31,9 +33,9 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction, inWriteA
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError.{ConfigError, ConfigScalafmtResolveError}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.utils.ScalafmtConfigUtils
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicConfigServiceImpl, ScalafmtDynamicService}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicConfigServiceImpl}
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalafmtSettingsConfigResolver.{Failure, Result, Version}
 import org.scalafmt.dynamic.ScalafmtVersion
 
 import java.awt._
@@ -43,7 +45,26 @@ import javax.swing._
 import javax.swing.event.ChangeEvent
 import scala.annotation.nowarn
 
-final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCodeStylePanelBase(settings, "Scalafmt") {
+/**
+ * Edits Scalafmt settings and previews the selected configuration.
+ *
+ * Supplying the resolver separately keeps formatter resolution independent of UI updates.
+ * `ScalaFmtSettingsPanelResolutionTest` uses a controlled resolver to choose completion
+ * order and thread deterministically, without depending on formatter downloads, caches
+ * or background-task timing. The UI, project files, VFS and documents remain real.
+ * The public single-argument constructor supplies the production resolver.
+ *
+ * @param settings initial code style settings for this panel
+ * @param configResolver resolves configurations and formatter versions; callbacks may run
+ *                       synchronously or asynchronously on any thread. The panel dispatches
+ *                       UI updates to EDT and ignores stale completions.
+ */
+final class ScalaFmtSettingsPanel private[settings](
+  settings: CodeStyleSettings,
+  configResolver: ScalafmtSettingsConfigResolver
+) extends ScalaCodeStylePanelBase(settings, "Scalafmt") {
+
+  def this(settings: CodeStyleSettings) = this(settings, ScalafmtSettingsConfigResolver)
 
   import ScalaFmtSettingsPanel._
 
@@ -52,6 +73,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   override val getEditor: EditorEx = createConfigEditor
 
   override def dispose(): Unit = {
+    resolutionRequests.invalidate()
     super.dispose()
     if (getEditor != null) {
       EditorFactory.getInstance().releaseEditor(getEditor)
@@ -114,47 +136,44 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     scalafmtVersionLabel.setText(version + (if (isDefault) s" (${ScalaBundle.message("scalafmt.default")})" else ""))
   }
 
+  @RequiresEdt
   private def ensureScalafmtResolvedAndUpdateVersionLabel(configFile: VirtualFile): Unit = {
-    val project = projectOpt match {
-      case Some(value) => value
-      case None => return
-    }
-
-    val versionOpt = ScalafmtDynamicConfigServiceImpl.readVersion(project, configFile) match {
-      case Right(v) => v
-      case Left(ex) =>
-        reportConfigParseError(ex.getMessage)
-        return
-    }
-    val version = versionOpt.getOrElse(DefaultVersion)
-
-    ScalafmtDynamicConfigService.instanceIn(project).toOption match {
-      case Some(configManager) =>
-        configManager.resolveConfigAsync(configFile, version, FmtVerbosity.Silent, onResolveFinished = {
-          case Right(config) =>
-            updateScalafmtVersionLabel(config.getVersion.toString(), isDefault = versionOpt.isEmpty)
-          case Left(error: ConfigError) =>
-            updateScalafmtVersionLabel(version.toString(), isDefault = versionOpt.isEmpty)
-            reportConfigResolveError(error)
-          case Left(error: ConfigResolveError) =>
-            updateScalafmtVersionLabel("")
-            reportConfigResolveError(error)
-        })
-      case _ =>
-        Log.assertTrue(project.isDefault, "Config manager is expected to be missing only in default projects")
-        ScalafmtDynamicService.instance.resolveAsync(version, project, {
-          case Right(scalaFmtReflect) =>
-            updateScalafmtVersionLabel(scalaFmtReflect.version.toString(), isDefault = versionOpt.isEmpty)
-          case Left(error: ScalafmtDynamicService.ScalafmtResolveError) =>
-            updateScalafmtVersionLabel("")
-            reportConfigResolveError(ConfigScalafmtResolveError(error))
-        })
-    }
+    val request = resolutionRequests.begin()
+    val modalityState = ModalityState.current()
+    projectOpt.foreach(project => {
+      configResolver.resolveConfigAsync(project, configFile, result => {
+        request.invokeLaterIfCurrent(modalityState, project) {
+          updateResolution(result)
+        }
+      })
+    })
   }
 
+  @RequiresEdt
+  private def updateResolution(result: Result): Unit = result match {
+    case Right(Version(version, isDefault)) =>
+      updateScalafmtVersionLabel(version.toString, isDefault)
+    case Left(failure) =>
+      handleResolutionFailure(failure)
+  }
+
+  @RequiresEdt
+  private def handleResolutionFailure(failure: Failure): Unit = failure match {
+    case Failure(error: ConfigError, Some(Version(version, isDefault))) =>
+      updateScalafmtVersionLabel(version.toString, isDefault)
+      reportConfigResolveError(error)
+    case Failure(error: ConfigError, None) =>
+      reportConfigParseError(error.getMessage)
+    case Failure(ConfigScalafmtResolveError(error), _) =>
+      updateScalafmtVersionLabel("")
+      reportCantResolveVersion(error.version)
+  }
+
+  @RequiresEdt
   private def ensureDefaultScalafmtResolved(): Unit = {
+    resolutionRequests.invalidate()
     if (projectOpt.isEmpty) return
-    ScalafmtDynamicService.instance.resolveAsync(DefaultVersion, projectOpt.get)
+    configResolver.resolveDefaultFormatterAsync(projectOpt.get)
     updateScalafmtVersionLabel(DefaultVersion.toString(), isDefault = true)
   }
 
@@ -252,6 +271,8 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
         case None =>
           ensureDefaultScalafmtResolved()
       }
+    } else {
+      resolutionRequests.invalidate()
     }
 
     updateConfigVisibility()
@@ -266,7 +287,8 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     myPanel
   }
 
-  private def createNewConfigFileAndUpdate(): Unit =
+  private def createNewConfigFileAndUpdate(): Unit = {
+    ThreadingAssertions.assertWriteIntentReadAccess()
     projectOpt match {
       case Some(project) =>
         val configPath = ScalafmtConfigUtils.actualConfigPath(configPathFromUi)
@@ -281,6 +303,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
         }
       case None =>
     }
+  }
 
   private def buildInnerPanel: JPanel = {
     import GridConstraints._
@@ -345,7 +368,9 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       constraint(4, 2, 1, 1, ANCHOR_CENTER, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_CAN_SHRINK))
 
     scalafmtVersionLabel = new JLabel()
-    inner.add(new JLabel(ScalaBundle.message("scalafmt.settings.panel.scalafmt.version.label") + ":"),
+    val scalafmtVersionCaption = new JLabel(ScalaBundle.message("scalafmt.settings.panel.scalafmt.version.label") + ":")
+    scalafmtVersionCaption.setLabelFor(scalafmtVersionLabel)
+    inner.add(scalafmtVersionCaption,
       constraint(5, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
     inner.add(scalafmtVersionLabel,
       constraint(5, 1, 1, 1, ANCHOR_NORTHWEST, FILL_HORIZONTAL, SIZEPOLICY_CAN_GROW | SIZEPOLICY_WANT_GROW, SIZEPOLICY_FIXED))
@@ -359,11 +384,11 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     noConfigGroup.add(noConfigLabel)
     createConfigButton = new JButton(ScalaBundle.message("scalafmt.can.not.find.config.file.create.new"))
     // Non-modal Settings actions need explicit write intent for VFS refresh and preview document updates.
-    createConfigButton.addActionListener { _ =>
-      WriteIntentReadAction.run { () =>
+    createConfigButton.addActionListener(_ => {
+      WriteIntentReadAction.run(() => {
         createNewConfigFileAndUpdate()
-      }
-    }
+      })
+    })
     noConfigGroup.add(createConfigButton)
 
     configEditorPanel.add(noConfigGroup)
@@ -458,6 +483,21 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     projectOpt.flatMap(ScalafmtConfigUtils.projectConfigFile(_, configPath))
 
   private var isPanelEnabled: Boolean = false
+
+  /**
+   * Guards asynchronous version and error updates for this panel.
+   *
+   * For example, configuration A starts downloading formatter `2.7.5`.
+   * The user then selects configuration B with cached formatter `3.11.5`,
+   * whose result updates the version label first. When A finishes later, applying
+   * its result would incorrectly display `2.7.5` while B is selected.
+   * The tracker skips A's stale UI update without cancelling its background work.
+   *
+   * Configuration resolution starts a new request. Default resolution, reset while
+   * disabled, and disposal invalidate outstanding completions. Checking on EDT after
+   * dispatch also prevents already queued results from updating a newer selection.
+   */
+  private val resolutionRequests = new EdtRequestTracker
   private var projectOpt: Option[Project] = None
   private var configText: Option[CharSequence] = None
   private var scalafmtVersionLabel: JLabel = scala.compiletime.uninitialized

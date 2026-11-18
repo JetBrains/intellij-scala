@@ -6,7 +6,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.codeStyle.CodeStyleSettings
-import com.intellij.testFramework.{EdtTestUtil, HeavyPlatformTestCase}
+import com.intellij.testFramework.{EdtTestUtil, HeavyPlatformTestCase, PlatformTestUtil}
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.inReadAction
@@ -17,7 +17,7 @@ import org.scalafmt.dynamic.ScalafmtVersion
 
 import java.awt.Component
 import java.nio.file.{Files, Path}
-import javax.swing.{JButton, JComponent}
+import javax.swing.{JButton, JComponent, JLabel}
 import scala.jdk.CollectionConverters._
 
 // Use a real project directory: an in-memory fixture cannot exercise NIO creation and VFS refresh together.
@@ -36,6 +36,32 @@ class ScalaFmtSettingsPanelTest extends HeavyPlatformTestCase {
 
   def testCreateCustomConfigurationWithoutWriteIntentLock(): Unit =
     checkCreateConfiguration(configPath = "custom-scalafmt.conf", expectedFileName = "custom-scalafmt.conf")
+
+  def testShowConfiguredFormatterVersion(): Unit =
+    checkResolvedVersion("version = 2.7.5", "2.7.5")
+
+  def testShowDefaultFormatterVersionWhenConfigurationOmitsVersion(): Unit =
+    checkResolvedVersion("maxColumn = 100", s"$DefaultVersion (${ScalaBundle.message("scalafmt.default")})")
+
+  private def checkResolvedVersion(configText: String, expectedVersion: String): Unit = {
+    val panel = EdtTestUtil.runInEdtAndGet(() => {
+      // The panel discovers relative config paths through the physical project's content root.
+      val projectRoot = createTestProjectStructure()
+      val configPath = Path.of(projectRoot.getPath).resolve(".scalafmt.conf")
+      Files.writeString(configPath, configText)
+      LocalFileSystem.getInstance().refreshAndFindFileByNioFile(configPath)
+      createPanel(createSettings(""))
+    })
+
+    // Let the real asynchronous resolver finish without holding write intent while pumping EDT events.
+    EdtTestUtil.runInEdtAndWait(() => {
+      PlatformTestUtil.waitWithEventsDispatching(
+        s"The panel should display formatter version '$expectedVersion'",
+        () => UIUtil.findComponentsOfType(panel.getPanel, classOf[JLabel]).asScala.exists(_.getText == expectedVersion),
+        10
+      )
+    }, false)
+  }
 
   private def checkCreateConfiguration(configPath: String, expectedFileName: String): Unit = {
     val expectedText = "version = 2.7.5"

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.plugins.scala.DependencyManagerBase.Resolver
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{ResolveResult, ScalafmtResolveError}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
@@ -28,10 +27,15 @@ trait ScalafmtDynamicService {
     progressListener: DownloadProgressListener = NoopProgressListener
   ): ResolveResult
 
+  /**
+   * Starts resolving the requested formatter, downloading it when necessary.
+   *
+   * @param onResolved completion callback, which may run on EDT or a background thread;
+   *                   callers must dispatch UI updates themselves
+   */
   def resolveAsync(
     version: ScalafmtVersion,
     project: Project,
-    @RequiresEdt
     onResolved: Either[ScalafmtResolveError, ScalafmtReflect] => Unit = _ => ()
   ): Unit
 
