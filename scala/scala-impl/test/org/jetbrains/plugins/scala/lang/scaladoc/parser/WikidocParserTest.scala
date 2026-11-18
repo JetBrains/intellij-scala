@@ -1,11 +1,95 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser
 
+import com.intellij.psi.impl.DebugUtil.psiToString
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.parser.SimpleScalaParserTestBase
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInnerCodeElement}
+import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.junit.Assert.assertEquals
 
 class WikidocParserTest extends SimpleScalaParserTestBase {
   override def checkTree(text: String, expectedTree: String): Unit = {
     checkWhitespaceTokensOnlyContainWhitespacs(expectedTree)
     super.checkTree(text, expectedTree)
+  }
+
+  def test_tag_after_brace_code_fence_in_description(): Unit =
+    checkContentAfterBraceCodeFence(inParamTag = false, withFollowingProse = false)
+
+  def test_prose_and_tag_after_brace_code_fence_in_description(): Unit =
+    checkContentAfterBraceCodeFence(inParamTag = false, withFollowingProse = true)
+
+  def test_tag_after_brace_code_fence_in_param_tag(): Unit =
+    checkContentAfterBraceCodeFence(inParamTag = true, withFollowingProse = false)
+
+  def test_prose_and_tag_after_brace_code_fence_in_param_tag(): Unit =
+    checkContentAfterBraceCodeFence(inParamTag = true, withFollowingProse = true)
+
+  private def checkContentAfterBraceCodeFence(
+    inParamTag: Boolean,
+    withFollowingProse: Boolean
+  ): Unit = {
+    val closingIndents = Seq("", "          ", "\t")
+    for (closingIndent <- closingIndents) {
+      checkContentAfterBraceCodeFence(inParamTag, withFollowingProse, closingIndent)
+    }
+  }
+
+  private def checkContentAfterBraceCodeFence(
+    inParamTag: Boolean,
+    withFollowingProse: Boolean,
+    closingIndent: String
+  ): Unit = {
+    val commentText = braceCodeFenceComment(inParamTag, withFollowingProse, closingIndent)
+    val comment = parseDocComment(commentText)
+    val clue = psiToString(comment, true)
+    val expectedTags = if (inParamTag) Seq("param", "note") else Seq("note")
+    assertEquals(clue, expectedTags, comment.tags.map(_.getName))
+
+    val codeBlock = checkClosedCodeBlock(comment)
+    assert(!codeBlock.getText.contains("@note"), clue)
+    assert(comment.tags.last.getText.contains("Following note."), clue)
+    if (withFollowingProse) {
+      assert(!codeBlock.getText.contains("After the code."), clue)
+      val description = if (inParamTag) comment.tags.head.getText else comment.descriptionParts.map(_.getText).mkString
+      assert(description.contains("After the code."), clue)
+    }
+  }
+
+  private def braceCodeFenceComment(
+    inParamTag: Boolean,
+    withFollowingProse: Boolean,
+    closingIndent: String
+  ): String = {
+    val firstTag = if (inParamTag) "@param value " else ""
+    val followingProse = if (withFollowingProse) "After the code.\n * " else ""
+    s"""/**
+       | * $firstTag{{{
+       | *   val x = 42
+       | * ${closingIndent}}}}
+       | * $followingProse@note Following note.
+       | */""".stripMargin
+  }
+
+  private def parseDocComment(
+    text: String
+  ): ScDocComment = {
+    val file = parseScalaFile(
+      s"class Example {\n$text\n  def method(value: Int): Int = value\n}",
+      ScalaFeatures.defaultScala2
+    )
+    file.depthFirst().findByType[ScDocComment].get
+  }
+
+  private def checkClosedCodeBlock(
+    comment: ScDocComment
+  ): ScDocInnerCodeElement = {
+    val clue = psiToString(comment, true)
+    val codeBlocks = comment.depthFirst().collect { case code: ScDocInnerCodeElement => code }.toSeq
+    assertEquals(clue, 1, codeBlocks.size)
+    val codeBlock = codeBlocks.head
+    assertEquals(clue, "}}}", codeBlock.getLastChild.getText)
+    codeBlock
   }
 
 
