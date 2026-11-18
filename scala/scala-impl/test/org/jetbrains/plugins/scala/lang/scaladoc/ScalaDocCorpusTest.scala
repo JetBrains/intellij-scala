@@ -523,6 +523,25 @@ object ScalaDocCorpusTest {
         "/scala/typeConstraints.scala[7035]" -> (5, 4),
       )
     ),
+    CorpusProjects.ScalaLibrary_3_9.scala3 -> Config(
+      ignoreLinkRegexMismatch = Map(
+        "/scala/typeConstraints.scala[7105]" -> (5, 4),
+        "/scala/App.scala[479]" -> (2, 1),
+        "/scala/reflect/Manifest.scala[468]" -> (1, 0),
+        "/scala/concurrent/duration/Duration.scala[13300]" -> (3, 0),
+        "/scala/typeConstraints.scala[7035]" -> (5, 4),
+      )
+    ),
+    CorpusProjects.ScalaLibrary_3_10.scala3 -> Config(
+      ignoreLinkRegexMismatch = Map(
+        "/scala/typeConstraints.scala[7105]" -> (5, 4),
+        "/scala/App.scala[479]" -> (2, 1),
+        "/scala/reflect/Manifest.scala[468]" -> (1, 0),
+        "/scala/concurrent/duration/Duration.scala[13300]" -> (3, 0),
+        "/scala/typeConstraints.scala[7035]" -> (5, 4),
+        "/scala/typeConstraints.scala[7753]" -> (5, 4),
+      )
+    ),
     CorpusProjects.Scalacheck.scala2 -> Config(
       ignorePsiErrors = Set(
         "/org/scalacheck/Gen.scala[48396]" -> "No closing element"

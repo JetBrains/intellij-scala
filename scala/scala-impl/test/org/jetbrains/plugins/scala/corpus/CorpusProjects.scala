@@ -28,6 +28,8 @@ object CorpusProjects {
 
   val ScalaReflect = OnlyScala2Project(scala2.ScalaReflectTest)
   val ScalaLibrary_3_8 = OnlyScala3Project(scala3.ScalaLibrary_3_8_Test)
+  val ScalaLibrary_3_9 = OnlyScala3Project(scala3.ScalaLibrary_3_9_Test)
+  val ScalaLibrary_3_10 = OnlyScala3Project(scala3.ScalaLibrary_3_10_Test)
 
   val all: Seq[ProjectCorpusTestDef] =
     Seq(
@@ -54,5 +56,7 @@ object CorpusProjects {
         // Projects with only Scala 2 or Scala 3
         ScalaReflect.scala2,
         ScalaLibrary_3_8.scala3,
+        ScalaLibrary_3_9.scala3,
+        ScalaLibrary_3_10.scala3,
       )
 }
