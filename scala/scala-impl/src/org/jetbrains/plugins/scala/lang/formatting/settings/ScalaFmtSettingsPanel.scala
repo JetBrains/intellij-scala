@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.formatting.settings
 import com.intellij.icons.AllIcons
 import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.application.{ModalityState, WriteIntentReadAction}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.colors.impl.DefaultColorsScheme
 import com.intellij.openapi.editor.ex.EditorEx
@@ -358,7 +358,12 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     noConfigLabel = new JLabel(ScalaBundle.message("scalafmt.settings.panel.no.config.found.under.path.using.default"))
     noConfigGroup.add(noConfigLabel)
     createConfigButton = new JButton(ScalaBundle.message("scalafmt.can.not.find.config.file.create.new"))
-    createConfigButton.addActionListener(_ => createNewConfigFileAndUpdate())
+    // Non-modal Settings actions need explicit write intent for VFS refresh and preview document updates.
+    createConfigButton.addActionListener { _ =>
+      WriteIntentReadAction.run { () =>
+        createNewConfigFileAndUpdate()
+      }
+    }
     noConfigGroup.add(createConfigButton)
 
     configEditorPanel.add(noConfigGroup)
