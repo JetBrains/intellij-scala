@@ -455,7 +455,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         sb ++= nameId
       }
       val remainder = node.children.dropWhile(_.is(TYPEPARAM, PARAM, EMPTYCLAUSE, SPLITCLAUSE))
-      val resultType = simple(remainder.headOption.map(textOfType(_)).getOrElse("")) // Implement?
+      val resultType = simple(remainder.headOption.map(textOfResultType(_, isAbstractGiven)).getOrElse("")) // Implement?
       val previousLength = sb.length
       parametersIn(sb, node, target = if (node.contains(EXTENSION)) Target.ExtensionMethod else Target.Definition, resultType = Some(resultType))
       if (sb.length == previousLength && needsSpace(nameId)) {
@@ -514,7 +514,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           }
           tpe match {
             case Some(t) =>
-              sb ++= simple(textOfType(t))
+              sb ++= simple(textOfResultType(t, isGivenAlias))
             case None =>
               sb ++= simple("") // Implement?
           }
@@ -530,6 +530,18 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           }
       }
     }
+  }
+
+  private def textOfResultType(node: Node, isGiven: Boolean): String = {
+    val text = textOfType(node)
+    // Wrap refined given result types in parentheses; otherwise the refinement
+    // is parsed as the body of a given instance.
+    // E.g. `given instance: TC { type A = Int } = ???` must be printed as
+    // `given instance: (TC { type A = Int }) = ???`.
+    if (isGiven && node.is(REFINEDtpt))
+      "(" + text + ")"
+    else
+      text
   }
 
   private def simple(tpe: String): String =

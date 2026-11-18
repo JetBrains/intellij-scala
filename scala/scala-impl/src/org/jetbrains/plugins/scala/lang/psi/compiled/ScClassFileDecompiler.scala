@@ -40,6 +40,30 @@ object ScClassFileDecompiler {
 
   object ScClsStubBuilder extends compiled.ClsStubBuilder {
 
+    /**
+     * Shared invalidation version for Scala decompilation, persisted stubs, and stub indices.
+     * For binaries, decompiled text is parsed into PSI, from which stubs and indices are built.
+     *
+     * Increment when decompiler/parser changes affect the generated stubs, when stub structure or
+     * serialization changes, or when stub-index population changes. For example, this may be needed when
+     * changing return types in TASTy output, modifiers in Scala 2 decompiler output, and so on.
+     *
+     * [[org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType.stubVersion]] also includes
+     * this value, so a bump currently rebuilds stubs and indices for both Scala 2 and Scala 3, including sources.
+     * It also invalidates the persistent decompilation metadata in [[DecompilationResult.DecompilerFileAttribute]].
+     *
+     * == Consequences of not incrementing ==
+     *  - Stale stubs/indices can cause incorrect types, false highlighting errors, missing completion or navigation.
+     *  - Freshly parsed PSI may disagree with cached stubs, causing
+     *    [[com.intellij.psi.stubs.StubTextInconsistencyException consistency failures]] or
+     *    [[com.intellij.extapi.psi.StubBasedPsiElementBase.getNode stub-to-AST binding errors]].
+     *  - Incompatible serialization changes can cause failures when deserializing old stubs.
+     *
+     * These problems can persist across restarts until the affected files are reindexed.
+     *
+     * @see [[https://plugins.jetbrains.com/docs/intellij/stub-indexes.html#serializing-data Stub versioning in the Platform SDK]]
+     * @see [[https://youtrack.jetbrains.com/issue/SCL-23120 Proposal to split the shared version counter]]
+     */
     override val getStubVersion: Int = ScStubFileElementType.DecompiledStubVersion
 
     override def buildFileStub(content: FileContent): stubs.PsiFileStubImpl[? <: PsiFile] = {
