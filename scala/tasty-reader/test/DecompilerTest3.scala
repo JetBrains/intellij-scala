@@ -39,6 +39,7 @@ class DecompilerTest3 extends TestCase {
   private val Scala300Fixtures = Path.of("compiled/scala-3.0.0")
   private val Scala361Fixtures = Path.of("compiled/scala-3.6.1")
   private val BorerFixtures = Path.of("libraries/borer-derivation_3-1.16.1")
+  private val ParboiledFixtures = Path.of("libraries/parboiled_3-2.4.1")
   private val ScalaJavaTimeFixtures = Path.of("libraries/scala-java-time_sjs1_3-2.5.0")
   private val Scala310LibraryFixtures = Path.of("libraries/scala-library-3.10.0")
 
@@ -256,6 +257,18 @@ class DecompilerTest3 extends TestCase {
     assertTrue("Missing IsMap companion", sourceText.contains("object IsMap"))
     val expectedRefinement = "IsMap[CC0[K0, V0]] { type K = K0; type V = V0; type C = CC0[K, V] }"
     assertTrue("The recursive refinement should retain its base type and member types", sourceText.contains(expectedRefinement))
+  }
+
+  def testParboiledLifterRefinement(): Unit = {
+    // SCL-21080: print directly so a recursive refinement fails the test instead of being caught by TastyImpl.
+    val tastyFile = testDataPath.resolve(ParboiledFixtures).resolve("org/parboiled2/support/Lifter.tasty")
+    val (tree, sourceFile) = TreeReader.treeAndSourceFileFrom(Files.readAllBytes(tastyFile))
+    val (sourceName, sourceText, _) = new TreePrinter().fileAndTextOf(tree, sourceFile)
+
+    assertEquals("Lifter.scala", sourceName)
+    assertTrue("Missing Lifter trait", sourceText.contains("sealed trait Lifter"))
+    assertTrue("Missing the refined forRule1 result", sourceText.contains("implicit def forRule1") &&
+      sourceText.contains("type OptionalOut = StrictOut"))
   }
 
   def testScalaJavaTimeEnums(): Unit = {

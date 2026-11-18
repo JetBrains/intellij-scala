@@ -14,6 +14,7 @@ header against `fixture-groups.tsv` and rejects unclassified fixtures.
 | `compiled/scala-3.6.1` | Source fixtures for named context bounds and deferred givens, which need a later compiler. |
 | Other `compiled/scala-*` groups | Source filename metadata fixtures for the remaining released minor lines and the 3.10.1 patch. The manifest records each exact compiler release. |
 | `libraries/borer-derivation_3-1.16.1` | `DerivationApi.tasty` copied unchanged from that binary JAR. Its TASTy header says Scala 3.3.5. |
+| `libraries/parboiled_3-2.4.1` | `Lifter.tasty` from the exact JAR and entry reported in SCL-21080. Its TASTy header says Scala 3.2.1. |
 | `libraries/scala-java-time_sjs1_3-2.5.0` | `IsoEra.tasty` from a later SCL-21004 report and `Month.tasty` from SCL-21924, copied unchanged from the same binary JAR. Both TASTy headers say Scala 3.2.1. |
 | `libraries/scala-library-3.10.0` | `IndexedSeqOps.tasty` and `IsMap.tasty` copied unchanged from that binary JAR. Their TASTy headers say Scala 3.10.0-bin-nonbootstrapped. |
 
