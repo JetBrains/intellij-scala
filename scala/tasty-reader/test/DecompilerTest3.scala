@@ -38,7 +38,6 @@ import scala.util.control.NonFatal
 class DecompilerTest3 extends TestCase {
   private val Scala300Fixtures = Path.of("compiled/scala-3.0.0")
   private val Scala361Fixtures = Path.of("compiled/scala-3.6.1")
-  private val Scala310CompiledFixtures = Path.of("compiled/scala-3.10.0")
   private val BorerFixtures = Path.of("libraries/borer-derivation_3-1.16.1")
   private val Scala310LibraryFixtures = Path.of("libraries/scala-library-3.10.0")
 
@@ -72,7 +71,22 @@ class DecompilerTest3 extends TestCase {
   }
 
   def testSourceFilenameMetadataAcrossCompilerVersions(): Unit = {
-    val fixtureGroups = Seq(Scala300Fixtures, Scala361Fixtures, Scala310CompiledFixtures)
+    // TODO: Automate checking new Scala 3 releases and refreshing this representative fixture matrix.
+    // 3.9.0 and 3.10.0 cover the source-file metadata change between those releases.
+    val compilerVersions = Seq(
+      "3.0.0",
+      "3.1.3",
+      "3.2.2",
+      "3.3.9",
+      "3.4.3",
+      "3.5.2",
+      "3.6.1",
+      "3.7.4",
+      "3.8.4",
+      "3.9.0",
+      "3.10.0", "3.10.1"
+    )
+    val fixtureGroups = compilerVersions.map(version => Path.of(s"compiled/scala-$version"))
     fixtureGroups.foreach { group =>
       val tastyFile = testDataPath.resolve(group).resolve("metadata/Declaration.tasty")
       assertTrue(s"Missing source metadata fixture for $group", Files.isRegularFile(tastyFile))
