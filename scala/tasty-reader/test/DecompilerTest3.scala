@@ -1,20 +1,105 @@
 package org.jetbrains.plugins.scala.tasty.reader
 
+import dotty.tools.tasty.TastyFormat.isBooleanAttrTag
+import dotty.tools.tasty.TastyReader
 import junit.framework.TestCase
 import org.junit.Assert.*
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
+import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 
 /**
+ * Tests the Scala 3 TASTy reader and printer using checked-in, precompiled `.tasty` files.
+ * The tests read those bytes directly and check the resulting source filename, Scala outline,
+ * and compiler options against expected values. Some tests also modify fixture bytes to check
+ * how the reader handles an unknown attribute.
+ *
+ * This suite does not compile sources or select a Scala SDK. Each fixture contains the compiler
+ * version that produced it in its TASTy header, so tests can cover different Scala 3 releases
+ * without being tied to one configured Scala version. Running the same fixtures under another
+ * SDK version would not change the input bytes.
+ *
+ * Most `doTest` cases use the Scala 3.0.0 corpus. Cases for later language features select their
+ * compiler group explicitly; library regressions read TASTy copied from the original binary JAR.
+ * The layout, provenance, and regeneration procedure are documented in
+ * `scala/tasty-reader/testdata/README.md`.
+ *
+ * Overview of decompiler test types and fixture workflows:<br>
  * https://youtrack.jetbrains.com/issue/SCL-24777/Decompiler-tests-documentation
  *
+ * Background and rationale for decompiler unit tests:<br>
  * https://youtrack.jetbrains.com/issue/SCL-21045/Decompiler-unit-tests
  *
- * Integration tests: [[org.jetbrains.plugins.scala.text.scala3]]
+ * Scala 3 library integration tests:<br>
+ * [[org.jetbrains.plugins.scala.text.scala3]]
  */
 class DecompilerTest3 extends TestCase {
+  private val Scala300Fixtures = Path.of("compiled/scala-3.0.0")
+  private val Scala361Fixtures = Path.of("compiled/scala-3.6.1")
+  private val BorerFixtures = Path.of("libraries/borer-derivation_3-1.16.1")
+  private val ParboiledFixtures = Path.of("libraries/parboiled_3-2.4.1")
+  private val ScalaJavaTimeFixtures = Path.of("libraries/scala-java-time_sjs1_3-2.5.0")
+  private val Scala310LibraryFixtures = Path.of("libraries/scala-library-3.10.0")
+
+  def testFixtureCompilerVersions(): Unit = {
+    val manifest = Files.readAllLines(testDataPath.resolve("fixture-groups.tsv"), StandardCharsets.UTF_8).asScala
+      .filterNot(line => line.isBlank || line.startsWith("#"))
+      .map(_.split("\t", -1))
+
+    manifest.foreach(columns => assertEquals("Fixture group columns", 5, columns.length))
+    val groups = manifest.map { columns =>
+      val groupDirectory = testDataPath.resolve(columns(1))
+      assertTrue(s"Missing fixture group: $groupDirectory", Files.isDirectory(groupDirectory))
+      groupDirectory -> columns(2)
+    }
+
+    val stream = Files.walk(testDataPath)
+    val tastyFiles = try stream.iterator().asScala.filter(_.toString.endsWith(".tasty")).toVector
+    finally stream.close()
+
+    assertTrue("No TASTy fixtures found", tastyFiles.nonEmpty)
+    groups.foreach { case (directory, _) =>
+      assertTrue(s"No TASTy fixtures in $directory", tastyFiles.exists(_.startsWith(directory)))
+    }
+    tastyFiles.foreach { tastyFile =>
+      val matchingGroups = groups.filter { case (directory, _) => tastyFile.startsWith(directory) }
+      assertEquals(s"Fixture must belong to one group: $tastyFile", 1, matchingGroups.size)
+      val expectedVersion = matchingGroups.head._2
+      val header = new HeaderReader(new TastyReader(Files.readAllBytes(tastyFile))).readFullHeader()
+      assertEquals(s"Compiler version of $tastyFile", expectedVersion, header.toolingVersion)
+    }
+  }
+
+  def testSourceFilenameMetadataAcrossCompilerVersions(): Unit = {
+    // TODO: Automate checking new Scala 3 releases and refreshing this representative fixture matrix.
+    // 3.9.0 and 3.10.0 cover the source-file metadata change between those releases.
+    val compilerVersions = Seq(
+      "3.0.0",
+      "3.1.3",
+      "3.2.2",
+      "3.3.9",
+      "3.4.3",
+      "3.5.2",
+      "3.6.1",
+      "3.7.4",
+      "3.8.4",
+      "3.9.0",
+      "3.10.0", "3.10.1"
+    )
+    val fixtureGroups = compilerVersions.map(version => Path.of(s"compiled/scala-$version"))
+    fixtureGroups.foreach { group =>
+      val tastyFile = testDataPath.resolve(group).resolve("metadata/Declaration.tasty")
+      assertTrue(s"Missing source metadata fixture for $group", Files.isRegularFile(tastyFile))
+
+      val result = new TastyImpl().read(Files.readAllBytes(tastyFile))
+      assertTrue(s"Cannot decompile $tastyFile", result.isDefined)
+      val (sourceName, sourceText, _) = result.get
+      assertEquals(s"Source filename for $group", "SourceMetadata.scala", sourceName)
+      assertTrue(s"Declaration outline for $group", sourceText.contains("trait Declaration"))
+    }
+  }
 
   def testAnnotationMembers(): Unit = doTest("annotation/Members")
   def testAnnotationMultiple(): Unit = doTest("annotation/Multiple")
@@ -26,7 +111,8 @@ class DecompilerTest3 extends TestCase {
   def testMemberDef(): Unit = doTest("member/Def")
   def testMemberExtensionMethod(): Unit = doTest("member/ExtensionMethod")
   def testMemberGiven(): Unit = doTest("member/Given")
-  def testMemberGivenDeferred(): Unit = doTest("member/GivenDeferred")
+  def testMemberGivenRefinement(): Unit = doTest("member/GivenRefinement")
+  def testMemberGivenDeferred(): Unit = doTest("member/GivenDeferred", fixtureGroup = Scala361Fixtures)
   def testMemberIdentifiers(): Unit = doTest("member/Identifiers")
   def testMemberInlineModifier(): Unit = doTest("member/InlineModifier")
   def testMemberModifiers(): Unit = doTest("member/Modifiers")
@@ -62,7 +148,7 @@ class DecompilerTest3 extends TestCase {
   def testParameterIdentifiers(): Unit = doTest("parameter/Identifiers")
   def testParameterInlineModifier(): Unit = doTest("parameter/InlineModifier")
   def testParameterModifiers(): Unit = doTest("parameter/Modifiers")
-  def testParameterNamedContextBounds(): Unit = doTest("parameter/NamedContextBounds")
+  def testParameterNamedContextBounds(): Unit = doTest("parameter/NamedContextBounds", fixtureGroup = Scala361Fixtures)
   def testParameterQualifier(): Unit = doTest("parameter/Qualifier")
   def testParameterRepeated(): Unit = doTest("parameter/Repeated")
   def testParameterTrait(): Unit = doTest("parameter/Trait")
@@ -71,7 +157,25 @@ class DecompilerTest3 extends TestCase {
   def testTypeDefinition(): Unit = doTest("typeDefinition/package")
   def testTypeDefinitionClass(): Unit = doTest("typeDefinition/Class")
   def testTypeDefinitionCompanions(): Unit = doTest("typeDefinition/Companions")
-  def testTypeDefinitionDerivation(): Unit = doTest("typeDefinition/Derivation")
+  def testTypeDefinitionDerivation(): Unit = {
+    doTest("typeDefinition/Derivation")
+    doTest("typeDefinition/Derivation", expectedFilesContents = Seq(
+      "Show.tasty" -> """package typeDefinition
+                        |
+                        |trait Show[A]
+                        |
+                        |object Show {
+                        |  def derived[A]: typeDefinition.Show[A] = ???
+                        |}""".stripMargin,
+      "Eq.tasty" -> """package typeDefinition
+                      |
+                      |trait Eq[A]
+                      |
+                      |object Eq {
+                      |  def derived[A]: typeDefinition.Eq[A] = ???
+                      |}""".stripMargin,
+    ))
+  }
   def testTypeDefinitionEnum(): Unit = doTest("typeDefinition/Enum")
   def testTypeDefinitionIdentifiers(): Unit = doTest("typeDefinition/Identifiers")
   def testTypeDefinitionImplicitClass(): Unit = doTest("typeDefinition/ImplicitClass")
@@ -84,7 +188,8 @@ class DecompilerTest3 extends TestCase {
   def testTypeDefinitionSelfType(): Unit = doTest("typeDefinition/SelfType")
   def testTypeDefinitionTrait(): Unit = doTest("typeDefinition/Trait")
   def testTypeDefinitionValueClass(): Unit = doTest("typeDefinition/ValueClass")
-  def testTypeDefinitionScl24154(): Unit = doTest("typeDefinition/DerivationApi")
+  def testTypeDefinitionDerivationApi(): Unit =
+    doTest("io/bullet/borer/derivation/DerivationApi", fixtureGroup = BorerFixtures)
   def testTypesAnd(): Unit = doTest("types/And")
   //  def testTypesAnnotated(): Unit = doTest("types/Annotated") // SCL-21207
   def testTypesCompound(): Unit = doTest("types/Compound")
@@ -106,7 +211,16 @@ class DecompilerTest3 extends TestCase {
   def testTypesRefs(): Unit = doTest("types/Refs")
   def testTypesSelect(): Unit = doTest("types/Select")
   def testTypesSingleton(): Unit = doTest("types/Singleton")
-  def testTypesThis(): Unit = doTest("types/This")
+  def testTypesThis(): Unit = {
+    doTest("types/This")
+    doTest("types/This", expectedFilesContents = Seq(
+      "This1.tasty" -> """package types
+                         |
+                         |object This1 {
+                         |  object This2
+                         |}""".stripMargin,
+    ))
+  }
   def testTypesTuple(): Unit = doTest("types/Tuple")
   def testTypesWildcard(): Unit = doTest("types/Wildcard")
   def testAliases(): Unit = doTest("Aliases")
@@ -121,15 +235,115 @@ class DecompilerTest3 extends TestCase {
   ))
   def testNesting(): Unit = doTest("Nesting")
 
+  def testScala310IndexedSeqOpsSourceFile(): Unit = {
+    // Scala 3.10 no longer emits @SourceFile; this TASTy is from scala-library-3.10.0.jar.
+    val tastyFile = testDataPath.resolve(Scala310LibraryFixtures).resolve("scala/collection/IndexedSeqOps.tasty")
+    val result = new TastyImpl().read(Files.readAllBytes(tastyFile))
 
-  private def findTestScalaSourceFile(testFileRelativePath: String): Path = {
-    val testDataPath = {
-      val path = Path.of("scala/tasty-reader/testdata")
-      if (Files.exists(path)) path else Path.of("community", path.toString)
+    assertTrue("IndexedSeqOps.tasty should be decompiled", result.isDefined)
+    val (sourceName, sourceText, _) = result.get
+    assertEquals("IndexedSeq.scala", sourceName)
+    assertTrue("IndexedSeqOps outline should be decompiled", sourceText.contains("trait IndexedSeqOps"))
+  }
+
+  def testScala310IsMapRefinement(): Unit = {
+    val tastyFile = testDataPath.resolve(Scala310LibraryFixtures).resolve("scala/collection/generic/IsMap.tasty")
+    val (tree, sourceFile) = TreeReader.treeAndSourceFileFrom(Files.readAllBytes(tastyFile))
+
+    // Call the printer directly so a recursive refinement exposes the printing failure.
+    val (sourceName, sourceText, _) = new TreePrinter().fileAndTextOf(tree, sourceFile)
+    assertEquals("IsMap.scala", sourceName)
+    assertTrue("Missing IsMap trait", sourceText.contains("trait IsMap"))
+    assertTrue("Missing IsMap companion", sourceText.contains("object IsMap"))
+    val expectedRefinement = "IsMap[CC0[K0, V0]] { type K = K0; type V = V0; type C = CC0[K, V] }"
+    assertTrue("The recursive refinement should retain its base type and member types", sourceText.contains(expectedRefinement))
+  }
+
+  def testParboiledLifterRefinement(): Unit = {
+    // SCL-21080: print directly so a recursive refinement fails the test instead of being caught by TastyImpl.
+    val tastyFile = testDataPath.resolve(ParboiledFixtures).resolve("org/parboiled2/support/Lifter.tasty")
+    val (tree, sourceFile) = TreeReader.treeAndSourceFileFrom(Files.readAllBytes(tastyFile))
+    val (sourceName, sourceText, _) = new TreePrinter().fileAndTextOf(tree, sourceFile)
+
+    assertEquals("Lifter.scala", sourceName)
+    assertTrue("Missing Lifter trait", sourceText.contains("sealed trait Lifter"))
+    assertTrue("Missing the refined forRule1 result", sourceText.contains("implicit def forRule1") &&
+      sourceText.contains("type OptionalOut = StrictOut"))
+  }
+
+  def testScalaJavaTimeEnums(): Unit = {
+    // SCL-21004's IsoEra report and SCL-21924's Month report exercised enum companion lookup.
+    assertScalaJavaTimeEnum(
+      relativePath = "java/time/chrono/IsoEra.tasty",
+      expectedSourceName = "IsoEra.scala",
+      declaration = "enum IsoEra",
+      firstCase = "case BCE",
+      lastCase = "case CE"
+    )
+    assertScalaJavaTimeEnum(
+      relativePath = "java/time/Month.tasty",
+      expectedSourceName = "Month.scala",
+      declaration = "enum Month",
+      firstCase = "case JANUARY",
+      lastCase = "case DECEMBER"
+    )
+  }
+
+  private def assertScalaJavaTimeEnum(
+    relativePath: String,
+    expectedSourceName: String,
+    declaration: String,
+    firstCase: String,
+    lastCase: String
+  ): Unit = {
+    val tastyFile = testDataPath.resolve(ScalaJavaTimeFixtures).resolve(relativePath)
+    val (tree, sourceFile) = TreeReader.treeAndSourceFileFrom(Files.readAllBytes(tastyFile))
+    val (sourceName, sourceText, _) = new TreePrinter().fileAndTextOf(tree, sourceFile)
+
+    assertEquals(relativePath, expectedSourceName, sourceName)
+    assertTrue(s"$relativePath: missing enum declaration", sourceText.contains(declaration))
+    assertTrue(s"$relativePath: missing first enum case", sourceText.contains(firstCase))
+    assertTrue(s"$relativePath: missing last enum case", sourceText.contains(lastCase))
+  }
+
+  def testUnknownAttributeDoesNotPreventDecompilation(): Unit = {
+    val tastyFile = testDataPath.resolve(Scala310LibraryFixtures).resolve("scala/collection/IndexedSeqOps.tasty")
+    val bytes = Files.readAllBytes(tastyFile)
+    val reader = new TastyReader(bytes)
+    new HeaderReader(reader).readFullHeader()
+    val nameTableReader = new NameTableReader(reader)
+    nameTableReader.read()
+
+    var firstAttributeIndex = Option.empty[Int]
+    while (!reader.isAtEnd) {
+      val sectionName = nameTableReader.nameAtRef(reader.readNameRef()).asSimpleName.toString
+      val sectionEnd = reader.readEnd()
+      if (sectionName == "Attributes") {
+        firstAttributeIndex = Some(reader.currentAddr.index)
+      }
+      reader.goto(sectionEnd)
     }
-    assert(Files.exists(testDataPath), testDataPath.toAbsolutePath)
 
-    val scalaFile = testDataPath.resolve(testFileRelativePath + ".scala").toAbsolutePath
+    val index = firstAttributeIndex.getOrElse(throw new AssertionError("No Attributes section"))
+    assertTrue("Expected a boolean attribute first", isBooleanAttrTag(bytes(index) & 0xff))
+    bytes(index) = 33 // Unknown attribute tag, outside the known boolean and string tag ranges.
+
+    val result = new TastyImpl().read(bytes)
+    assertTrue("An unknown attribute should not hide a readable AST", result.isDefined)
+    val (sourceName, sourceText, _) = result.get
+    assertEquals("Unknown.scala", sourceName)
+    assertTrue("IndexedSeqOps outline should be decompiled", sourceText.contains("trait IndexedSeqOps"))
+  }
+
+  private def testDataPath: Path = {
+    val path = Path.of("scala/tasty-reader/testdata")
+    val result = if (Files.exists(path)) path else Path.of("community", path.toString)
+    assert(Files.exists(result), result.toAbsolutePath)
+    result
+  }
+
+  private def findTestScalaSourceFile(testFileRelativePath: String, fixtureGroup: Path): Path = {
+    val scalaFile = testDataPath.resolve(fixtureGroup).resolve(testFileRelativePath + ".scala").toAbsolutePath
     assertTrue(s"File $scalaFile does not exist", Files.exists(scalaFile))
     scalaFile
   }
@@ -144,9 +358,10 @@ class DecompilerTest3 extends TestCase {
     testFileRelativePath: String,
     expectedFilesContents: Seq[(String, String)] = Nil,
     expectedCompilerOptions: CompilerOptions = CompilerOptions.Default,
-    simpleTypes: Boolean = true
+    simpleTypes: Boolean = true,
+    fixtureGroup: Path = Scala300Fixtures
   ): Unit = {
-    val testScalaFile = findTestScalaSourceFile(testFileRelativePath)
+    val testScalaFile = findTestScalaSourceFile(testFileRelativePath, fixtureGroup)
 
     val expectedFilesContents2: Seq[(Path, String)] = if (expectedFilesContents.nonEmpty) {
       expectedFilesContents.map { case (tastyFileName, expectedTastyContent) =>
@@ -191,11 +406,11 @@ class DecompilerTest3 extends TestCase {
     expectedTastyContent: String,
     expectedCompilerOptions: CompilerOptions
   ): Unit = {
-    val tree = TreeReader.treeFrom(Files.readAllBytes(tastyFile))
+    val (tree, sourceFile) = TreeReader.treeAndSourceFileFrom(Files.readAllBytes(tastyFile))
 
     val (actualSourceFile, actualTastyContent, actualCompilerOptions) = try {
       val treePrinter = new TreePrinter(infixTypes = true) // Disable?
-      treePrinter.fileAndTextOf(tree)
+      treePrinter.fileAndTextOf(tree, sourceFile)
     } catch {
       case NonFatal(e) =>
         Console.err.println(scalaFile)

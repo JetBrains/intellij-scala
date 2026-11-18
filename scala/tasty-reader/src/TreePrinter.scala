@@ -32,6 +32,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
 
   // Use parameters?
   private val sharedTypes = mutable.Map[Addr, String]()
+  private val activeRefinements = mutable.Set[Addr]()
   private val sourceFiles = mutable.Buffer[String]()
   private var compilerOptions = CompilerOptions.Default
   private var currentExtension = Option.empty[String]
@@ -88,15 +89,25 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       case _ => false
     })
 
-  def fileAndTextOf(node: Node): (String, String, CompilerOptions) = {
+  /**
+   * Prints a TASTy tree as a Scala outline and chooses the filename used to find attached sources.
+   *
+   * @param node the decoded TASTy tree
+   * @param sourceFile the source path from `SOURCEFILEattr` in the TASTy Attributes section, if present.
+   *                   This is read before printing. The [[sourceFiles]] field instead collects filenames from
+   *                   older `@SourceFile` annotations while the tree is printed, and serves as a fallback
+   *                   when the Attributes section has no source path.
+   * @return the source filename, printed outline, and compiler options
+   */
+  def fileAndTextOf(node: Node, sourceFile: Option[String] = None): (String, String, CompilerOptions) = {
     assert(sharedTypes.isEmpty)
     assert(sourceFiles.isEmpty)
     val sb = new StringBuilder(1024 * 8)
     textOfPackage(sb, "", node)
-    val sourceFileName = sourceFiles.headOption.getOrElse {
-      //SourceFile annotation is used to specify the original source file of a tasty file.
-      //However, it can't be used for SourceFile annotation itself as it would lead to cyclic dependencies.
-      //So we simply hardcode it.
+    val recordedSourceFile = sourceFile.map(fileName).orElse(sourceFiles.headOption)
+    val sourceFileName = recordedSourceFile.getOrElse {
+      // Older TASTy files use @SourceFile, but SourceFile.tasty cannot annotate itself without a cycle,
+      // so we hardcode its known source filename.
       if (isSourceFileAnnotationTasty(node))
         "SourceFile.scala"
       else
@@ -445,7 +456,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         sb ++= nameId
       }
       val remainder = node.children.dropWhile(_.is(TYPEPARAM, PARAM, EMPTYCLAUSE, SPLITCLAUSE))
-      val resultType = simple(remainder.headOption.map(textOfType(_)).getOrElse("")) // Implement?
+      val resultType = simple(remainder.headOption.map(textOfResultType(_, isAbstractGiven)).getOrElse("")) // Implement?
       val previousLength = sb.length
       parametersIn(sb, node, target = if (node.contains(EXTENSION)) Target.ExtensionMethod else Target.Definition, resultType = Some(resultType))
       if (sb.length == previousLength && needsSpace(nameId)) {
@@ -504,7 +515,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           }
           tpe match {
             case Some(t) =>
-              sb ++= simple(textOfType(t))
+              sb ++= simple(textOfResultType(t, isGivenAlias))
             case None =>
               sb ++= simple("") // Implement?
           }
@@ -520,6 +531,18 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           }
       }
     }
+  }
+
+  private def textOfResultType(node: Node, isGiven: Boolean): String = {
+    val text = textOfType(node)
+    // Wrap refined given result types in parentheses; otherwise the refinement
+    // is parsed as the body of a given instance.
+    // E.g. `given instance: TC { type A = Int } = ???` must be printed as
+    // `given instance: (TC { type A = Int }) = ???`.
+    if (isGiven && node.is(REFINEDtpt))
+      "(" + text + ")"
+    else
+      text
   }
 
   private def simple(tpe: String): String =
@@ -600,6 +623,12 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           val typeSuffix = if (withDotTypeSuffix) ".type" else ""
           prefixWithName + typeSuffix
         }
+      // In scala.collection.generic.IsMap.mapOpsIsMap (Scala 3.10), the return type is
+      // IsMap[CC0[K0, V0]] { type K = K0; type V = V0; type C = CC0[K, V] }.
+      // TASTy encodes the K and V references in C with THIS of this refinement. Their names are
+      // already in scope; expanding the qualifier would recursively print the whole refinement.
+      case Node3(THIS, _, Seq(tail)) if tail.is(REFINEDtpt) && activeRefinements(tail.addr) =>
+        ""
       case Node3(THIS, _, Seq(tail)) =>
         val qualifier = textOfType(tail)
         if (qualifier.endsWith(ScalaBytecodeConstants.PackageObjectSingletonClassName)) {
@@ -736,8 +765,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         } + " => " + tails2.headOption.map(tpe => simple(textOfType(tpe))).getOrElse("")
         if (parens > 0) "(" + s + ")" else s
       case Node3(REFINEDtpt, _, Seq(tpe, members*)) =>
-        val prefix = textOfType(tpe)
-        (if (prefix == "_root_.scala.AnyRef" || prefix == "_root_.java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(it => { val sb = new StringBuilder(); textOfMember(sb, "", it); sb.toString }).mkString("; ") + " }" // Use sb directly?
+        textOfRefinement(node.addr, tpe, members)
 
       case _ => // Exhaustive match?
         textOfConstant(node)
@@ -745,6 +773,29 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
 
     sharedTypes.put(node.addr, text.stripSuffix(".type"))
     text
+  }
+
+  private def textOfRefinement(addr: Addr, tpe: Node, members: Seq[Node]): String = {
+    activeRefinements += addr
+    try {
+      val prefix = textOfType(tpe)
+      val isUniversalBase = prefix == "_root_.scala.AnyRef" || prefix == "_root_.java.lang.Object"
+      val baseTypePrefix =
+        if (isUniversalBase)
+          ""
+        else
+          simple(prefix) + " "
+      val memberTexts = members.map { member =>
+        val memberText = new StringBuilder()
+        textOfMember(memberText, "", member)
+        memberText.toString
+      }
+      val membersText = memberTexts.mkString("; ")
+      // Example: IsMap[CC0[K0, V0]] { type K = K0; type V = V0; type C = CC0[K, V] }
+      baseTypePrefix + "{ " + membersText + " }"
+    } finally {
+      activeRefinements -= addr
+    }
   }
 
   private def textOfConstant(node: Node): String = node match {
@@ -841,11 +892,19 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     node.children.reverseIterator.takeWhile(_.is(ANNOTATION)).foreach {
       case Node3(ANNOTATION, _, Seq(tpe, apply@Node1(APPLY))) if (textOfType(tpe) == "_root_.scala.annotation.internal.SourceFile") =>
         apply.children.lastOption.map(_.name).foreach { path =>
-          val i = path.replace('\\', '/').lastIndexOf("/")
-          sourceFiles += (if (i > 0) path.substring(i + 1) else path)
+          sourceFiles += fileName(path)
         }
       case _ =>
     }
+  }
+
+  /**
+   * Returns the filename from a source path, accepting both slash styles.
+   * For example, `scala/collection/IndexedSeq.scala` becomes `IndexedSeq.scala`.
+   */
+  private def fileName(path: String): String = {
+    val separator = path.replace('\\', '/').lastIndexOf('/')
+    path.substring(separator + 1)
   }
 
   private enum Target {
