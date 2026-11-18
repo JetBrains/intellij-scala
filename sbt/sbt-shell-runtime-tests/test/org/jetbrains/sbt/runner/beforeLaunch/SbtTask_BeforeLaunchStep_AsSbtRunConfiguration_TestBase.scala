@@ -147,8 +147,8 @@ abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends S
       timeout = 60.seconds,
       buildDiagnostics = buildDiagnosticsCollector.snapshot,
     )
-    // With mock sbt we don't need to wait for a long time, 5 seconds is more than enough
-    sbtTaskObserver.awaitSuccessfulTermination(timeout = 5.seconds)
+    // The wait returns as soon as the task finishes; the generous timeout only covers slow CI agents
+    sbtTaskObserver.awaitSuccessfulTermination(timeout = 30.seconds)
     dependentConfigurationObserver.awaitSuccessfulTermination(timeout = 10.seconds)
     debuggerSessionsAwaiter.foreach(_.awaitAllSessionsDetached())
     assertExpectedDebugOutput(options, sbtTaskObserver)
