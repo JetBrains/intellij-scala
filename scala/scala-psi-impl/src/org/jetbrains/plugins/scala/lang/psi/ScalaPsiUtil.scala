@@ -741,7 +741,7 @@ object ScalaPsiUtil {
 
   def isLineTerminator(@Nullable element: PsiElement): Boolean =
     element match {
-      case _: PsiWhiteSpace => element.textContains('\n')
+      case ws: PsiWhiteSpace => ws.textContains('\n')
       case _ => false
     }
 
