@@ -109,6 +109,7 @@ class DecompilerTest3 extends TestCase {
   def testMemberDef(): Unit = doTest("member/Def")
   def testMemberExtensionMethod(): Unit = doTest("member/ExtensionMethod")
   def testMemberGiven(): Unit = doTest("member/Given")
+  def testMemberGivenRefinement(): Unit = doTest("member/GivenRefinement")
   def testMemberGivenDeferred(): Unit = doTest("member/GivenDeferred", fixtureGroup = Scala361Fixtures)
   def testMemberIdentifiers(): Unit = doTest("member/Identifiers")
   def testMemberInlineModifier(): Unit = doTest("member/InlineModifier")
