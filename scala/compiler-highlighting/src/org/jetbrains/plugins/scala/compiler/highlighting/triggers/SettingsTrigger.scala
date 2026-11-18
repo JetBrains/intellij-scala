@@ -24,11 +24,13 @@ private[highlighting] object SettingsTrigger:
     if virtualFile eq null then return
 
     val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
+    cleanHighlightings(project, virtualFile, debugReason)
     TriggerService(project).bypass(virtualFile, debugReason)
 
-    // Wipe the existing visual highlighters and problem views asynchronously
-    cleanHighlightings(project, virtualFile, debugReason)
-          
+  /**
+   * Erases the file's compiler highlighters and problems. Queued before the trigger on the same executor, so it
+   * cannot erase what the trigger renders.
+   */
   private inline def cleanHighlightings(project:Project, virtualFile:VirtualFile, debugReason: String): Unit =
     executeOnBackgroundThreadInNotDisposed(project):
       if virtualFile.isValid then
