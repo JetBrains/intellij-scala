@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.getInstance
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 import org.jetbrains.plugins.scala.{LanguageFileTypeBase, Scala3Language}
 
+import java.io.File
 import java.nio.file.Files
 import javax.swing.Icon
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -61,13 +62,18 @@ class ElaborateCodeAction extends AnAction(message("elaborate.code.action.text")
 
     val (tastyFileName, tastyFileContents, upToDate, classpath) = if (!isScala3) ("", Array.emptyByteArray, true, Seq.empty[String]) else if (fileIndex.isInSourceContent(virtualFile)) {
       val module = psiFile.module.getOrElse(throw new RuntimeException(s"No module for $psiFile"))
-      val outputDir =
-        if (fileIndex.isInTestSourceContent(virtualFile)) CompilerModuleExtension.getInstance(module).getCompilerOutputPathForTests.toNioPath
-        else CompilerModuleExtension.getInstance(module).getCompilerOutputPath.toNioPath
-      val tastyFile = {
-        val elements = (cls: PsiClass).getQualifiedName.split('.').toSeq.dropRight(1) :+ (cls: PsiClass).getName.stripSuffix("$") + ".tasty"
-        elements.foldLeft(outputDir)((acc, x) => acc.resolve(x))
+      val tastyPathElements = (cls: PsiClass).getQualifiedName.split('.').toSeq.dropRight(1) :+ (cls: PsiClass).getName.stripSuffix("$") + ".tasty"
+      val outputDir = {
+        val file =
+          if (fileIndex.isInTestSourceContent(virtualFile)) CompilerModuleExtension.getInstance(module).getCompilerOutputPathForTests
+          else CompilerModuleExtension.getInstance(module).getCompilerOutputPath
+        if (file == null) {
+          CommonRefactoringUtil.showErrorHint(project, editor, message("elaborate.code.no.file", tastyPathElements.mkString(File.separator)), getTemplateText, null)
+          return
+        }
+        file.toNioPath
       }
+      val tastyFile = tastyPathElements.foldLeft(outputDir)((acc, x) => acc.resolve(x))
       if (!Files.exists(tastyFile)) {
         CommonRefactoringUtil.showErrorHint(project, editor, message("elaborate.code.no.file", outputDir.relativize(tastyFile)), getTemplateText, null)
         return
