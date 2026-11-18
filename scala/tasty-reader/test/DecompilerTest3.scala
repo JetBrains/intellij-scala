@@ -39,6 +39,7 @@ class DecompilerTest3 extends TestCase {
   private val Scala300Fixtures = Path.of("compiled/scala-3.0.0")
   private val Scala361Fixtures = Path.of("compiled/scala-3.6.1")
   private val BorerFixtures = Path.of("libraries/borer-derivation_3-1.16.1")
+  private val ScalaJavaTimeFixtures = Path.of("libraries/scala-java-time_sjs1_3-2.5.0")
   private val Scala310LibraryFixtures = Path.of("libraries/scala-library-3.10.0")
 
   def testFixtureCompilerVersions(): Unit = {
@@ -255,6 +256,41 @@ class DecompilerTest3 extends TestCase {
     assertTrue("Missing IsMap companion", sourceText.contains("object IsMap"))
     val expectedRefinement = "IsMap[CC0[K0, V0]] { type K = K0; type V = V0; type C = CC0[K, V] }"
     assertTrue("The recursive refinement should retain its base type and member types", sourceText.contains(expectedRefinement))
+  }
+
+  def testScalaJavaTimeEnums(): Unit = {
+    // SCL-21004's IsoEra report and SCL-21924's Month report exercised enum companion lookup.
+    assertScalaJavaTimeEnum(
+      relativePath = "java/time/chrono/IsoEra.tasty",
+      expectedSourceName = "IsoEra.scala",
+      declaration = "enum IsoEra",
+      firstCase = "case BCE",
+      lastCase = "case CE"
+    )
+    assertScalaJavaTimeEnum(
+      relativePath = "java/time/Month.tasty",
+      expectedSourceName = "Month.scala",
+      declaration = "enum Month",
+      firstCase = "case JANUARY",
+      lastCase = "case DECEMBER"
+    )
+  }
+
+  private def assertScalaJavaTimeEnum(
+    relativePath: String,
+    expectedSourceName: String,
+    declaration: String,
+    firstCase: String,
+    lastCase: String
+  ): Unit = {
+    val tastyFile = testDataPath.resolve(ScalaJavaTimeFixtures).resolve(relativePath)
+    val (tree, sourceFile) = TreeReader.treeAndSourceFileFrom(Files.readAllBytes(tastyFile))
+    val (sourceName, sourceText, _) = new TreePrinter().fileAndTextOf(tree, sourceFile)
+
+    assertEquals(relativePath, expectedSourceName, sourceName)
+    assertTrue(s"$relativePath: missing enum declaration", sourceText.contains(declaration))
+    assertTrue(s"$relativePath: missing first enum case", sourceText.contains(firstCase))
+    assertTrue(s"$relativePath: missing last enum case", sourceText.contains(lastCase))
   }
 
   def testUnknownAttributeDoesNotPreventDecompilation(): Unit = {
