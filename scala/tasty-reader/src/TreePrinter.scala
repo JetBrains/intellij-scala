@@ -32,6 +32,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
 
   // Use parameters?
   private val sharedTypes = mutable.Map[Addr, String]()
+  private val activeRefinements = mutable.Set[Addr]()
   private val sourceFiles = mutable.Buffer[String]()
   private var compilerOptions = CompilerOptions.Default
   private var currentExtension = Option.empty[String]
@@ -622,6 +623,12 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           val typeSuffix = if (withDotTypeSuffix) ".type" else ""
           prefixWithName + typeSuffix
         }
+      // In scala.collection.generic.IsMap.mapOpsIsMap (Scala 3.10), the return type is
+      // IsMap[CC0[K0, V0]] { type K = K0; type V = V0; type C = CC0[K, V] }.
+      // TASTy encodes the K and V references in C with THIS of this refinement. Their names are
+      // already in scope; expanding the qualifier would recursively print the whole refinement.
+      case Node3(THIS, _, Seq(tail)) if tail.is(REFINEDtpt) && activeRefinements(tail.addr) =>
+        ""
       case Node3(THIS, _, Seq(tail)) =>
         val qualifier = textOfType(tail)
         if (qualifier.endsWith(ScalaBytecodeConstants.PackageObjectSingletonClassName)) {
@@ -758,8 +765,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         } + " => " + tails2.headOption.map(tpe => simple(textOfType(tpe))).getOrElse("")
         if (parens > 0) "(" + s + ")" else s
       case Node3(REFINEDtpt, _, Seq(tpe, members*)) =>
-        val prefix = textOfType(tpe)
-        (if (prefix == "_root_.scala.AnyRef" || prefix == "_root_.java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(it => { val sb = new StringBuilder(); textOfMember(sb, "", it); sb.toString }).mkString("; ") + " }" // Use sb directly?
+        textOfRefinement(node.addr, tpe, members)
 
       case _ => // Exhaustive match?
         textOfConstant(node)
@@ -767,6 +773,29 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
 
     sharedTypes.put(node.addr, text.stripSuffix(".type"))
     text
+  }
+
+  private def textOfRefinement(addr: Addr, tpe: Node, members: Seq[Node]): String = {
+    activeRefinements += addr
+    try {
+      val prefix = textOfType(tpe)
+      val isUniversalBase = prefix == "_root_.scala.AnyRef" || prefix == "_root_.java.lang.Object"
+      val baseTypePrefix =
+        if (isUniversalBase)
+          ""
+        else
+          simple(prefix) + " "
+      val memberTexts = members.map { member =>
+        val memberText = new StringBuilder()
+        textOfMember(memberText, "", member)
+        memberText.toString
+      }
+      val membersText = memberTexts.mkString("; ")
+      // Example: IsMap[CC0[K0, V0]] { type K = K0; type V = V0; type C = CC0[K, V] }
+      baseTypePrefix + "{ " + membersText + " }"
+    } finally {
+      activeRefinements -= addr
+    }
   }
 
   private def textOfConstant(node: Node): String = node match {

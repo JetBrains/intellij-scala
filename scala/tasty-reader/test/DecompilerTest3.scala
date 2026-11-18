@@ -244,6 +244,19 @@ class DecompilerTest3 extends TestCase {
     assertTrue("IndexedSeqOps outline should be decompiled", sourceText.contains("trait IndexedSeqOps"))
   }
 
+  def testScala310IsMapRefinement(): Unit = {
+    val tastyFile = testDataPath.resolve(Scala310LibraryFixtures).resolve("scala/collection/generic/IsMap.tasty")
+    val (tree, sourceFile) = TreeReader.treeAndSourceFileFrom(Files.readAllBytes(tastyFile))
+
+    // Call the printer directly so a recursive refinement exposes the printing failure.
+    val (sourceName, sourceText, _) = new TreePrinter().fileAndTextOf(tree, sourceFile)
+    assertEquals("IsMap.scala", sourceName)
+    assertTrue("Missing IsMap trait", sourceText.contains("trait IsMap"))
+    assertTrue("Missing IsMap companion", sourceText.contains("object IsMap"))
+    val expectedRefinement = "IsMap[CC0[K0, V0]] { type K = K0; type V = V0; type C = CC0[K, V] }"
+    assertTrue("The recursive refinement should retain its base type and member types", sourceText.contains(expectedRefinement))
+  }
+
   def testUnknownAttributeDoesNotPreventDecompilation(): Unit = {
     val tastyFile = testDataPath.resolve(Scala310LibraryFixtures).resolve("scala/collection/IndexedSeqOps.tasty")
     val bytes = Files.readAllBytes(tastyFile)
