@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiElement, PsiFile}
-import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveResult
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.ScalafmtResolveError
@@ -29,11 +28,16 @@ trait ScalafmtDynamicConfigService {
     resolveFast: Boolean = false
   ): Option[ScalafmtReflectConfig]
 
+  /**
+   * Resolves the formatter and loads the configuration after refreshing its file timestamp.
+   *
+   * @param onResolveFinished completion callback, which may run on EDT or a background thread;
+   *                          callers must dispatch UI updates themselves
+   */
   def resolveConfigAsync(
     configFile: VirtualFile,
     version: ScalafmtVersion,
     verbosity: FmtVerbosity,
-    @RequiresEdt
     onResolveFinished: ConfigResolveResult => Unit
   ): Unit
 
