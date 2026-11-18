@@ -14,6 +14,7 @@ header against `fixture-groups.tsv` and rejects unclassified fixtures.
 | `compiled/scala-3.6.1` | Source fixtures for named context bounds and deferred givens, which need a later compiler. |
 | Other `compiled/scala-*` groups | Source filename metadata fixtures for the remaining released minor lines and the 3.10.1 patch. The manifest records each exact compiler release. |
 | `libraries/borer-derivation_3-1.16.1` | `DerivationApi.tasty` copied unchanged from that binary JAR. Its TASTy header says Scala 3.3.5. |
+| `libraries/scala-java-time_sjs1_3-2.5.0` | `IsoEra.tasty` from a later SCL-21004 report and `Month.tasty` from SCL-21924, copied unchanged from the same binary JAR. Both TASTy headers say Scala 3.2.1. |
 | `libraries/scala-library-3.10.0` | `IndexedSeqOps.tasty` and `IsMap.tasty` copied unchanged from that binary JAR. Their TASTy headers say Scala 3.10.0-bin-nonbootstrapped. |
 
 Within a `compiled` directory, paths still group Scala syntax features. A
@@ -23,6 +24,11 @@ Within `libraries`, paths mirror entries in the binary JAR. The checked-in
 `DerivationApi.scala` is a manually simplified **expected outline**, not the
 original borer source or an input to regeneration. Library fixtures may have no
 `.scala` companion when a focused test checks only particular output.
+
+The original `Planet.tasty` reported in SCL-21004 came from a local Dotty
+test build and is not attached to the ticket. The checked-in `IsoEra.tasty`
+and `Month.tasty` exercise the same historical enum companion lookup failure;
+they do not claim to reproduce the exact `Planet.tasty` bytes.
 
 For a new language feature, use a pinned compiler release that emits the
 feature and put its sources and TASTy in a versioned `compiled` directory. For
