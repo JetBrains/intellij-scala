@@ -12,5 +12,6 @@ compiled	compiled/scala-3.9.0	Scala 3.9.0	scala3:3.9.0	-
 compiled	compiled/scala-3.10.0	Scala 3.10.0	scala3:3.10.0	-
 compiled	compiled/scala-3.10.1	Scala 3.10.1	scala3:3.10.1	-
 library	libraries/borer-derivation_3-1.16.1	Scala 3.3.5	io.bullet:borer-derivation_3:1.16.1	81189c48eb86a5cf9d3edf98457a44225e5cc1ca6cc4dfe4e6d7b3885e3c452e
+library	libraries/parboiled_3-2.4.1	Scala 3.2.1	org.parboiled:parboiled_3:2.4.1	d62bb24f27ee3af3e728225e64a605a6b10834fb04d5bad67334cd9cb2f04dcb
 library	libraries/scala-java-time_sjs1_3-2.5.0	Scala 3.2.1	io.github.cquiroz:scala-java-time_sjs1_3:2.5.0	de0985dac05c7c88dc5494f6db3c91f3167430b072df4d099870927d507e0385
 library	libraries/scala-library-3.10.0	Scala 3.10.0-bin-nonbootstrapped	org.scala-lang:scala-library:3.10.0	b47befb29e02bbc08a10bbd387b35cf80ff9bf04fda8fdf3dda6c8ad6895f325
