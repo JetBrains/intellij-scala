@@ -95,6 +95,7 @@
 
         <syntaxHighlighter id="tasty.file" key="TASTy" factoryClass="org.jetbrains.plugins.scala.tasty.TastySyntaxHighlighterFactory"/>
 
+        <typedHandler implementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler" order="first"/>
         <typedHandler implementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaDocTypedHandler" order="first"/>
     </extensions>
 </idea-plugin>
