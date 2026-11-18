@@ -5,6 +5,56 @@ import org.jetbrains.plugins.scala.util.MarkersUtils.{endMarker, startMarker}
 
 final class ScalaDocFormatter2Test extends AbstractScalaFormatterTestBase {
 
+  // SCL-26416
+  def testContentAfterIndentedCodeFenceInDescription(): Unit = doTextTest(
+    """/**
+      | * Before the code.
+      | * {{{
+      | *   val x = 42
+      | *           }}}
+      | *   After the code.
+      | * @see    [[Example]]
+      | */
+      |class Example(value: Int)
+      |""".stripMargin,
+    """/**
+      | * Before the code.
+      | * {{{
+      | *   val x = 42
+      | * }}}
+      | * After the code.
+      | *
+      | * @see [[Example]]
+      | */
+      |class Example(value: Int)
+      |""".stripMargin,
+    repeats = 2,
+    checkAfterEachIteration = true
+  )
+
+  def testTagAfterTabIndentedCodeFenceInParam(): Unit = doTextTest(
+    s"""/**
+       | * @param value Before the code.
+       | * {{{
+       | *   val x = 42
+       | * ${"\t"}}}}
+       | * @see    [[Example]]
+       | */
+       |class Example(value: Int)
+       |""".stripMargin,
+    """/**
+      | * @param value Before the code.
+      | * {{{
+      | *   val x = 42
+      | * }}}
+      | * @see [[Example]]
+      | */
+      |class Example(value: Int)
+      |""".stripMargin,
+    repeats = 2,
+    checkAfterEachIteration = true
+  )
+
   // SCL-6599
   def testListsMix(): Unit = {
     scalaSettings.ENABLE_SCALADOC_FORMATTING = true

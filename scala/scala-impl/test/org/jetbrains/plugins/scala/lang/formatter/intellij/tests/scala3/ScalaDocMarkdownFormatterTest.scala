@@ -97,6 +97,71 @@ class ScalaDocMarkdownFormatterTest extends AbstractScalaFormatterTestBase {
       |""".stripMargin
   )
 
+  // SCL-26416
+  def test_content_after_indented_code_fence_in_description(): Unit =
+    checkFormattingAfterCodeFence("```scala", "```")
+
+  def test_content_after_indented_brace_code_fence_in_description(): Unit =
+    checkFormattingAfterCodeFence("{{{", "}}}")
+
+  def test_prose_and_tag_after_indented_code_fence_in_example(): Unit =
+    checkFormattingAfterCodeFence("```scala", "```", firstTag = "@example")
+
+  def test_tag_after_indented_code_fence_in_param(): Unit =
+    checkFormattingAfterCodeFence("```scala", "```", firstTag = "@param value", withFollowingProse = false)
+
+  def test_tag_after_indented_brace_code_fence_in_example(): Unit =
+    checkFormattingAfterCodeFence("{{{", "}}}", firstTag = "@example", withFollowingProse = false)
+
+  def test_prose_and_tag_after_indented_brace_code_fence_in_param(): Unit =
+    checkFormattingAfterCodeFence("{{{", "}}}", firstTag = "@param value")
+
+  private def checkFormattingAfterCodeFence(
+    openingFence: String,
+    closingFence: String,
+    firstTag: String = "",
+    withFollowingProse: Boolean = true
+  ): Unit = {
+    val closingIndents = Seq("    ", "          ", "\t")
+    for (closingIndent <- closingIndents) {
+      checkFormattingAfterCodeFence(openingFence, closingFence, firstTag, withFollowingProse, closingIndent)
+    }
+  }
+
+  private def checkFormattingAfterCodeFence(
+    openingFence: String,
+    closingFence: String,
+    firstTag: String,
+    withFollowingProse: Boolean,
+    closingIndent: String
+  ): Unit = {
+    val tagPrefix = if (firstTag.isEmpty) "" else s"$firstTag "
+    val proseBefore = if (withFollowingProse) "\n *   After the code." else ""
+    val proseAfter = if (withFollowingProse) s"\n * ${" " * tagPrefix.length}After the code." else ""
+    val blankLineBeforeTags = if (firstTag.isEmpty) "\n *" else ""
+    val before =
+      s"""/**
+         | * ${tagPrefix}Before the code.
+         | * $openingFence
+         | *   val x = 42
+         | * $closingIndent$closingFence$proseBefore
+         | * @see    [[Example]]
+         | */
+         |class Example(value: Int)
+         |""".stripMargin
+    val after =
+      s"""/**
+         | * ${tagPrefix}Before the code.
+         | * $openingFence
+         | *   val x = 42
+         | * $closingFence$proseAfter$blankLineBeforeTags
+         | * @see [[Example]]
+         | */
+         |class Example(value: Int)
+         |""".stripMargin
+    doTextTest(before, after, repeats = 2, checkAfterEachIteration = true)
+  }
+
   def test_header(): Unit = doTextTest(
     """
       |/**
