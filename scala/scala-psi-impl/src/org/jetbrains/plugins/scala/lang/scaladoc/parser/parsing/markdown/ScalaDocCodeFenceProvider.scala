@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.parser.constraints.MarkdownConstraints
 import org.intellij.markdown.parser.markerblocks.impl.CodeFenceMarkerBlock
+import org.intellij.markdown.parser.markerblocks.providers.CodeFenceProvider
+import org.intellij.markdown.parser.markerblocks.providers.CodeFenceProvider.OpeningInfo
 import org.intellij.markdown.parser.markerblocks.{MarkerBlock, MarkerBlockProvider}
 import org.intellij.markdown.parser.sequentialparsers.SequentialParser
 import org.intellij.markdown.parser.{LookaheadText, MarkerProcessor, ProductionHolder}
@@ -10,7 +12,7 @@ import org.intellij.markdown.parser.{LookaheadText, MarkerProcessor, ProductionH
 import java.util
 import kotlin.ranges.IntRange
 
-class ScalaDocCodeFenceProvider extends MarkerBlockProvider[MarkerProcessor.StateInfo] {
+class ScalaDocCodeFenceProvider extends CodeFenceProvider {
   override def createMarkerBlocks(position: LookaheadText#Position, productionHolder: ProductionHolder, t: MarkerProcessor.StateInfo): util.List[MarkerBlock] = {
     // Code blocks should only start at the start of a line in Markdown mode, according to ScalaDoc-the-tool.
     fenceEnd(position, t.getCurrentConstraints, "{{{") match {
@@ -24,12 +26,22 @@ class ScalaDocCodeFenceProvider extends MarkerBlockProvider[MarkerProcessor.Stat
         //       That's why we have to escape it, and that's why it's the *closing* fence
         //       Unlike Markdown fences, a ScalaDoc closing fence can have arbitrary indentation (e.g. under @note).
         util.List.of(new CodeFenceMarkerBlock(t.getCurrentConstraints, productionHolder, "[ \\t]*\\}\\}\\}"))
-      case None => util.List.of()
+      case None => super.createMarkerBlocks(position, productionHolder, t)
     }
   }
 
   override def interruptsParagraph(position: LookaheadText#Position, markdownConstraints: MarkdownConstraints): Boolean =
-    fenceEnd(position, markdownConstraints, "{{{").isDefined
+    fenceEnd(position, markdownConstraints, "{{{").isDefined || super.interruptsParagraph(position, markdownConstraints)
+
+  override protected def obtainFenceOpeningInfo(position: LookaheadText#Position, constraints: MarkdownConstraints): OpeningInfo = {
+    val opening = super.obtainFenceOpeningInfo(position, constraints)
+    if (opening == null || !opening.getDelimiter.startsWith("`")) opening
+    else {
+      // The delimiter is embedded in CodeFenceMarkerBlock's closing-fence regex.
+      // ScalaDoc allows arbitrary indentation here, e.g. aligned with an @example body.
+      new OpeningInfo("[ \\t]*" + opening.getDelimiter, opening.getInfo)
+    }
+  }
 
   private def fenceEnd(position: LookaheadText#Position, constraints: MarkdownConstraints, fence: String): Option[Int] = {
     if (

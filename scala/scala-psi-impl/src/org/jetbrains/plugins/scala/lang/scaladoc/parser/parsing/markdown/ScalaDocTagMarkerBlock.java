@@ -57,9 +57,18 @@ public class ScalaDocTagMarkerBlock extends MarkerBlockImpl {
         return TAG_BLOCK;
     }
 
+    /**
+     * Rechecks tag boundaries at the newline before each line, even if a nested block skipped the scheduled offset.
+     * <p>
+     * {@link LookaheadText.Position#getOffsetInCurrentLine()} returns {@code -1} on the newline before
+     * {@link LookaheadText.Position#getCurrentLine()}, or a zero-based character index within that line.
+     * For {@code "code\n  @see Example"}, the offset is {@code -1} at {@code '\n'}, {@code 0} at the first
+     * space of {@code "  @see Example"}, and {@code 2} at {@code '@'}.
+     */
     @Override
     public boolean isInterestingOffset(@NotNull LookaheadText.Position position) {
-        return position.getOffsetInCurrentLine() != -1;
+        int offsetInCurrentLine = position.getOffsetInCurrentLine();
+        return offsetInCurrentLine == -1;
     }
 
     @Override

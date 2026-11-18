@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser
 
 import com.intellij.psi.impl.DebugUtil.psiToString
-import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiNamedElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.parser.scala3.SimpleScala3ParserTestBase
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInnerCodeElement, ScDocReferenceLink}
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.junit.Assert.assertEquals
 
@@ -264,6 +265,160 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_code_fence_variants(): Unit = {
+    val variants = Seq(
+      ("```", ""),
+      ("```", "   "),
+      ("```", "    "),
+      ("```", "      "),
+      ("```", "\t"),
+      ("~~~", ""),
+    )
+    for ((fence, closingIndent) <- variants) {
+      checkCodeFence(fence, closingIndent)
+    }
+  }
+
+  private def checkCodeFence(
+    fence: String,
+    closingIndent: String
+  ): Unit = checkTree(
+    s"""
+      |/**
+      | * Code block example:
+      | * $fence
+      | * val x = 42
+      | * println(x)
+      | * $closingIndent$fence
+      | */
+      |""".stripMargin,
+    raw"""
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('Code block example:')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |    InnerCodeElement
+      |      ScPsiDocToken(DOC_INNER_CODE_TAG)('$fence')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' val x = 42')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' println(x)')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' ${closingIndent.replace("\t", "\\t")}')
+      |      ScPsiDocToken(DOC_INNER_CLOSE_CODE_TAG)('$fence')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_content_after_code_fence_in_description(): Unit =
+    checkContentAfterCodeFenceInDescription("```", "```")
+
+  def test_content_after_brace_code_fence_in_description(): Unit =
+    checkContentAfterCodeFenceInDescription("{{{", "}}}")
+
+  private def checkContentAfterCodeFenceInDescription(
+    openingFence: String,
+    closingFence: String
+  ): Unit =
+    for (closingIndent <- Seq("    ", "\t", "")) {
+      val comment = parseDocComment(
+        s"""/**
+          | * Before the code.
+          | * $openingFence
+          | *   val x = 42
+          | * $closingIndent$closingFence
+          | * After the code.
+          | * @note Following note.
+          | */
+          |""".stripMargin
+      )
+      val clue = psiToString(comment, true)
+      assertEquals(clue, Seq("note"), comment.tags.map(_.getName))
+      val codeBlocks = comment.descriptionParts.collect { case code: ScDocInnerCodeElement => code }
+      assertEquals(clue, 1, codeBlocks.size)
+      assertEquals(clue, closingFence, codeBlocks.head.getLastChild.getText)
+      assert(!codeBlocks.head.getText.contains("After the code."), clue)
+      val prose = comment.descriptionParts.filterNot(_.isInstanceOf[ScDocInnerCodeElement]).map(_.getText).mkString
+      assert(prose.contains("Before the code."), clue)
+      assert(prose.contains("After the code."), clue)
+      assertEquals(clue, "@note Following note.", comment.tags.head.getText.trim)
+    }
+
+  def test_tags_after_code_fence_in_example(): Unit =
+    checkTagsAfterCodeFence("example", "see [[Example]]")
+
+  def test_tags_after_code_fence_in_note(): Unit =
+    checkTagsAfterCodeFence("note", "return Returned value.")
+
+  def test_tags_after_code_fence_in_param(): Unit =
+    checkTagsAfterCodeFence("param value", "note Following note.")
+
+  def test_tags_after_code_fence_in_return(): Unit =
+    checkTagsAfterCodeFence("return", "param value The input value.")
+
+  def test_tags_after_brace_code_fence_in_param(): Unit =
+    checkTagsAfterCodeFence("param value", "note Following note.", "{{{", "}}}")
+
+  private def checkTagsAfterCodeFence(
+    firstTag: String,
+    nextTag: String,
+    openingFence: String = "```",
+    closingFence: String = "```"
+  ): Unit = for {
+    closingIndent <- Seq("", "          ", "\t")
+    withFollowingProse <- Seq(false, true)
+  } {
+    val followingProse = if (withFollowingProse) "After the code.\n * " else ""
+    val comment = parseDocComment(
+      s"""/**
+        | * @$firstTag $openingFence
+        | *   val x = 42
+        | * $closingIndent$closingFence
+        | * $followingProse@$nextTag
+        | */
+        |""".stripMargin
+    )
+    val clue = psiToString(comment, true)
+    val firstName = firstTag.takeWhile(_ != ' ')
+    val nextName = nextTag.takeWhile(_ != ' ')
+    assertEquals(clue, Seq(firstName, nextName), comment.tags.map(_.getName))
+
+    val first = comment.tags.head
+    val codeBlocks = first.depthFirst().collect { case code: ScDocInnerCodeElement => code }.toSeq
+    assertEquals(clue, 1, codeBlocks.size)
+    assertEquals(clue, closingFence, codeBlocks.head.getLastChild.getText)
+    if (withFollowingProse) {
+      assert(!codeBlocks.head.getText.contains("After the code."), clue)
+      assert(first.getText.contains("After the code."), clue)
+    }
+    assert(!first.getText.contains(s"@$nextTag"), clue)
+    assertEquals(clue, s"@$nextTag", comment.tags(1).getText.trim)
+
+    if (nextName == "see") {
+      val links = comment.tags(1).depthFirst().collect { case link: ScDocReferenceLink => link.getText }.toSeq
+      assertEquals(clue, Seq("Example"), links)
+    }
+  }
+
+  private def parseDocComment(
+    text: String
+  ): ScDocComment =
+    parseScalaFile(s"class Example {\n$text\n  def method(value: Int): Int = value\n}")
+      .depthFirst().findByType[ScDocComment].get
 
   def test_code_fence_after_text(): Unit = checkTree(
     """
