@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic
 
 import com.intellij.openapi.progress.ProcessCanceledException
 import org.apache.ivy.util.{AbstractMessageLogger, MessageLogger}
+import org.apache.ivy.core.settings.IvySettings
 import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
@@ -17,10 +18,16 @@ class ScalafmtDynamicDownloader(
   progressListener: DownloadProgressListener
 ) {
 
+  /**
+   * Customizes Ivy after the standard resolvers have been configured.
+   * Tests use an isolated cache and a local HTTP repository to exercise real downloads deterministically.
+   */
+  protected def customizeIvySettings(settings: IvySettings): Unit = ()
+
   def download(version: ScalafmtVersion): Either[DownloadFailure, DownloadSuccess] =
     try {
       val dependencies = scalafmtCoreDependencies(version)
-      val resolver = new ScalafmtDependencyResolver(extraResolvers, progressListener)
+      val resolver = new ScalafmtDependencyResolver(extraResolvers, progressListener, customizeIvySettings)
       val resolvedDependencies = resolver.resolve(dependencies*)
       val jars: Seq[Path] = resolvedDependencies.map(_.file)
       val urls = jars.map(_.toUri.toURL)
@@ -81,8 +88,12 @@ object ScalafmtDynamicDownloader {
 
   private class ScalafmtDependencyResolver(
     extraResolvers: Seq[Resolver],
-    progressListener: DownloadProgressListener
+    progressListener: DownloadProgressListener,
+    customizeSettings: IvySettings => Unit
   ) extends DependencyManagerBase {
+
+    override protected def customizeIvySettings(settings: IvySettings): Unit =
+      customizeSettings(settings)
 
     // first search in the provided resolvers, then fallback to the default ones
     // Workaround for SCL-19488:
