@@ -8,7 +8,7 @@ import com.intellij.task.{ProjectTask, ProjectTaskManager}
 import org.jetbrains.plugins.scala.build.BuildDiagnosticsCollector
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.sbt.shell.SbtShellTestUtil
-import org.jetbrains.sbt.shell.build.util.BuildOverSbtShellTester.{BuildOverSbtShellResult, BuildRunResult}
+import org.jetbrains.sbt.shell.build.util.BuildOverSbtShellTester.{BuildOverSbtShellResult, BuildRunResult, BuildTimeout}
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.DurationInt
@@ -84,7 +84,15 @@ final class BuildOverSbtShellTester(
     val shellOutputLogger = new SbtShellTestUtil.TestSbtShellProcessListener
     shellProcessHandler.addProcessListener(shellOutputLogger)
     val buildRunResult = try {
-      runBuildAndCaptureBuildToolWindowMessages(buildAction)
+      SbtShellBuildWatchdog.failOnTimeout(
+        project,
+        shellProcessHandler,
+        BuildTimeout,
+        buildDescription,
+        () => shellOutputLogger.getLog,
+      ) {
+        runBuildAndCaptureBuildToolWindowMessages(buildAction)
+      }
     } finally {
       shellProcessHandler.removeProcessListener(shellOutputLogger)
     }
@@ -115,6 +123,13 @@ final class BuildOverSbtShellTester(
 }
 
 object BuildOverSbtShellTester {
+  /**
+   * How long one build over the sbt shell may take. On the Windows CI agents, the builds of these tests take up to 7 seconds.
+   *
+   * @see [[SbtShellBuildWatchdog]]
+   */
+  private val BuildTimeout = 1.minute
+
   /**
    * Diagnostics captured around one `ProjectTaskManager` build invocation.
    *
