@@ -212,7 +212,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
       ClassPrinter.textOf(sourceCls, isScala3 = true, listener(decompiledText, _))
     }
 
-    (decompiledText, psiText)
+    (decompiledText + "\n", psiText + "\n")
   }
 
   private def splitInto[A](numBatches: Int, collection: Seq[A]): Seq[Seq[A]] = {
