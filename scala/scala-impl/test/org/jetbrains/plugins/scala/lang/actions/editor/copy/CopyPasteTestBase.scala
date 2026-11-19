@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.actions.editor.copy
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.testFramework.EditorTestUtil
+import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -41,6 +42,16 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
     super.tearDown()
   }
 
+  /**
+   * Updates indexes before the action can enter the AST-loading guard in MixinNodes.
+   * Committing PSI and waiting for smart mode leave unsaved-document indexing lazy.
+   * A later index lookup could otherwise reload an earlier target's AST after GC (SCL-26471).
+   */
+  protected final def performCopyPasteAction(actionId: String): Unit = {
+    CodeInsightTestFixtureImpl.ensureIndexesUpToDate(getProject)
+    myFixture.performEditorAction(actionId)
+  }
+
   protected final def doTest(from: String, to: String, after: String): Unit = {
     doTest(from, to, after, s"from.$fromLangExtension", "to.scala")
   }
@@ -56,10 +67,10 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
     assertTrue("Content of target file doesn't contain caret marker or selection markers", containsCaretOrSelection)
 
     myFixture.configureByText(fromFileName, normalize(from))
-    myFixture.performEditorAction(IdeActions.ACTION_COPY)
+    performCopyPasteAction(IdeActions.ACTION_COPY)
 
     myFixture.configureByText(toFileName, normalize(to))
-    myFixture.performEditorAction(IdeActions.ACTION_PASTE)
+    performCopyPasteAction(IdeActions.ACTION_PASTE)
 
     myFixture.checkResult(normalize(after), true)
   }
@@ -72,7 +83,7 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
     copyPasteManager.setContents(new StringSelection(pastedText))
 
     myFixture.configureByText(s"to.scala", to.withNormalizedSeparator)
-    myFixture.performEditorAction(IdeActions.ACTION_PASTE)
+    performCopyPasteAction(IdeActions.ACTION_PASTE)
 
     myFixture.checkResult(after.withNormalizedSeparator, true)
   }
@@ -119,8 +130,8 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   protected def doTestCutAndPasteDoesNotBreakTheCode(code: String): Unit = {
     myFixture.configureByText("dummy.scala", code)
-    myFixture.performEditorAction(IdeActions.ACTION_CUT)
-    myFixture.performEditorAction(IdeActions.ACTION_PASTE)
+    performCopyPasteAction(IdeActions.ACTION_CUT)
+    performCopyPasteAction(IdeActions.ACTION_PASTE)
 
     val (codeWithoutSelection, _) = MarkersUtils.extractMarkers(code, Seq((START, END)), Some(CARET))
     myFixture.checkResult(codeWithoutSelection, true)

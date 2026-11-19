@@ -1,8 +1,12 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.copy
 
 import com.intellij.application.options.CodeStyle
+import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.openapi.actionSystem.IdeActions
+import com.intellij.psi.PsiFile
+import com.intellij.util.ref.GCWatcher
 import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaVersion}
 
 class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
@@ -444,6 +448,39 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |""".stripMargin
     doTestWithAllSelections(from, to, after)
   }
+
+  def testCopyAfterPreviousPasteAstIsCollected(): Unit = withAddImportsOnPaste(CodeInsightSettings.YES) {
+    testInnerMethod_FromObject_3()
+    val previousTarget = myFixture.getFile
+
+    myFixture.configureByText("next-source.scala",
+      s"""object NextSource:
+         |  ${Start}def foo() =
+         |    print(1)$End
+         |""".stripMargin)
+
+    // The previous Paste left an unsaved target whose stubs may need rebuilding during Copy.
+    watchAst(previousTarget).ensureCollectedWithinTimeout(10000)
+    performCopyPasteAction(IdeActions.ACTION_COPY)
+
+    // Repeat without index preparation to check that the update survives another AST collection.
+    watchAst(previousTarget).ensureCollectedWithinTimeout(10000)
+    myFixture.performEditorAction(IdeActions.ACTION_COPY)
+  }
+
+  private def withAddImportsOnPaste(value: Int)(action: => Unit): Unit = {
+    val settings = ScalaApplicationSettings.getInstance()
+    val oldAddImportsOnPaste = settings.ADD_IMPORTS_ON_PASTE
+    settings.ADD_IMPORTS_ON_PASTE = value
+    try {
+      action
+    } finally {
+      settings.ADD_IMPORTS_ON_PASTE = oldAddImportsOnPaste
+    }
+  }
+
+  // Keep getNode's temporary strong reference out of the frame that forces GC.
+  private def watchAst(file: PsiFile): GCWatcher = GCWatcher.tracking(file.getNode)
 
   def testInnerMethod_FromObject_4(): Unit = {
     val from =
@@ -1544,7 +1581,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
 
   //SCL-21933
   def testCopyPasteFullLineWithoutSelection(): Unit = {
-    val file = myFixture.configureByText(s"to.scala",
+    myFixture.configureByText(s"to.scala",
       s"""import java.lang
          |
          |enum A:
@@ -1561,10 +1598,10 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |        println(3)
          |  }""".stripMargin.withNormalizedSeparator)
 
-    myFixture.performEditorAction(IdeActions.ACTION_COPY) //selects current line and copies it
-    myFixture.performEditorAction(IdeActions.ACTION_PASTE) //replaces current line with same content, removes selection, moves caret to the next line
-    myFixture.performEditorAction(IdeActions.ACTION_PASTE) //adds duplicate line
-    myFixture.performEditorAction(IdeActions.ACTION_PASTE) //adds another duplicate line
+    performCopyPasteAction(IdeActions.ACTION_COPY) //selects current line and copies it
+    performCopyPasteAction(IdeActions.ACTION_PASTE) //replaces current line with same content, removes selection, moves caret to the next line
+    performCopyPasteAction(IdeActions.ACTION_PASTE) //adds duplicate line
+    performCopyPasteAction(IdeActions.ACTION_PASTE) //adds another duplicate line
 
     myFixture.checkResult(
       s"""import java.lang
