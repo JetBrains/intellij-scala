@@ -83,7 +83,7 @@ final class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesH
                                                   elementsToMove: Array[PsiElement],
                                                   callback: MoveCallback): MoveClassesOrPackagesProcessor = {
 
-          new MoveClassesOrPackagesProcessor(project, elementsToMove, destination, isSearchInComments, searchTextOccurences, callback)
+          new ScalaMoveClassesOrPackagesProcessor(project, elementsToMove, destination, isSearchInComments, searchTextOccurences, callback)
         }
       }
 
@@ -108,7 +108,7 @@ final class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesH
                                                                   searchInNonJavaFiles: Boolean,
                                                                   moveCallback: MoveCallback): MoveClassesOrPackagesProcessor = {
 
-        new MoveClassesOrPackagesProcessor(project, elements, moveDestination, searchInComments, searchInNonJavaFiles, moveCallback)
+        new ScalaMoveClassesOrPackagesProcessor(project, elements, moveDestination, searchInComments, searchInNonJavaFiles, moveCallback)
       }
     }
   }
