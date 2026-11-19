@@ -6,7 +6,8 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.jetbrains.plugins.scala.ScalaColorSchemeEditorHighlightingFixture
 import org.jetbrains.plugins.scala.ScalaColorSchemeEditorHighlightingFixture.ExpectedHighlight
-import org.junit.Assert.assertTrue
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tBADCLOSEXMLTAG
+import org.junit.Assert.{assertEquals, assertTrue}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -24,6 +25,17 @@ class ScalaSyntaxHighlighterTest extends BasePlatformTestCase {
   def testBadCharacterIsHighlightedInScalaCode(): Unit = {
     val badCharacter = "\u0000"
     assertTokenHighlights(s"val value = $badCharacter", ExpectedHighlight(badCharacter, DefaultHighlighter.BAD_CHARACTER))
+  }
+
+  def testNamelessXmlClosingTagAfterMatchingTag(): Unit = {
+    val tokens = tokenHighlights("<a></a><b></>")
+    assertEquals(tBADCLOSEXMLTAG, tokens.last.tokenType)
+  }
+
+  def testNamelessXmlClosingTagAfterMalformedOpeningTag(): Unit = {
+    // Reduced from RandomTwirlTypingTest, login_needed.test, seed 144974002.
+    val tokens = tokenHighlights("<p><a</a></p></>")
+    assertEquals(tBADCLOSEXMLTAG, tokens.last.tokenType)
   }
 
   def testLiteralsCommentsAndPunctuationAreHighlightedInScalaCode(): Unit = {
