@@ -353,9 +353,9 @@ final class SbtProcessManager(project: Project) extends Disposable {
       case Some(pd) =>
         log.debug("requestTaskCancellation start: terminateProcessGracefully...")
 
-        OSProcessUtil.terminateProcessGracefully(pd.processHandler.getProcess)
+        val interrupted = interruptIfAlive(pd.processHandler.getProcess)
 
-        log.debug("requestTaskCancellation finish")
+        log.debug(s"requestTaskCancellation finish: interrupted=$interrupted")
       case _ =>
         log.debug("requestTaskCancellation: skipping (no process data available)")
     }
@@ -551,10 +551,26 @@ final class SbtProcessManager(project: Project) extends Disposable {
     updateProcessData(activateSbtShellToolWindowOnStartup = true)
   }
 
+  /**
+   * Sends Ctrl+C (Windows) or SIGINT (Unix) to the process, unless it has already exited.
+   *
+   * On Windows, the old sbt shell runs under winpty, whose process reports PID -1 once it has exited. WinP would run
+   * `sendctrlc.exe -1`, which attaches to its parent's console (-1 is `ATTACH_PARENT_PROCESS`) and sends Ctrl+C to every
+   * process on it: the IDE, or the test JVM in tests.
+   *
+   * @return `false` if the process has already exited and wasn't interrupted
+   */
+  private def interruptIfAlive(process: Process): Boolean =
+    if (process.pid() <= 0 || !process.isAlive) false
+    else {
+      OSProcessUtil.terminateProcessGracefully(process)
+      true
+    }
+
   //TODO: extract common "retry" utilities
   private def terminateProcessGracefully(process: Process): Unit = {
     def attemptTermination(): Unit = {
-      try OSProcessUtil.terminateProcessGracefully(process)
+      try interruptIfAlive(process)
       catch {
         case _: UnsupportedOperationException => process.destroy()
       }
