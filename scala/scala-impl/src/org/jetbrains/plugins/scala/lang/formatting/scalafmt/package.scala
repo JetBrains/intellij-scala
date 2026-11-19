@@ -12,7 +12,7 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 package object scalafmt {
 
-  private[scalafmt] def projectResolvers(project: Project): Seq[DependencyManagerBase.Resolver] = {
+  private[formatting] def projectResolvers(project: Project): Seq[DependencyManagerBase.Resolver] = {
     val resolversSbt = resolversFromSbt(project)
     val resolvers = if (resolversSbt.isEmpty) // imply that it's a non-sbt project
       resolversFromRemoteJarRepositories(project)

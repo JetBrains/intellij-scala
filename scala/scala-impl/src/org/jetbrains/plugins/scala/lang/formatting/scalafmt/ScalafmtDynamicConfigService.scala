@@ -4,7 +4,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveResult
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.ScalafmtResolveError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.scalafmt.dynamic.{ScalafmtReflectConfig, ScalafmtVersion}
@@ -27,19 +26,6 @@ trait ScalafmtDynamicConfigService {
     verbosity: FmtVerbosity = FmtVerbosity.Verbose,
     resolveFast: Boolean = false
   ): Option[ScalafmtReflectConfig]
-
-  /**
-   * Resolves the formatter and loads the configuration after refreshing its file timestamp.
-   *
-   * @param onResolveFinished completion callback, which may run on EDT or a background thread;
-   *                          callers must dispatch UI updates themselves
-   */
-  def resolveConfigAsync(
-    configFile: VirtualFile,
-    version: ScalafmtVersion,
-    verbosity: FmtVerbosity,
-    onResolveFinished: ConfigResolveResult => Unit
-  ): Unit
 
   def isFileIncludedInProject(file: PsiFile, config: ScalafmtReflectConfig): Boolean
 
