@@ -1,19 +1,51 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiFile, PsiManager}
+import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiManager}
+import com.intellij.testFramework.TestLoggerKt
+import com.intellij.util.ref.GCWatcher
 import org.jetbrains.plugins.scala.extensions.{OptionExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScExtensionBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase.{REFSRC, REFTGT}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.junit.Assert.assertEquals
 
 abstract class ResolvePrecedenceTest extends SimpleResolveTestBase {
 
   protected def addFileToProject(relativePath: String, fileText: String): PsiFile =
     myFixture.addFileToProject(relativePath, fileText)
+
+  def testResolveAfterUnrelatedUnsavedFileAstIsCollected(): Unit = {
+    val previousFile = myFixture.configureByText("Previous.scala", "object Previous")
+    // Committing PSI leaves this unsaved document's index update deferred until an index query.
+    WriteCommandAction.runWriteCommandAction(getProject, new Runnable {
+      override def run(): Unit = {
+        myFixture.getEditor.getDocument.setText("object Previous { def value = 42 }")
+        PsiDocumentManager.getInstance(getProject).commitAllDocuments()
+      }
+    })
+    myFixture.configureByText("Current.scala", "object Current")
+    watchAst(previousFile).ensureCollectedWithinTimeout(10000)
+
+    val (src, expected) = setupResolveTest(None,
+      s"""trait Base { def ${REFTGT}value: Int = 42 }
+         |object Main extends Base { val result = ${REFSRC}value }
+         |""".stripMargin -> "Main.scala"
+    )
+
+    // Index preparation must remain effective after another collection of the unrelated AST.
+    watchAst(previousFile).ensureCollectedWithinTimeout(10000)
+    assertEquals(expected, src.resolve())
+    // Resolution can recover from a logged AST-loading error and still return the expected element.
+    TestLoggerKt.getErrorLog.takeLoggedErrors().forEach(throw _)
+  }
+
+  // Keep getNode's temporary strong reference out of the frame that forces GC.
+  private def watchAst(file: PsiFile): GCWatcher = GCWatcher.tracking(file.getNode)
 
   //SCL-6146
   def testSCL6146(): Unit = doResolveTest(
