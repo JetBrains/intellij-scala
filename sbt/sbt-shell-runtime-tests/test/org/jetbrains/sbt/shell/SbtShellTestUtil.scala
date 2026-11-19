@@ -20,10 +20,12 @@ object SbtShellTestUtil {
   }
 
   final class TestSbtShellProcessListener extends ProcessListener {
-    private val logBuilder: StringBuilder = new StringBuilder()
+    // The log is written by the process output reader thread and read by the test and watchdog threads.
+    // `java.lang.StringBuffer` is used specifically because it's thread-safe: all of its methods are `synchronized`.
+    private val logBuffer: java.lang.StringBuffer = new java.lang.StringBuffer()
     private val termination = Promise.apply[Int]()
 
-    def getLog: String = logBuilder.mkString
+    def getLog: String = logBuffer.toString
     def terminated: Future[Int] = termination.future
 
     override def processWillTerminate(event: ProcessEvent, willBeDestroyed: Boolean): Unit = {}
@@ -34,9 +36,7 @@ object SbtShellTestUtil {
       termination.success(event.getExitCode)
 
     override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit = {
-      synchronized {
-        logBuilder.append(event.getText)
-      }
+      logBuffer.append(event.getText)
       print(event.getText)
     }
   }
