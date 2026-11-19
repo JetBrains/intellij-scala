@@ -128,6 +128,7 @@ final class ScalafmtDynamicServiceImpl
       formattersCache(version) = ResolveStatus.Resolved(scalaFmt)
       scalaFmt
     }.toEither.left.map {
+      case e: ProcessCanceledException => throw e
       case e: ReflectiveOperationException =>
         ScalafmtResolveError.CorruptedClassPath(version, jarUrls, e)
       case e =>
@@ -283,7 +284,7 @@ object ScalafmtDynamicServiceImpl {
     }
   }
 
-  private class ProgressIndicatorDownloadListener(
+  private[formatting] class ProgressIndicatorDownloadListener(
     indicator: ProgressIndicator,
     @Nls prefix: String = ""
   ) extends DownloadProgressListener {

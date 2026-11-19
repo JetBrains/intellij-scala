@@ -47,7 +47,7 @@ import org.jetbrains.plugins.scala.extensions.invokeLater
  *
  * See `EdtRequestTrackerTest` for executable examples of request replacement,
  * invalidation and the EDT contract. For a concrete use case, see [[ScalaFmtSettingsPanel]]:
- * its `resolutionRequests` field documents a stale-result scenario, covered by
+ * its `resolutionSession` field documents a stale-result scenario, covered by
  * `ScalaFmtSettingsPanelResolutionTest`.
  */
 private[settings] final class EdtRequestTracker {

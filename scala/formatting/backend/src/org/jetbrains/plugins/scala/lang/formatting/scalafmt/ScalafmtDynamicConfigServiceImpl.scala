@@ -5,6 +5,7 @@ import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, FileEditorOpenRequest}
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.PsiFile
@@ -53,21 +54,6 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
 
   override def clearCaches(): Unit =
     configsCache.clear()
-
-  override def resolveConfigAsync(
-    configFile: VirtualFile,
-    version: ScalafmtVersion,
-    verbosity: FmtVerbosity,
-    onResolveFinished: ConfigResolveResult => Unit
-  ): Unit =
-    ScalafmtDynamicService.instance.resolveAsync(version, project, _ => {
-      refreshFileModificationTimestamp(configFile)
-      val configOrError = resolveConfig(configFile, version, verbosity, resolveFast = true)
-      onResolveFinished(configOrError)
-    })
-
-  private def refreshFileModificationTimestamp(vFile: VirtualFile): Unit =
-    invokeAndWait(inWriteAction(vFile.refresh(false, false)))
 
   override def configForFile(
     psiFile: PsiFile,
@@ -208,11 +194,6 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
     } yield (config, hoconConfig.includedFiles)
   }
 
-  private def parseConfig(config: Config, configFile: VirtualFile, fmtReflect: ScalafmtReflect): ConfigResolveResult =
-    fmtReflect.parseConfigFromString(config.root.render()).toEither.left.map { x =>
-      ConfigResolveError.ConfigParseError(configFile.getPath, x)
-    }
-
   private def notifyConfigChanges(config: ScalafmtReflectConfig, cachedConfig: Option[CachedConfig]): Unit = {
     val contentChanged = !cachedConfig.map(_.config).contains(config)
     if (contentChanged) {
@@ -313,7 +294,7 @@ object ScalafmtDynamicConfigServiceImpl {
   }
 
   def createConfigurationFile(project: Project, path: String, openInEditor: Boolean): Either[Option[Throwable], VirtualFile] =
-    ScalafmtConfigUtils.projectConfigFileAbsolutePath(project, path) match {
+    inReadAction(ScalafmtConfigUtils.projectConfigFileAbsolutePath(project, path)) match {
       case Some(path) =>
         val tri = Try {
           val file = Paths.get(path)
@@ -326,9 +307,21 @@ object ScalafmtDynamicConfigServiceImpl {
             }
           vFile
         }
-        tri.toEither.left.map(Some(_))
+        tri.toEither.left.map {
+          case e: ProcessCanceledException => throw e
+          case e => Some(e)
+        }
       case _ =>
         Left(None)
+    }
+
+  /**
+   * Validates an already parsed HOCON snapshot with the selected formatter.
+   */
+  private[formatting] def parseConfig(config: Config, configFile: VirtualFile, fmtReflect: ScalafmtReflect): ConfigResolveResult =
+    fmtReflect.parseConfigFromString(config.root.render()).toEither.left.map {
+      case e: ProcessCanceledException => throw e
+      case e => ConfigResolveError.ConfigParseError(configFile.getPath, e)
     }
 
   def readVersion(
@@ -337,7 +330,7 @@ object ScalafmtDynamicConfigServiceImpl {
   ): Either[ConfigResolveError.ConfigError, Option[ScalafmtVersion]] =
     parseHoconFile(project, configFile).map(_.config).flatMap(readVersion(_, configFile))
 
-  private def readVersion(
+  private[formatting] def readVersion(
     config: Config,
     configFile: VirtualFile
   ): Either[ConfigResolveError.ConfigError, Option[ScalafmtVersion]] =
@@ -345,17 +338,28 @@ object ScalafmtDynamicConfigServiceImpl {
       Option(config.getString("version").trim).flatMap(ScalafmtVersion.parse)
     }.toEither.left.flatMap {
       case _: ConfigException.Missing => Right(None)
+      case e: ProcessCanceledException => throw e
       case e => Left(ConfigResolveError.ConfigParseError(configFile.getCanonicalPath, e))
     }
 
+  /**
+   * Parses captured root text together with the current unsaved included documents.
+   * The root text stays consistent with the preview even if its source document changes later.
+   * Parsing happens outside document read actions so it does not block UI writes.
+   */
+  private[formatting] def readConfig(project: Project, configFile: VirtualFile, rootText: String): Either[ConfigResolveError.ConfigError, Config] =
+    parseHoconFile(project, configFile, Some(rootText)).map(_.config)
+
   private def parseHoconFile(
     project: Project,
-    configFile: VirtualFile
+    configFile: VirtualFile,
+    rootText: Option[String] = None
   ): Either[ConfigResolveError.ConfigError, ConfigWithIncludedFiles] = {
     implicit val manager: FileDocumentManager = FileDocumentManager.getInstance
     Try {
-      parseHoconFileImpl(project, configFile, configFile :: Nil)
+      parseHoconFileImpl(project, configFile, configFile :: Nil, rootText)
     }.toEither.left.map {
+      case e: ProcessCanceledException => throw e
       case e: ConfigCyclicDependencyException =>
         ConfigResolveError.ConfigCyclicDependenciesError(configFile.getCanonicalPath, e)
       case e =>
@@ -372,11 +376,13 @@ object ScalafmtDynamicConfigServiceImpl {
   private def parseHoconFileImpl(
     project: Project,
     configFile: VirtualFile,
-    filesResolveStack: List[VirtualFile]
+    filesResolveStack: List[VirtualFile],
+    rootText: Option[String] = None
   )(implicit manager: FileDocumentManager): Option[ConfigWithIncludedFiles] = {
+    ProgressManager.checkCanceled()
     val includer = new MyConfigIncluder(project, configFile, filesResolveStack)
     val parseOpts = ConfigParseOptions.defaults.setIncluder(includer)
-    val configText = fileText(configFile)
+    val configText = rootText.orElse(fileText(configFile))
     val config = configText.map(ConfigFactory.parseString(_, parseOpts))
     config.map { c =>
       ConfigWithIncludedFiles(c, includer.getIncludedFiles)
@@ -406,7 +412,7 @@ object ScalafmtDynamicConfigServiceImpl {
 
     override def include(context: ConfigIncludeContext, includedFile: String): ConfigObject = {
       val includedVFile0 = ScalafmtConfigUtils.resolveConfigIncludeFile(configFile, includedFile)
-      val includedVFile = includedVFile0.orElse(ScalafmtConfigUtils.projectConfigFile(project, includedFile))
+      val includedVFile = includedVFile0.orElse(inReadAction(ScalafmtConfigUtils.projectConfigFile(project, includedFile)))
       val includedConfig = includedVFile.flatMap { file =>
         if (filesResolveStack.contains(file))
           throw ConfigCyclicDependencyException(file :: filesResolveStack)
