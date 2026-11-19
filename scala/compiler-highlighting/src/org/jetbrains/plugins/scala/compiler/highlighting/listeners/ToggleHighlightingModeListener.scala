@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.listeners
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.ide.lightEdit.LightEdit
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
@@ -20,7 +21,10 @@ import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, Scala
  * [[ScalaHighlightingMode.isShowErrorsFromCompilerEnabled]] was changed.
  */
 abstract class ToggleHighlightingModeListener(project: Project) {
-  protected def compileOrEraseHighlightings(triggerSource: String): Unit =
+  protected def compileOrEraseHighlightings(triggerSource: String): Unit = {
+    // LightEdit projects cannot become smart and have no project compilation to refresh.
+    if (LightEdit.owns(project)) return
+
     invokeWhenSmart(project) {
       executeOnBackgroundThreadInNotDisposed(project) {
         if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
@@ -45,6 +49,7 @@ abstract class ToggleHighlightingModeListener(project: Project) {
         }
       }
     }
+  }
   
   private def forceStandardHighlighting(project: Project): Unit = inWriteAction {
     ResolveCache.getInstance(project).clearCache(true)
