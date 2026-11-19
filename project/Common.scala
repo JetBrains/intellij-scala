@@ -215,6 +215,11 @@ object Common {
       opts.withExtraOptions(Seq(
         "-Dintellij.testFramework.junit5.skip.test.application.dispose=true",
         SplitTestLogsVmOption,
+        // Don't show the Java profiler's live CPU and memory widget in the Run console of Java applications started in tests.
+        // The widget attaches to the application's JVM on a `Dispatchers.Default` thread, and on the Windows CI agents
+        // that attach can block forever. Once every `Dispatchers.Default` thread is stuck, closing the test project hangs
+        // (SCL-26340). The registry reads a system property with the same name as the key.
+        "-Dprofiler.widget.in.run.console=false",
       ))
     }
   )
