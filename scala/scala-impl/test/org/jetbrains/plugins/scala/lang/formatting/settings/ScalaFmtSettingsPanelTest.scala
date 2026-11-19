@@ -46,6 +46,13 @@ class ScalaFmtSettingsPanelTest extends HeavyPlatformTestCase {
   def testCreateCustomConfigurationWithoutWriteIntentLock(): Unit =
     checkCreateConfiguration(configPath = "custom-scalafmt.conf", expectedFileName = "custom-scalafmt.conf")
 
+  def testCreateLoadsConfigurationCreatedExternallyAfterMissingFileCheck(): Unit =
+    checkCreateConfiguration(
+      configPath = "",
+      expectedFileName = ".scalafmt.conf",
+      externallyCreatedText = Some(s"version = $DefaultVersion\nmaxColumn = 123")
+    )
+
   def testShowConfiguredFormatterVersion(): Unit =
     checkResolvedVersion("version = 2.7.5", "2.7.5")
 
@@ -220,8 +227,12 @@ class ScalaFmtSettingsPanelTest extends HeavyPlatformTestCase {
     }, false)
   }
 
-  private def checkCreateConfiguration(configPath: String, expectedFileName: String): Unit = {
-    val expectedText = "version = 2.7.5"
+  private def checkCreateConfiguration(
+    configPath: String,
+    expectedFileName: String,
+    externallyCreatedText: Option[String] = None
+  ): Unit = {
+    val expectedText = externallyCreatedText.getOrElse("version = 2.7.5")
     val settings = createSettings(configPath)
 
     val (panel, createButton, expectedPath) = EdtTestUtil.runInEdtAndGet(() => {
@@ -241,12 +252,17 @@ class ScalaFmtSettingsPanelTest extends HeavyPlatformTestCase {
       assertMissingConfigurationUi(panel, createButton)
     }, false)
 
+    externallyCreatedText.foreach { text =>
+      // Reproduce external creation after the missing-file check in a fixed order, without refreshing VFS.
+      Files.writeString(expectedPath, text)
+    }
+
     // Non-modal Settings dispatches button actions on EDT without an implicit write-intent lock.
     EdtTestUtil.runInEdtAndWait(() => {
       assertFalse("The test must dispatch Create without an implicit write-intent lock", ApplicationManager.getApplication.isWriteIntentLockAcquired)
       createButton.doClick(0)
-      PlatformTestUtil.waitWithEventsDispatching("Create should load the new configuration preview",
-        () => panel.getEditor.getDocument.getText == expectedText, 10)
+      PlatformTestUtil.waitWithEventsDispatching("Create should load the configuration preview",
+        () => panel.getEditor.getDocument.getText.nonEmpty, 10)
       assertCreatedConfigurationUi(panel, createButton, expectedText)
     }, false)
 
@@ -282,7 +298,7 @@ class ScalaFmtSettingsPanelTest extends HeavyPlatformTestCase {
   private def assertCreatedConfigurationUi(panel: ScalaFmtSettingsPanel, createButton: JButton, expectedText: String): Unit = {
     assertFalse("The Create action should disappear after creating the configuration", isVisibleInPanel(createButton, panel.getPanel))
     assertTrue("The configuration preview should become visible", isVisibleInPanel(panel.getEditor.getComponent, panel.getPanel))
-    assertEquals("The preview should contain the newly created configuration", expectedText, inReadAction(panel.getEditor.getDocument.getText))
+    assertEquals("The preview should contain the configuration at the requested path", expectedText, inReadAction(panel.getEditor.getDocument.getText))
   }
 
   private def assertCreatedConfigurationContents(expectedPath: Path, expectedText: String): Unit = {
