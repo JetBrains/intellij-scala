@@ -23,7 +23,7 @@ object SbtShellTestUtil {
     private val logBuilder: StringBuilder = new StringBuilder()
     private val termination = Promise.apply[Int]()
 
-    def getLog: String = logBuilder.mkString
+    def getLog: String = synchronized(logBuilder.mkString)
     def terminated: Future[Int] = termination.future
 
     override def processWillTerminate(event: ProcessEvent, willBeDestroyed: Boolean): Unit = {}
