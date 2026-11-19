@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.BinaryFileTypeDecompilers
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiReference}
+import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{Parent, PathExt, PsiElementExt, PsiNamedElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -85,6 +86,10 @@ abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestCas
       case None =>
         fail("No testdata provided")
     }
+
+    // SCL-20527: resolution may query indexes inside MixinNodes' AST-loading guard.
+    // Complete lazy indexing of unsaved documents before entering that guard.
+    CodeInsightTestFixtureImpl.ensureIndexesUpToDate(getProject)
 
     assertNotNull(s"Failed to locate source element in file:\n$lastSource", src)
     (src, tgt)
