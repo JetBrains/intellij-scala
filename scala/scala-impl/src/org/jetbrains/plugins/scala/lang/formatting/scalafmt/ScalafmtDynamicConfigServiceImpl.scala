@@ -28,6 +28,7 @@ import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig, ScalafmtVer
 
 import java.nio.charset.Charset
 import java.nio.file.{Files, Paths}
+import java.nio.file.StandardOpenOption.CREATE_NEW
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.{concurrent, mutable}
 import scala.jdk.CollectionConverters._
@@ -289,13 +290,24 @@ object ScalafmtDynamicConfigServiceImpl {
     }
   }
 
+  /**
+   * Creates a configuration without replacing an existing file and refreshes the new file in VFS.
+   * An existing path produces a `FileAlreadyExistsException` failure so callers can recover by loading it.
+   */
   def createConfigurationFile(project: Project, path: String, openInEditor: Boolean): Either[Option[Throwable], VirtualFile] =
     inReadAction(ScalafmtConfigUtils.projectConfigFileAbsolutePath(project, path)) match {
       case Some(path) =>
         val tri = Try {
           val file = Paths.get(path)
           // TODO: implement detecting of the latest version from the Internet
-          Files.writeString(file, "version = 2.7.5", Charset.forName("UTF-8"))
+          Files.writeString(
+            file,
+            "version = 2.7.5",
+            Charset.forName("UTF-8"),
+            // Fail with FileAlreadyExistsException if the file exists, preserving its contents
+            // even if it appeared after the caller's missing-file check.
+            CREATE_NEW
+          )
           val vFile = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(file)
           if (openInEditor)
             invokeLater {

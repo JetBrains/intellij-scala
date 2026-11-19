@@ -8,6 +8,7 @@ import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
+import com.typesafe.config.Config
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError
@@ -20,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConf
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalafmtSettingsConfigResolver.{Completion, LoadedConfig}
 import org.scalafmt.dynamic.ScalafmtVersion
 
+import java.nio.file.FileAlreadyExistsException
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -116,92 +118,149 @@ private[settings] object ScalafmtSettingsConfigResolver extends ScalafmtSettings
     onFinished: Completion => Unit,
     createConfig: Boolean
   ): ProgressIndicator = {
-    val finished = new AtomicBoolean(false)
-    def complete(completion: Completion): Unit = {
-      if (finished.compareAndSet(false, true)) onFinished(completion)
-    }
-    val title = ScalaBundle.message("scalafmt.settings.panel.loading.configuration")
-    val task = new Task.Backgroundable(project, title, true) {
-      override def onCancel(): Unit = complete(Completion.Cancelled)
-
-      override def onThrowable(error: Throwable): Unit = {
-        Log.warn("Could not load or resolve the Settings Scalafmt configuration", error)
-        complete(Completion.Failed(error))
-      }
-
-      @RequiresBackgroundThread
-      override def run(indicator: ProgressIndicator): Unit = {
-        indicator.setIndeterminate(true)
-        indicator.checkCanceled()
-        val file = if (createConfig) {
-          ScalafmtDynamicConfigServiceImpl.createConfigurationFile(
-            project, ScalafmtConfigUtils.actualConfigPath(configPath), openInEditor = true
-          ) match {
-            case Right(created) => Some(created)
-            case Left(error) =>
-              onLoaded(None)
-              val failure = error.fold[ConfigResolveError](ConfigFileNotFound(configPath))(ConfigParseError(configPath, _))
-              indicator.checkCanceled()
-              complete(Completion.Resolved(Left(Failure(failure, None))))
-              return
-          }
-        } else {
-          val path = inReadAction(ScalafmtConfigUtils.projectConfigFileAbsolutePath(project, ScalafmtConfigUtils.actualConfigPath(configPath)))
-          // Synchronous refresh must run outside read access: VFS events can require an EDT write action.
-          path.flatMap(p => Option(LocalFileSystem.getInstance().refreshAndFindFileByPath(p)))
-        }
-        val loaded = file.flatMap { configFile =>
-          inReadAction {
-            FileDocumentManager.getInstance().getDocument(configFile).toOption.map { document =>
-              LoadedConfig(configFile, document, document.getText)
-            }
-          }
-        }
-        indicator.checkCanceled()
-        onLoaded(loaded)
-        val result = resolveLoadedConfig(project, loaded, indicator)
-        indicator.checkCanceled()
-        complete(Completion.Resolved(result))
-      }
-    }
+    val task = new ResolveConfigurationTask(project, configPath, onLoaded, onFinished, createConfig)
     val indicator = new BackgroundableProcessIndicator(task)
     ProgressManager.getInstance().runProcessWithProgressAsynchronously(task, indicator)
     indicator
   }
 
+  /**
+   * Executes one [[resolveConfigAsync]] request and owns its at-most-once terminal completion.
+   * File loading, preview delivery and formatter resolution run in order on the same worker;
+   * task lifecycle callbacks can also complete the request after cancellation or failure.
+   */
+  private final class ResolveConfigurationTask(
+    project: Project,
+    configPath: String,
+    onLoaded: Option[LoadedConfig] => Unit,
+    onFinished: Completion => Unit,
+    createConfig: Boolean
+  ) extends Task.Backgroundable(project, ScalaBundle.message("scalafmt.settings.panel.loading.configuration"), true) {
+    private val finished = new AtomicBoolean(false)
+
+    override def onCancel(): Unit = complete(Completion.Cancelled)
+
+    override def onThrowable(error: Throwable): Unit = {
+      Log.warn("Could not load or resolve the Settings Scalafmt configuration", error)
+      complete(Completion.Failed(error))
+    }
+
+    @RequiresBackgroundThread
+    override def run(indicator: ProgressIndicator): Unit = {
+      indicator.setIndeterminate(true)
+      indicator.checkCanceled()
+
+      findOrCreateConfigurationFile() match {
+        case Left(failure) =>
+          onLoaded(None)
+          indicator.checkCanceled()
+          complete(Completion.Resolved(Left(failure)))
+        case Right(file) =>
+          val loaded = loadConfiguration(file)
+          indicator.checkCanceled()
+          onLoaded(loaded)
+
+          val result = resolveLoadedConfig(project, loaded, indicator)
+          indicator.checkCanceled()
+          complete(Completion.Resolved(result))
+      }
+    }
+
+    @RequiresBackgroundThread
+    private def findOrCreateConfigurationFile(): Either[Failure, Option[VirtualFile]] = {
+      val actualPath = ScalafmtConfigUtils.actualConfigPath(configPath)
+      if (createConfig) {
+        ScalafmtDynamicConfigServiceImpl.createConfigurationFile(
+          project, actualPath, openInEditor = true
+        ) match {
+          case Right(created) =>
+            Right(Some(created))
+          case Left(Some(_: FileAlreadyExistsException)) =>
+            // Creation can report an existing file if it appeared after the missing-file check.
+            // See ScalafmtDynamicConfigServiceImpl.createConfigurationFile for the creation contract.
+            Right(refreshConfigurationFile(project, actualPath))
+          case Left(error) =>
+            val failure = error.fold[ConfigResolveError](ConfigFileNotFound(configPath))(ConfigParseError(configPath, _))
+            Left(Failure(failure, None))
+        }
+      } else {
+        Right(refreshConfigurationFile(project, actualPath))
+      }
+    }
+
+    @RequiresBackgroundThread
+    private def loadConfiguration(file: Option[VirtualFile]): Option[LoadedConfig] =
+      file.flatMap { configFile =>
+        inReadAction {
+          FileDocumentManager.getInstance().getDocument(configFile).toOption.map { document =>
+            LoadedConfig(configFile, document, document.getText)
+          }
+        }
+      }
+
+    private def complete(completion: Completion): Unit = {
+      if (finished.compareAndSet(false, true)) {
+        onFinished(completion)
+      }
+    }
+  }
+
+  @RequiresBackgroundThread
+  private def refreshConfigurationFile(project: Project, configPath: String): Option[VirtualFile] = {
+    val path = inReadAction(ScalafmtConfigUtils.projectConfigFileAbsolutePath(project, configPath))
+    // Synchronous refresh must run outside read access: VFS events can require an EDT write action.
+    path.flatMap(p => Option(LocalFileSystem.getInstance().refreshAndFindFileByPath(p)))
+  }
+
   @RequiresBackgroundThread
   private def resolveLoadedConfig(project: Project, loaded: Option[LoadedConfig], indicator: ProgressIndicator): Result = {
-    import ScalafmtDynamicConfigServiceImpl.{parseConfig, readConfig, readVersion}
+    import ScalafmtDynamicConfigServiceImpl.{readConfig, readVersion}
 
     // Reuse the same HOCON snapshot for selecting the version and validating formatter settings.
     val config = loaded match {
       case Some(source) => readConfig(project, source.file, source.originalText).map(hocon => Some(source.file -> hocon))
       case None => Right(None)
     }
+
     val configuredVersion = config.flatMap {
       case Some((file, hocon)) => readVersion(hocon, file)
       case None => Right(None)
     }
+
     configuredVersion.left.map(Failure(_, None)).flatMap { versionOpt =>
-      val version = Version(versionOpt.getOrElse(DefaultVersion), isDefault = versionOpt.isEmpty)
-      indicator.checkCanceled()
-      val resolvers = inReadAction(projectResolvers(project))
-      val formatter = ScalafmtDynamicService.instance.resolve(
-        version.value,
-        project,
-        downloadIfMissing = true,
-        FmtVerbosity.Silent,
-        resolvers,
-        progressListener = new ProgressIndicatorDownloadListener(indicator)
-      )
-      indicator.checkCanceled()
-      val validated = formatter.left.map(ConfigScalafmtResolveError.apply).flatMap { fmt =>
-        config.toOption.flatten match {
-          case Some((file, hocon)) => parseConfig(hocon, file, fmt).map(_ => version)
-          case None => Right(version)
-        }
-      }
-      validated.left.map(Failure(_, Some(version)))
+      resolveFormatterAndValidateConfig(project, config.toOption.flatten, versionOpt, indicator)
     }
+  }
+
+  @RequiresBackgroundThread
+  private def resolveFormatterAndValidateConfig(
+    project: Project,
+    config: Option[(VirtualFile, Config)],
+    versionOpt: Option[ScalafmtVersion],
+    indicator: ProgressIndicator
+  ): Result = {
+    import ScalafmtDynamicConfigServiceImpl.parseConfig
+
+    val version = Version(versionOpt.getOrElse(DefaultVersion), isDefault = versionOpt.isEmpty)
+    indicator.checkCanceled()
+
+    val resolvers = inReadAction(projectResolvers(project))
+    val formatter = ScalafmtDynamicService.instance.resolve(
+      version.value,
+      project,
+      downloadIfMissing = true,
+      FmtVerbosity.Silent,
+      resolvers,
+      progressListener = new ProgressIndicatorDownloadListener(indicator)
+    )
+    indicator.checkCanceled()
+
+    val validated = formatter.left.map(ConfigScalafmtResolveError.apply).flatMap { fmt =>
+      config match {
+        case Some((file, hocon)) => parseConfig(hocon, file, fmt).map(_ => version)
+        case None => Right(version)
+      }
+    }
+    validated.left.map(Failure(_, Some(version)))
   }
 }
