@@ -39,6 +39,7 @@ class AkkaParsingSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
     //akka.parboiled2.support.FCapture
     //akka.parboiled2.support.HListable
     //akka.parboiled2.support.Join
+    //akka.parboiled2.support.Lifter
     //akka.parboiled2.support.LowPrioJoin
     //akka.parboiled2.support.LowerPriorityLifter
     //akka.parboiled2.support.RunResult
