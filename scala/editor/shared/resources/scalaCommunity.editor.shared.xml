@@ -31,6 +31,8 @@
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettingsImpl"/>
 
+        <backspaceHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.backspaceHandler.ScalaBackspaceHandler"/>
+
         <codeBlockSupportHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBlockSupportHandler"/>
         <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
 
