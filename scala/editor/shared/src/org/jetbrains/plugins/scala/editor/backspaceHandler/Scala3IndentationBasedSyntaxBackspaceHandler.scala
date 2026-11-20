@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatch
  *  1. the logic of default handlers is quite primitive and you can't customize it to handle Scala3 indentation-based syntax
  *     in a more sophisticated way
  *
- * Also see [[org.jetbrains.plugins.scala.editor.enterHandler.Scala3IndentationBasedSyntaxEnterHandlerZ]]
+ * Also see [[org.jetbrains.plugins.scala.editor.enterHandler.Scala3IndentationBasedSyntaxEnterHandler]]
  */
 //noinspection InstanceOf
 class Scala3IndentationBasedSyntaxBackspaceHandler extends BackspaceHandlerDelegate {

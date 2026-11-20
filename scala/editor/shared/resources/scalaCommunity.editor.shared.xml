@@ -32,6 +32,9 @@
                             serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettingsImpl"/>
 
         <backspaceHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.backspaceHandler.ScalaBackspaceHandler"/>
+        <!-- order=first because `Scala3BackspaceHandler` should go before `SmartIndentingBackspaceHandler` to correctly handle scala3 indentation based syntax -->
+        <!-- NOTE: order="before ..." doesn't work because backspace handlers do not have orderIds -->
+        <backspaceHandlerDelegate order="first" implementation="org.jetbrains.plugins.scala.editor.backspaceHandler.Scala3IndentationBasedSyntaxBackspaceHandler"/>
 
         <codeBlockSupportHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBlockSupportHandler"/>
         <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
