@@ -3,56 +3,74 @@ package org.jetbrains.plugins.scala.lang.formatting.settings
 import com.intellij.icons.AllIcons
 import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.application.{ModalityState, ReadAction, WriteIntentReadAction}
 import com.intellij.openapi.editor.colors.impl.DefaultColorsScheme
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.ex.util.LayeredLexerEditorHighlighter
 import com.intellij.openapi.editor.{EditorFactory, EditorSettings}
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
-import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileChooser.{FileChooserDescriptor, FileChooserDescriptorFactory}
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory.getSyntaxHighlighter
 import com.intellij.openapi.keymap.KeymapUtil
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.io.NioFiles
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.openapi.ui._
 import com.intellij.openapi.ui.panel.ComponentPanelBuilder
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.components.panels.HorizontalLayout
 import com.intellij.ui.components.{JBCheckBox, JBTextField}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
+import com.intellij.util.concurrency.AppExecutorUtil
+import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
 import com.intellij.util.ui.JBUI
-import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.settings.ScalaSettingsBundle
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction, inWriteAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaFormattingBundle
+import org.jetbrains.plugins.scala.settings.ScalaSettingsBundle
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError.{ConfigError, ConfigScalafmtResolveError}
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.utils.ScalafmtConfigUtils
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicConfigServiceImpl, ScalafmtDynamicService}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicConfigServiceImpl}
+import org.jetbrains.plugins.scala.lang.formatting.settings.EdtRequestTracker.Request
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalafmtSettingsConfigResolver.{Completion, Failure, LoadedConfig, Result, Version}
 import org.scalafmt.dynamic.ScalafmtVersion
 
 import java.awt._
-import java.awt.event.{FocusEvent, FocusListener}
+import java.awt.event.{ActionEvent, FocusAdapter, FocusEvent}
 import java.util.Collections.emptyList
 import javax.swing._
 import javax.swing.event.ChangeEvent
 import scala.annotation.nowarn
 
-final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCodeStylePanelBase(settings, "Scalafmt") {
+/**
+ * Edits Scalafmt settings and previews the selected configuration.
+ *
+ * Supplying the resolver separately keeps formatter resolution independent of UI updates.
+ * `ScalaFmtSettingsPanelResolutionTest` uses a controlled resolver to choose completion
+ * order and thread deterministically, without depending on formatter downloads, caches
+ * or background-task timing. The UI, project files, VFS and documents remain real.
+ * The public single-argument constructor supplies the production resolver.
+ *
+ * @param settings initial code style settings for this panel
+ * @param configResolver loads configurations and resolves formatter versions on a worker thread.
+ *                       The panel dispatches UI updates to EDT and ignores stale completions.
+ */
+final class ScalaFmtSettingsPanel private[settings](
+  settings: CodeStyleSettings,
+  configResolver: ScalafmtSettingsConfigResolver
+) extends ScalaCodeStylePanelBase(settings, "Scalafmt") {
+
+  def this(settings: CodeStyleSettings) = this(settings, ScalafmtSettingsConfigResolver)
 
   import ScalaFmtSettingsPanel._
-
-  private val Log = Logger.getInstance(getClass)
 
   override val getEditor: EditorEx = createConfigEditor
 
   override def dispose(): Unit = {
+    cancelResolution()
     super.dispose()
     if (getEditor != null) {
       EditorFactory.getInstance().releaseEditor(getEditor)
@@ -61,12 +79,12 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
 
   override def apply(settings: CodeStyleSettings): Unit = {
     val editorText = getEditor.getDocument.getText
-    val configTextChangedInEditor = configText.exists(_ != editorText)
+    val configTextChangedInEditor = previewState.source.exists(_.originalText != editorText)
 
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    val panelWasJustEnabled = isPanelEnabled != scalaSettings.USE_SCALAFMT_FORMATTER
+    val formatterChanged = isPanelEnabled != scalaSettings.USE_SCALAFMT_FORMATTER
 
-    val modified = isModified(settings) || configTextChangedInEditor || panelWasJustEnabled
+    val modified = isModified(settings) || formatterChanged
     if (!modified) return
 
     scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS = showScalaFmtInvalidCodeWarnings.isSelected
@@ -74,35 +92,23 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE = reformatOnFileSaveCheckBox.isSelected
     scalaSettings.SCALAFMT_FALLBACK_TO_DEFAULT_SETTINGS = fallBackToDefaultSettings.isSelected
 
-    val configPath = scalaSettings.SCALAFMT_CONFIG_PATH.trim
     val configPathNew = configPathFromUi
-    val configPathChanged = configPath != configPathNew
 
-    projectConfigFile(configPathNew) match {
-      case Some(vFile) =>
-        if (configTextChangedInEditor) {
-          saveConfigChangesToFile(editorText, vFile)
-        }
-
-        if (configPathChanged || panelWasJustEnabled) {
-          scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew
-          updateConfigTextFromFile(vFile)
-        }
-        ensureScalafmtResolvedAndUpdateVersionLabel(vFile)
-      case None =>
-        if (configPathChanged || configTextChangedInEditor) {
-          if (configPathNew.isEmpty) {
-            scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew
-            configText = None
-          } else {
-            reportConfigFileNotFound(configPathNew)
-          }
-        }
-        ensureDefaultScalafmtResolved()
+    // Apply persists the requested path immediately; missing-file feedback arrives with the background lookup.
+    scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew
+    if (configTextChangedInEditor && previewState.requestedPath.contains(configPathNew)) {
+      previewState.source.foreach { config =>
+        inWriteAction(config.document.setText(editorText))
+      }
     }
 
     isPanelEnabled = scalaSettings.USE_SCALAFMT_FORMATTER
-    updateConfigVisibility()
+    if (!isPanelEnabled) {
+      cancelResolution()
+      updateConfigurationUi()
+    } else if (formatterChanged || configTextChangedInEditor || !previewState.requestedPath.contains(configPathNew)) {
+      reloadConfiguration()
+    }
     updateUseIntellijWarningVisibility(scalaSettings)
   }
 
@@ -115,48 +121,24 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     scalafmtVersionLabel.setText(version + (if (isDefault) s" (${ScalaSettingsBundle.message("scalafmt.default")})" else ""))
   }
 
-  private def ensureScalafmtResolvedAndUpdateVersionLabel(configFile: VirtualFile): Unit = {
-    val project = projectOpt match {
-      case Some(value) => value
-      case None => return
-    }
-
-    val versionOpt = ScalafmtDynamicConfigServiceImpl.readVersion(project, configFile) match {
-      case Right(v) => v
-      case Left(ex) =>
-        reportConfigParseError(ex.getMessage)
-        return
-    }
-    val version = versionOpt.getOrElse(DefaultVersion)
-
-    ScalafmtDynamicConfigService.instanceIn(project).toOption match {
-      case Some(configManager) =>
-        configManager.resolveConfigAsync(configFile, version, FmtVerbosity.Silent, onResolveFinished = {
-          case Right(config) =>
-            updateScalafmtVersionLabel(config.getVersion.toString(), isDefault = versionOpt.isEmpty)
-          case Left(error: ConfigError) =>
-            updateScalafmtVersionLabel(version.toString(), isDefault = versionOpt.isEmpty)
-            reportConfigResolveError(error)
-          case Left(error: ConfigResolveError) =>
-            updateScalafmtVersionLabel("")
-            reportConfigResolveError(error)
-        })
-      case _ =>
-        Log.assertTrue(project.isDefault, "Config manager is expected to be missing only in default projects")
-        ScalafmtDynamicService.instance.resolveAsync(version, project, {
-          case Right(scalaFmtReflect) =>
-            updateScalafmtVersionLabel(scalaFmtReflect.version.toString(), isDefault = versionOpt.isEmpty)
-          case Left(error: ScalafmtDynamicService.ScalafmtResolveError) =>
-            updateScalafmtVersionLabel("")
-            reportConfigResolveError(ConfigScalafmtResolveError(error))
-        })
-    }
+  @RequiresEdt
+  private def updateResolution(result: Result): Unit = result match {
+    case Right(Version(version, isDefault)) =>
+      updateScalafmtVersionLabel(version.toString, isDefault)
+    case Left(failure) =>
+      handleResolutionFailure(failure)
   }
 
-  private def ensureDefaultScalafmtResolved(): Unit = {
-    if (projectOpt.isEmpty) return
-    ScalafmtDynamicService.instance.resolveAsync(DefaultVersion, projectOpt.get)
-    updateScalafmtVersionLabel(DefaultVersion.toString(), isDefault = true)
+  @RequiresEdt
+  private def handleResolutionFailure(failure: Failure): Unit = failure match {
+    case Failure(error: ConfigError, Some(Version(version, isDefault))) =>
+      updateScalafmtVersionLabel(version.toString, isDefault)
+      reportConfigResolveError(error)
+    case Failure(error: ConfigError, None) =>
+      reportConfigResolveError(error)
+    case Failure(ConfigScalafmtResolveError(error), _) =>
+      updateScalafmtVersionLabel("")
+      reportCantResolveVersion(error.version)
   }
 
   private def reportConfigResolveError(configResolveError: ConfigResolveError): Unit = {
@@ -206,22 +188,108 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     balloon.show(balloonPosition, direction)
   }
 
-  private def updateConfigTextFromFile(vFile: VirtualFile): Unit = {
-    configText = inReadAction(FileDocumentManager.getInstance.getDocument(vFile).toOption.map(_.getText))
-    configText.foreach(text => inWriteAction {
-      getEditor.getDocument.setText(text)
-    })
+  @RequiresEdt
+  private def cancelResolution(): Unit = {
+    resolutionSession.cancel()
+    previewState match {
+      case PreviewState.Loading(_) => previewState = PreviewState.Unloaded
+      case _ =>
+    }
   }
 
-  private def saveConfigChangesToFile(configTextNew: String, vFile: VirtualFile): Unit = {
-    val document = inReadAction(FileDocumentManager.getInstance.getDocument(vFile))
-    inWriteAction {
-      invokeAndWait(ModalityState.current()) {
-        document.setText(configTextNew)
-      }
-    }
-    configText = Some(configTextNew)
+  @RequiresEdt
+  private def reloadConfiguration(createConfig: Boolean = false): Unit = {
+    cancelResolution()
+
+    val path = configPathFromUi
+    val initialPreview = if (projectOpt.isDefined) PreviewState.Loading(path) else PreviewState.Unloaded
+    updatePreview(initialPreview)
+    updateScalafmtVersionLabel("")
+
+    val modalityState = ModalityState.current()
+    projectOpt.foreach(startConfigurationResolution(path, createConfig, modalityState))
   }
+
+  @RequiresEdt
+  private def startConfigurationResolution(
+    path: String,
+    createConfig: Boolean,
+    modalityState: ModalityState
+  )(project: Project): Unit =
+    resolutionSession.start(startConfigurationTask(project, path, createConfig, modalityState))
+
+  @RequiresEdt
+  private def startConfigurationTask(
+    project: Project,
+    path: String,
+    createConfig: Boolean,
+    modalityState: ModalityState
+  )(request: Request): ProgressIndicator =
+    configResolver.resolveConfigAsync(
+      project,
+      path,
+      onLoaded = onConfigurationLoaded(project, path, modalityState, request),
+      onFinished = onConfigurationFinished(project, modalityState, request),
+      createConfig
+    )
+
+  private def onConfigurationLoaded(
+    project: Project,
+    path: String,
+    modalityState: ModalityState,
+    request: Request
+  )(config: Option[LoadedConfig]): Unit =
+    request.invokeLaterIfCurrent(modalityState, project) {
+      val state = config.fold[PreviewState](PreviewState.Missing(path))(PreviewState.Loaded(path, _))
+      updatePreview(state)
+    }
+
+  private def onConfigurationFinished(
+    project: Project,
+    modalityState: ModalityState,
+    request: Request
+  )(completion: Completion): Unit =
+    request.invokeLaterIfCurrent(modalityState, project) {
+      resolutionSession.finish(request)
+      completeResolution(completion)
+    }
+
+  @RequiresEdt
+  private def completeResolution(completion: Completion): Unit = completion match {
+    case Completion.Resolved(result) =>
+      updateResolution(result)
+    case Completion.Cancelled =>
+      previewState match {
+        case PreviewState.Loading(path) =>
+          updatePreview(PreviewState.Cancelled(path))
+        case _ =>
+          // Retain a loaded preview, including edits made while resolving the formatter.
+      }
+    case Completion.Failed(_) =>
+      previewState match {
+        case PreviewState.Loading(path) =>
+          updatePreview(PreviewState.Failed(path))
+        case _ =>
+          displayMessage(
+            ScalaSettingsBundle.message("scalafmt.settings.panel.configuration.failed"),
+            externalFormatterSettingsPath, 0, externalFormatterSettingsPath.getHeight,
+            Balloon.Position.below, MessageType.WARNING
+          )
+      }
+  }
+
+  @RequiresEdt
+  private def updatePreview(state: PreviewState): Unit = {
+    previewState = state
+    setPreviewText(state.source.fold("")(_.originalText))
+    updateConfigurationUi()
+  }
+
+  @RequiresEdt
+  private def setPreviewText(text: String): Unit =
+    WriteIntentReadAction.run(() => {
+      inWriteAction(getEditor.getDocument.setText(text))
+    })
 
   override def isModified(settings: CodeStyleSettings): Boolean = {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
@@ -230,7 +298,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT != useIntellijFormatterForRangeFormat.isSelected ||
       scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE != reformatOnFileSaveCheckBox.isSelected ||
       scalaSettings.SCALAFMT_FALLBACK_TO_DEFAULT_SETTINGS != fallBackToDefaultSettings.isSelected ||
-      configText.exists(_ != getEditor.getDocument.getText)
+      previewState.source.exists(_.originalText != getEditor.getDocument.getText)
   }
 
   override def resetImpl(codeStyleSettings: CodeStyleSettings): Unit = {
@@ -242,20 +310,15 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     useIntellijFormatterForRangeFormat.setSelected(scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT)
     reformatOnFileSaveCheckBox.setSelected(scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE)
     fallBackToDefaultSettings.setSelected(scalaSettings.SCALAFMT_FALLBACK_TO_DEFAULT_SETTINGS)
-    externalFormatterSettingsPath.getButton.grabFocus(): @nowarn("cat=deprecation")
 
     isPanelEnabled = scalaSettings.USE_SCALAFMT_FORMATTER
     if (isPanelEnabled) {
-      projectConfigFile(configPath) match {
-        case Some(vFile) =>
-          updateConfigTextFromFile(vFile)
-          ensureScalafmtResolvedAndUpdateVersionLabel(vFile)
-        case None =>
-          ensureDefaultScalafmtResolved()
-      }
+      reloadConfiguration()
+    } else {
+      cancelResolution()
+      updateConfigurationUi()
     }
 
-    updateConfigVisibility()
     updateUseIntellijWarningVisibility(scalaSettings)
   }
 
@@ -266,22 +329,6 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     }
     myPanel
   }
-
-  private def createNewConfigFileAndUpdate(): Unit =
-    projectOpt match {
-      case Some(project) =>
-        val configPath = ScalafmtConfigUtils.actualConfigPath(configPathFromUi)
-        ScalafmtDynamicConfigServiceImpl.createConfigurationFile(project, configPath, openInEditor = true) match {
-          case Left(None) =>
-          case Left(Some(ex)) =>
-            Log.warn("Couldn't create configuration file: " + ex)
-          case Right(vFile) =>
-            updateConfigTextFromFile(vFile)
-            updateConfigVisibility()
-            ensureScalafmtResolvedAndUpdateVersionLabel(vFile)
-        }
-      case None =>
-    }
 
   private def buildInnerPanel: JPanel = {
     import GridConstraints._
@@ -335,7 +382,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     //noinspection HardCodedStringLiteral
     configPathTextField.getEmptyText.setText(ScalaSettingsBundle.message("scalafmt.default.path", DefaultConfigFilePath))
     externalFormatterSettingsPath = new TextFieldWithBrowseButton(configPathTextField)
-    resetConfigBrowserFolderListener()
+    installConfigPathListeners()
 
     //noinspection HardCodedStringLiteral
     inner.add(new JLabel(ScalaSettingsBundle.message("scalafmt.settings.panel.configuration.label") + ":"),
@@ -346,7 +393,9 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       constraint(4, 2, 1, 1, ANCHOR_CENTER, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_CAN_SHRINK))
 
     scalafmtVersionLabel = new JLabel()
-    inner.add(new JLabel(ScalaSettingsBundle.message("scalafmt.settings.panel.scalafmt.version.label") + ":"),
+    val scalafmtVersionCaption = new JLabel(ScalaSettingsBundle.message("scalafmt.settings.panel.scalafmt.version.label") + ":")
+    scalafmtVersionCaption.setLabelFor(scalafmtVersionLabel)
+    inner.add(scalafmtVersionCaption,
       constraint(5, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
     inner.add(scalafmtVersionLabel,
       constraint(5, 1, 1, 1, ANCHOR_NORTHWEST, FILL_HORIZONTAL, SIZEPOLICY_CAN_GROW | SIZEPOLICY_WANT_GROW, SIZEPOLICY_FIXED))
@@ -355,14 +404,16 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
 
     val configEditorPanel = new JPanel(new VerticalFlowLayout(VerticalFlowLayout.TOP, 0, 10, true, true))
 
-    noConfigGroup = new JPanel(new HorizontalLayout(10, SwingConstants.CENTER))
-    noConfigLabel = new JLabel(ScalaSettingsBundle.message("scalafmt.settings.panel.no.config.found.under.path.using.default"))
-    noConfigGroup.add(noConfigLabel)
-    createConfigButton = new JButton(ScalaFormattingBundle.message("scalafmt.can.not.find.config.file.create.new"))
-    createConfigButton.addActionListener(_ => createNewConfigFileAndUpdate())
-    noConfigGroup.add(createConfigButton)
+    configStatusGroup = new JPanel(new HorizontalLayout(10, SwingConstants.CENTER))
+    configStatusLabel = new JLabel()
+    configStatusGroup.add(configStatusLabel)
+    configStatusButton = new JButton(ScalaFormattingBundle.message("scalafmt.can.not.find.config.file.create.new"))
+    configStatusButton.addActionListener { _ =>
+      reloadConfiguration(createConfig = previewState.isInstanceOf[PreviewState.Missing])
+    }
+    configStatusGroup.add(configStatusButton)
 
-    configEditorPanel.add(noConfigGroup)
+    configEditorPanel.add(configStatusGroup)
 
     previewPanel = new JPanel()
     configEditorPanel.add(previewPanel)
@@ -371,70 +422,93 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     inner.add(configEditorPanel,
       constraint(6, 0, 1, 3, ANCHOR_NORTH, FILL_BOTH, SIZEPOLICY_CAN_GROW, SIZEPOLICY_CAN_SHRINK | SIZEPOLICY_CAN_GROW))
 
-    updateConfigVisibility(configVisible = true)
+    updateConfigurationUi()
 
     inner
   }
 
-  private def resetConfigBrowserFolderListener(): Unit = {
-    val button = externalFormatterSettingsPath.getButton: @nowarn("cat=deprecation")
-    button.getActionListeners.foreach(button.removeActionListener)
-
-    def updateConfigPath(configPath: String): Unit = {
-      projectConfigFile(configPath) match {
-        case Some(vFile) =>
-          updateConfigTextFromFile(vFile)
-          ensureScalafmtResolvedAndUpdateVersionLabel(vFile)
-        case _ =>
-          configText = None
-          ensureDefaultScalafmtResolved()
-      }
-      updateConfigVisibility()
-    }
-
-    // if config path text field is empty we want to select default config file in project tree of file browser
+  private def installConfigPathListeners(): Unit = {
     val textAccessor = new TextComponentAccessor[JTextField]() {
       override def setText(textField: JTextField, text: String): Unit = {
         textField.setText(text)
-        updateConfigPath(text)
+        onConfigPathCommitted()
       }
 
-      override def getText(textField: JTextField): String = {
-        val path = ScalafmtConfigUtils.actualConfigPath(textField.getText)
-        val absolutePath = projectOpt.flatMap(ScalafmtConfigUtils.projectConfigFileAbsolutePath(_, path))
-        absolutePath.getOrElse(DefaultConfigFilePath)
-      }
+      override def getText(textField: JTextField): String = textField.getText
     }
 
-    // if we typed only whitespaces and lost focus from text field we should display empty text placeholder
-    val focusListener = new FocusListener {
-      override def focusGained(e: FocusEvent): Unit = {}
+    externalFormatterSettingsPath.getTextField.addFocusListener(new FocusAdapter {
+      override def focusLost(e: FocusEvent): Unit = onConfigPathCommitted()
+    })
 
-      override def focusLost(e: FocusEvent): Unit = {
-        val configPath = configPathFromUi
-        if (StringUtils.isBlank(configPath)) {
-          externalFormatterSettingsPath.setText(null)
-          updateConfigPath(DefaultConfigFilePath)
-        } else {
-          updateConfigPath(configPath)
-        }
-      }
+    val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor("conf")
+      .withTitle(customSettingsTitle)
+      .withDescription(customSettingsTitle)
+    externalFormatterSettingsPath.addActionListener { event =>
+      browseConfiguration(event, descriptor, textAccessor)
     }
-
-    externalFormatterSettingsPath.getTextField.addFocusListener(focusListener)
-    externalFormatterSettingsPath.addBrowseFolderListener(
-      projectOpt.orNull,
-      FileChooserDescriptorFactory.createSingleFileDescriptor("conf")
-        .withTitle(customSettingsTitle)
-        .withDescription(customSettingsTitle),
-      textAccessor
-    )
   }
 
+  @RequiresEdt
+  private def browseConfiguration(
+    event: ActionEvent,
+    descriptor: FileChooserDescriptor,
+    textAccessor: TextComponentAccessor[JTextField]
+  ): Unit = {
+    val project = projectOpt
+    val path = configPathFromUi
+
+    // The platform chooser accepts only absolute initial paths. Resolve relative paths and
+    // the VCS-root fallback off EDT, independently of whether a preview has arrived yet.
+    val lookup = ReadAction.nonBlocking[Option[VirtualFile]](() => initialBrowseFile(project, path))
+      .expireWith(this)
+      .expireWhen(() => project.exists(_.isDisposed))
+      .coalesceBy(this, externalFormatterSettingsPath)
+      .finishOnUiThread(ModalityState.current(), { initialFile =>
+        if (projectOpt == project && configPathFromUi == path) {
+          // Create the chooser with the current binding; listeners are installed only once.
+          val browseAction = new ComponentWithBrowseButton.BrowseFolderActionListener[JTextField](
+            externalFormatterSettingsPath, project.orNull, descriptor, textAccessor
+          ) {
+            override protected def getInitialFile: VirtualFile = initialFile.orNull
+          }
+
+          browseAction.actionPerformed(event)
+        }
+      })
+
+    lookup.submit(AppExecutorUtil.getAppExecutorService)
+  }
+
+  @RequiresBackgroundThread
+  private def initialBrowseFile(project: Option[Project], configPath: String): Option[VirtualFile] = {
+    // An empty path selects the default configuration file in the project's file chooser.
+    val actualPath = ScalafmtConfigUtils.actualConfigPath(configPath)
+    val absolutePath = project.flatMap(ScalafmtConfigUtils.projectConfigFileAbsolutePath(_, actualPath)).getOrElse(actualPath)
+    var candidate = NioFiles.toPath(absolutePath)
+    if (candidate == null || !candidate.isAbsolute) return None
+
+    // Preserve BrowseFolderRunnable's nearest-existing-parent fallback without doing its VFS lookup on EDT.
+    while (candidate != null) {
+      val file = VirtualFileManager.getInstance().findFileByNioPath(candidate)
+      if (file != null) return Some(file)
+      candidate = candidate.getParent
+    }
+    None
+  }
+
+  private def onConfigPathCommitted(): Unit = {
+    val path = configPathFromUi
+    if (path.isEmpty) externalFormatterSettingsPath.setText(null)
+    // Compare requested paths without probing the file system, including while a lookup is still pending.
+    // Reset and Create reload explicitly; ordinary focus changes preserve unapplied preview edits.
+    if (isPanelEnabled && !previewState.requestedPath.contains(path)) reloadConfiguration()
+  }
+
+  @RequiresEdt
   def onProjectSet(aProject: Project): Unit = {
     projectOpt = Some(aProject)
     resetImpl(settings)
-    resetConfigBrowserFolderListener()
   }
 
   private def updateUseIntellijWarningVisibility(settings: ScalaCodeStyleSettings): Unit = {
@@ -442,24 +516,48 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     useIntellijWarning.setVisible(!settings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT)
   }
 
-  private def updateConfigVisibility(): Unit =
-    updateConfigVisibility(configText.isDefined)
-
-  private def updateConfigVisibility(configVisible: Boolean): Unit = {
-    previewPanel.setVisible(configVisible)
-    noConfigGroup.setVisible(!configVisible)
+  private def updateConfigurationUi(): Unit = {
+    val statusText = previewState match {
+      case PreviewState.Missing(_) => Some(ScalaSettingsBundle.message("scalafmt.settings.panel.no.config.found.under.path.using.default"))
+      case PreviewState.Cancelled(_) => Some(ScalaSettingsBundle.message("scalafmt.settings.panel.configuration.cancelled"))
+      case PreviewState.Failed(_) => Some(ScalaSettingsBundle.message("scalafmt.settings.panel.configuration.failed"))
+      case _ => None
+    }
+    configStatusLabel.setText(statusText.orNull)
+    val actionText = previewState match {
+      case PreviewState.Cancelled(_) | PreviewState.Failed(_) => ScalaSettingsBundle.message("scalafmt.settings.panel.retry")
+      case _ => ScalaFormattingBundle.message("scalafmt.can.not.find.config.file.create.new")
+    }
+    configStatusButton.setText(actionText)
+    previewPanel.setVisible(isPanelEnabled && previewState.source.isDefined)
+    configStatusGroup.setVisible(isPanelEnabled && statusText.isDefined)
   }
 
-  private def projectConfigFile(configPath: String): Option[VirtualFile] =
-    projectOpt.flatMap(ScalafmtConfigUtils.projectConfigFile(_, configPath))
-
-  private var isPanelEnabled: Boolean = false
   private var projectOpt: Option[Project] = None
-  private var configText: Option[CharSequence] = None
+  private var isPanelEnabled: Boolean = false
+
+  private var previewState: PreviewState = PreviewState.Unloaded
+
+  /**
+   * Owns asynchronous configuration work and guards preview, version and error updates for this panel.
+   *
+   * For example, configuration A starts downloading formatter `2.7.5`.
+   * The user then selects configuration B with cached formatter `3.11.5`,
+   * whose result updates the version label first. When A finishes later, applying
+   * its result would incorrectly display `2.7.5` while B is selected.
+   * The session's request guard skips A's stale UI update even if cooperative cancellation has not stopped its worker.
+   *
+   * Each lookup starts a new request guarding both preview and resolution updates.
+   * Replacement, reset while disabled, and disposal invalidate outstanding completions
+   * and cancel the previous worker. Checking on EDT after dispatch also prevents
+   * already queued results from updating a newer selection.
+   */
+  private val resolutionSession = new ConfigurationResolutionSession
+
   private var scalafmtVersionLabel: JLabel = scala.compiletime.uninitialized
-  private var noConfigGroup: JComponent = scala.compiletime.uninitialized
-  private var noConfigLabel: JLabel = scala.compiletime.uninitialized
-  private var createConfigButton: JButton = scala.compiletime.uninitialized
+  private var configStatusGroup: JComponent = scala.compiletime.uninitialized
+  private var configStatusLabel: JLabel = scala.compiletime.uninitialized
+  private var configStatusButton: JButton = scala.compiletime.uninitialized
   private var previewPanel: JPanel = scala.compiletime.uninitialized
   private var myPanel: JPanel = scala.compiletime.uninitialized
   private var externalFormatterSettingsPath: TextFieldWithBrowseButton = scala.compiletime.uninitialized
@@ -469,12 +567,62 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   private var reformatOnFileSaveCheckBox: JBCheckBox = scala.compiletime.uninitialized
   private var reformatOnFileSaveComment: JComponent = scala.compiletime.uninitialized
   private var fallBackToDefaultSettings: JBCheckBox = scala.compiletime.uninitialized
+
   private val customSettingsTitle = ScalaSettingsBundle.message("scalafmt.settings.panel.select.custom.scalafmt.configuration.file")
   //noinspection HardCodedStringLiteral
   private val DefaultConfigFilePath = s".${java.io.File.separatorChar}${ScalafmtDynamicConfigService.DefaultConfigurationFileName}"
 }
 
 object ScalaFmtSettingsPanel {
+
+  /**
+   * Availability of the configuration preview, independent of formatter download progress.
+   * A loaded preview keeps its requested path and source together so Apply cannot mix files.
+   */
+  private sealed abstract class PreviewState(val requestedPath: Option[String]) {
+    def source: Option[LoadedConfig] = None
+  }
+
+  private object PreviewState {
+    /**
+     * No preview or requested path is retained, either initially or after invalidating
+     * a lookup that had not loaded a configuration yet.
+     */
+    case object Unloaded extends PreviewState(None)
+
+    /**
+     * A lookup is pending for this path, so configuration availability is still unknown.
+     * Both the preview and the Create action remain hidden until loading completes.
+     */
+    final case class Loading(path: String) extends PreviewState(Some(path))
+
+    /**
+     * No configuration was loaded for this path, so the panel offers to create one.
+     * Formatter resolution can still continue using the default version.
+     */
+    final case class Missing(path: String) extends PreviewState(Some(path))
+
+    /**
+     * Loading was cancelled before a preview arrived; the panel offers Retry.
+     * Cancellation after preview delivery retains the loaded configuration instead.
+     */
+    final case class Cancelled(path: String) extends PreviewState(Some(path))
+
+    /**
+     * An unexpected failure prevented preview delivery; the panel offers Retry.
+     * Failures after loading retain the preview, including any unapplied edits.
+     */
+    final case class Failed(path: String) extends PreviewState(Some(path))
+
+    /**
+     * The source document and its initial text are available for an editable preview,
+     * independently of whether formatter resolution or configuration validation succeeds.
+     * Keeping the requested path with the source lets Apply target the correct document.
+     */
+    final case class Loaded(path: String, config: LoadedConfig) extends PreviewState(Some(path)) {
+      override def source: Option[LoadedConfig] = Some(config)
+    }
+  }
 
   object SearchFilter {
     def ScalafmtConfiguration: String = ScalafmtDynamicConfigServiceImpl.ScalafmtConfigurationSearchFilter

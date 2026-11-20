@@ -3,12 +3,10 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiElement, PsiFile}
-import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveResult
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.ScalafmtResolveError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
-import org.scalafmt.dynamic.{ScalafmtReflectConfig, ScalafmtVersion}
+import org.scalafmt.dynamic.ScalafmtReflectConfig
 
 trait ScalafmtDynamicConfigService {
 
@@ -28,14 +26,6 @@ trait ScalafmtDynamicConfigService {
     verbosity: FmtVerbosity = FmtVerbosity.Verbose,
     resolveFast: Boolean = false
   ): Option[ScalafmtReflectConfig]
-
-  def resolveConfigAsync(
-    configFile: VirtualFile,
-    version: ScalafmtVersion,
-    verbosity: FmtVerbosity,
-    @RequiresEdt
-    onResolveFinished: ConfigResolveResult => Unit
-  ): Unit
 
   def isFileIncludedInProject(file: PsiFile, config: ScalafmtReflectConfig): Boolean
 

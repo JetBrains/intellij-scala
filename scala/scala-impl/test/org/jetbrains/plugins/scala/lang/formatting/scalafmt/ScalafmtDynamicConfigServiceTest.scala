@@ -7,13 +7,27 @@ import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteCommandAction}
 import org.jetbrains.plugins.scala.lang.formatter.scalafmt.ScalaFmtTestBase
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
+import org.junit.Assert.{assertArrayEquals, assertEquals, assertNotNull, assertTrue}
 import org.scalafmt.dynamic.ScalafmtReflectConfig
 
-import java.nio.file.{Files, Path}
+import java.nio.file.{FileAlreadyExistsException, Files, Path}
 
 class ScalafmtDynamicConfigServiceTest extends ScalafmtDynamicConfigServiceTestBase {
   override protected def configurationsDirName: String = "config_service_test_data"
+
+  def testCreateConfigurationDoesNotOverwriteExistingFile(): Unit = {
+    val path = scalafmtConfigsBasePath.resolve("config1.conf")
+    val originalContents = Files.readAllBytes(path)
+
+    val result = ScalafmtDynamicConfigServiceImpl.createConfigurationFile(getProject, path.toString, openInEditor = false)
+
+    assertArrayEquals("Attempting to create an existing configuration must preserve its contents",
+      originalContents, Files.readAllBytes(path))
+    assertTrue(s"Creation must report an existing file so the caller can load it: $result", result match {
+      case Left(Some(_: FileAlreadyExistsException)) => true
+      case _ => false
+    })
+  }
 }
 
 class ScalafmtDynamicConfigServiceTest_3_11 extends ScalafmtDynamicConfigServiceTestBase {
