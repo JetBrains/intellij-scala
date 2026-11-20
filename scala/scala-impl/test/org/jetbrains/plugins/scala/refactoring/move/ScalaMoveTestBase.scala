@@ -21,7 +21,7 @@ abstract class ScalaMoveTestBase extends ScalaLightCodeInsightFixtureTestCase {
   protected def configureModuleSources(module: Module, rootDir: VirtualFile): Unit =
     PsiTestUtil.addSourceContentToRoots(module, rootDir)
 
-  private def root: Path = getTestDataRoot / getTestName(true)
+  protected def getTestDataDirectory: Path = getTestDataRoot / getTestName(true)
 
   private def findAndRefreshVFile(path: Path) = {
     val vFile = LocalFileSystem.getInstance.findFileByNioFile(path)
@@ -38,8 +38,8 @@ abstract class ScalaMoveTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def setUp(): Unit = {
     super.setUp()
-    val rootBefore = root / "before"
-    val rootAfter = root / "after"
+    val rootBefore = getTestDataDirectory / "before"
+    val rootAfter = getTestDataDirectory / "after"
     findAndRefreshVFile(rootBefore)
 
     // remove existing content entries (default source folders),
