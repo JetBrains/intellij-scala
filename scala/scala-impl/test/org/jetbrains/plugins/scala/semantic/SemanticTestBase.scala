@@ -36,7 +36,9 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
     case object Print extends Mode // Find and print classes to scala/scala-impl/target/comparison/; update the test source file
   }
 
-  private val mode: Mode = Mode.Test
+  private val mode: Mode =
+    if (System.getenv("SEMANTIC_TEST_MODE") == "Print") Mode.Print
+    else Mode.Test
 
   private val TargetDirectory = Path.of("scala", "scala-impl", "target")
 
