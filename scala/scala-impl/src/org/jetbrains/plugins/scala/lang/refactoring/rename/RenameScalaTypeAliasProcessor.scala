@@ -38,6 +38,13 @@ class RenameScalaTypeAliasProcessor extends RenameJavaMemberProcessor with Scala
       allRenames.put(elem, newName)
     }
 
+    // A Scala 3 abstract or opaque type can have a companion object, which must be renamed with it,
+    // as it is when the rename starts from the object (RenameScalaClassProcessor).
+    if (typeAlias.canHaveCompanion) {
+      RenameScalaClassProcessor.collectRenamesForTypeDefinition(typeAlias, newName, allRenames)
+      RenameScalaClassProcessor.collectFakeCompanionClassRenames(newName, allRenames)
+    }
+
     ScalaElementToRenameContributor.addAllElements(element, newName, allRenames)
   }
 }

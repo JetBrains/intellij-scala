@@ -1,8 +1,8 @@
 package tests
 
-type Bar
+type /*caret*/Bar
 
 object /*caret*/Bar {
-  type A = Bar
+  type A = /*caret*/Bar
   val x = /*caret*/Bar
 }
