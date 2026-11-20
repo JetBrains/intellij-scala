@@ -449,7 +449,13 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithAllSelections(from, to, after)
   }
 
-  def testCopyAfterPreviousPasteAstIsCollected(): Unit = withAddImportsOnPaste(CodeInsightSettings.YES) {
+  def testCopyAfterPreviousPasteAstIsCollected(): Unit =
+    runCopyAfterPreviousPasteAstIsCollected()
+
+  // Keep the by-name body out of a test-prefixed method: JUnit's TestCase discovery
+  // mistakes Scala 3's synthetic test...$$anonfun methods for non-public tests.
+  // https://github.com/scala/scala3/issues/20322
+  private def runCopyAfterPreviousPasteAstIsCollected(): Unit = withAddImportsOnPaste(CodeInsightSettings.YES) {
     testInnerMethod_FromObject_3()
     val previousTarget = myFixture.getFile
 
