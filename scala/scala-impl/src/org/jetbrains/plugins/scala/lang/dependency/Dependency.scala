@@ -123,6 +123,27 @@ object Dependency {
     results.headOption
   }
 
+  /**
+   * A top-level definition other than a class, trait or object (a Scala 3 `def`, `val`, `type`, `given` or extension
+   * outside any template), in a named package: that package and the definition's name, which is its import path.
+   */
+  private object TopLevelDefinition {
+    def unapply(target: PsiElement): Option[(String, String)] = {
+      val memberAndName = target match {
+        case _: PsiClass => None
+        case named: (ScMember & ScNamedElement) => Some((named, named.name))
+        case pattern: ScReferencePattern => pattern.nameContext match {
+          case member: ScMember => Some((member, pattern.name))
+          case _ => None
+        }
+        case _ => None
+      }
+      memberAndName.collect {
+        case (member, name) if member.isTopLevel => member.topLevelQualifier.filter(_.nonEmpty).map((_, name))
+      }.flatten
+    }
+  }
+
   private def dependencyFor(reference: ScReference, target: PsiElement, fromType: Option[ScType]): Option[Dependency] = {
     implicit val context: Context = Context(reference)
 
@@ -159,6 +180,8 @@ object Dependency {
         target match {
           case _: ScSyntheticClass =>
             None
+          case TopLevelDefinition(packageName, name) =>
+            Some(DependencyPath(packageName, Some(name))).filterNot(shouldSkip).map(Dependency(target, _))
           case e: PsiClass => create(e)
           case e: PsiPackage => create(e)
           case Constructor.ofClass(c) => create(c)
