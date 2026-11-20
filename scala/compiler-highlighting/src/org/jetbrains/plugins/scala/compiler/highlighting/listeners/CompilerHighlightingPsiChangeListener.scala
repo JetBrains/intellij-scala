@@ -1,19 +1,20 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.listeners
 
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.{PsiFile, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.compiler.highlighting.services.CompilationLogicService
+import org.jetbrains.plugins.scala.compiler.highlighting.services.{CompilationLogicService, TriggerService}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core.SourceRole
 import org.jetbrains.plugins.scala.compiler.highlighting.triggers.FileTrigger
 
 private[highlighting] class CompilerHighlightingPsiChangeListener(project: Project)
   extends PsiTreeChangeAdapter:
-  
+
   private val logic = CompilationLogicService(project)
-  
+
   override def childrenChanged(event: PsiTreeChangeEvent): Unit =
     triggerOnFileChange(event.getFile)
 
@@ -32,11 +33,21 @@ private[highlighting] class CompilerHighlightingPsiChangeListener(project: Proje
       if (virtualFile ne null) {
         recordModification(virtualFile)
         FileTrigger.trigger(project, virtualFile, "psi change")
+        triggerSelectedFilesOtherThan(virtualFile)
       }
     }
-  
+
   private def recordModification(virtualFile: VirtualFile): Unit =
     SourceRole.of(project, virtualFile) match
       case SourceRole.Compiled => logic.fileModified(virtualFile)
       case SourceRole.BuildInput => logic.buildInputChanged()
       case SourceRole.Untracked => ()
+
+  /** Schedules the files in the selected editors, except `changed`, which may depend on it. */
+  private def triggerSelectedFilesOtherThan(changed: VirtualFile): Unit =
+    FileEditorManager.getInstance(project).getSelectedFiles
+      .iterator
+      .filter(_ != changed)
+      .foreach(selected =>
+        TriggerService(project).schedule(selected, s"[${selected.getPresentableName}] ${changed.getPresentableName} changed")
+      )
