@@ -40,9 +40,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
     if (System.getenv("SEMANTIC_TEST_MODE") == "Print") Mode.Print
     else Mode.Test
 
-  private val TargetDirectory = Path.of("scala", "scala-impl", "target")
-
-  private val ComparisonDirectory = TargetDirectory.resolve("comparison")
+  private val DataDirectory = Path.of("..", "semantic-data")
   private val CompilerSuffix = "-compiler"
   private val PluginSuffix = "-plugin"
   private val TestDirectory = Path.of("scala", "scala-impl", "test")
@@ -133,7 +131,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
                   val body = sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
                   header + body
                 }
-                val packageDirectory = fqn.split('.').dropRight(1).foldLeft(ComparisonDirectory)(_.resolve(_))
+                val packageDirectory = fqn.split('.').dropRight(1).foldLeft(DataDirectory)(_.resolve(_))
                 Files.createDirectories(packageDirectory)
                 val javaClassName = inReadAction((cls: PsiClass).getName).stripSuffix("$")
                 Files.write(packageDirectory.resolve(s"$javaClassName.scala"), sourceText.getBytes)
