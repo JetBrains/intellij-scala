@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.ScalafmtResolveError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
-import org.scalafmt.dynamic.{ScalafmtReflectConfig, ScalafmtVersion}
+import org.scalafmt.dynamic.ScalafmtReflectConfig
 
 trait ScalafmtDynamicConfigService {
 
