@@ -166,7 +166,7 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaMetaBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaImplDir,
+      rootPath = scalaModDir / "editor" / "shared",
       bundleMessagesRelativePath = "ScalaOptionsBundle.properties"
     ),
     ModuleWithBundleInfo(
