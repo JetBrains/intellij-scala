@@ -1,0 +1,21 @@
+{
+  "description": "Intersection component order (SPEC-GAPS §3): Cat with Dog and Dog with Cat conform both ways but are not =:=; Inv of them conform both ways (mutual <:< for invariant args) but are not =:=.",
+  "concepts": ["compound-type", "equivalence", "invariant", "order"],
+  "types": [
+    { "name": "CD", "expr": "Cat with Dog" },
+    { "name": "DC", "expr": "Dog with Cat" },
+    { "name": "InvCD", "expr": "Inv[Cat with Dog]" },
+    { "name": "InvDC", "expr": "Inv[Dog with Cat]" }
+  ],
+  "conformance": [
+    { "lhs": "CD", "rhs": "DC", "expect": true },
+    { "lhs": "DC", "rhs": "CD", "expect": true },
+    { "lhs": "InvCD", "rhs": "InvDC", "expect": true },
+    { "lhs": "InvDC", "rhs": "InvCD", "expect": true }
+  ],
+  "equivalence": [
+    { "lhs": "CD", "rhs": "DC", "expect": false },
+    { "lhs": "InvCD", "rhs": "InvDC", "expect": false }
+  ],
+  "baseTypeSeq": []
+}

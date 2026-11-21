@@ -1,0 +1,95 @@
+{
+  "conformance": [
+    {
+      "lhs": "ProjDirect",
+      "rhs": "B",
+      "holds": true
+    },
+    {
+      "lhs": "B",
+      "rhs": "ProjDirect",
+      "holds": true
+    },
+    {
+      "lhs": "ProjDirect",
+      "rhs": "Base",
+      "holds": true
+    },
+    {
+      "lhs": "ProjViaAlias",
+      "rhs": "B",
+      "holds": true
+    },
+    {
+      "lhs": "B",
+      "rhs": "ProjViaAlias",
+      "holds": true
+    },
+    {
+      "lhs": "Combined",
+      "rhs": "B",
+      "holds": true
+    },
+    {
+      "lhs": "Combined",
+      "rhs": "Base",
+      "holds": true
+    }
+  ],
+  "baseTypeSeq": {
+    "ProjDirect": [
+      "B",
+      "Base",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "ProjViaAlias": [
+      "B",
+      "Base",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "Combined": [
+      "B { type T = Repro } with B",
+      "B { type T = Repro }",
+      "B",
+      "Base",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "B": [
+      "B",
+      "Base",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "ProjDirect": [
+      "B",
+      "Base",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "ProjViaAlias": [
+      "B",
+      "Base",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "Combined": [
+      "<refinement>",
+      "<refinement>",
+      "B",
+      "Base",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "B": [
+      "B",
+      "Base",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  }
+}

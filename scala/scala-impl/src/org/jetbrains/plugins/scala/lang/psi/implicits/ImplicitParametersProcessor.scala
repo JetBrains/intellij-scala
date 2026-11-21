@@ -6,6 +6,7 @@ import com.intellij.util.containers.SmartHashSet
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isImplicit
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -38,7 +39,7 @@ private[implicits] final class ImplicitParametersProcessor(
       addResult(
         new ScalaResolveResult(
           namedElement,
-          state.substitutorWithThisType,
+          state.substitutorWithThisType(ScSubstitutor.declarationAnchor(namedElement)),
           renamed           = state.renamed,
           fromType          = state.fromType,
           importsUsed       = state.importsUsed,

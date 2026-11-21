@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScOptionalBracesOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -13,7 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNe
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
 
@@ -79,10 +82,13 @@ trait ScBlock extends ScExpression
           case scalaFile: ScalaFile if scalaFile.isCompiled => Nothing
           case _ => Unit
         }
-      case Some(e) => e.`type`().getOrAny
+      case Some(e) => avoidLocals(e.`type`().getOrAny)
     }
     Right(inner)
   }
+
+  private def avoidLocals(tpe: ScType): ScType = ScBlock.avoidLocals(tpe, this)
+
 
   @tailrec
   private def extractExpectedTypeParams(pt: ScType): Option[(Seq[ScType], Boolean)] = pt match {
@@ -123,4 +129,78 @@ trait ScBlock extends ScExpression
 
 object ScBlock {
   def unapplySeq(block: ScBlock): Option[Seq[ScBlockStatement]] = Option(block.statements)
+
+  /**
+   * Type avoidance at the boundary of `scope` (scalac's `packedType`, SLS §6.11): a
+   * definition local to `scope` (a block, or a function literal and its parameters)
+   * must not appear in its type. Each
+   * occurrence is abstracted existentially, as `T forSome { Q }` over the local
+   * definitions, then simplified as SLS §3.2.12 does: a covariant occurrence becomes
+   * its upper bound, a contravariant one its lower bound (`Nothing`), and an invariant
+   * one stays quantified.
+   *  - a local stable `val X: T` (the singleton `X.type`, e.g. from a `this.type`
+   *    member) is bounded by `T with Singleton`, and widens to `T` covariantly;
+   *  - a local class or object is bounded by its parents: `{ class C extends Base; new C }`
+   *    is a `Base`, and `new Ref(new C)` a `Ref[_1] forSome { type _1 <: Base }`.
+   * Iterated, because a bound may mention another local definition.
+   */
+  def avoidLocals(tpe: ScType, scope: ScalaPsiElement): ScType = {
+    implicit val projectContext: ProjectContext = scope.projectContext
+    def isLocal(e: PsiElement): Boolean = PsiTreeUtil.isAncestor(scope, e, /*strict*/ true)
+
+    // (covariant replacement, upper bound of the existential) for a local occurrence
+    def local(t: ScType): Option[(ScType, ScType)] = t match {
+      case owner: DesignatorOwner if owner.isSingleton && isLocal(owner.element) =>
+        owner.element match {
+          case obj: ScObject =>
+            val parents = parentsOf(obj)
+            Some((parents, ScCompoundType(Seq(parents, Singleton))))
+          case _ =>
+            val widened = t.widen
+            Some((widened, ScCompoundType(Seq(widened, Singleton))))
+        }
+      case ScDesignatorType(td: ScTypeDefinition) if isLocal(td) =>
+        val parents = parentsOf(td)
+        Some((parents, parents))
+      case ParameterizedType(ScDesignatorType(td: ScTypeDefinition), _) if isLocal(td) =>
+        val parents = parentsOf(td)
+        Some((parents, parents))
+      case _ => None
+    }
+
+    def packOnce(t: ScType): ScType = {
+      val wildcards = scala.collection.mutable.LinkedHashMap.empty[ScType, ScExistentialArgument]
+      val updated = t.recursiveVarianceUpdate() { (tp: ScType, v: Variance) =>
+        local(tp) match {
+          case Some((covariant, upper)) =>
+            if (v.isCovariant) ReplaceWith(covariant)
+            else if (v.isContravariant) ReplaceWith(Nothing)
+            else ReplaceWith(wildcards.getOrElseUpdate(tp, ScExistentialArgument(s"_$$${wildcards.size + 1}", Nil, Nothing, upper)))
+          case None => ProcessSubtypes
+        }
+      }
+      if (wildcards.isEmpty) updated else ScExistentialType(updated)
+    }
+
+    if (!tpe.subtypeExists(local(_).isDefined)) tpe
+    else {
+      var current  = tpe
+      var continue = true
+      var guard    = 0
+      while (continue && guard < 8) {
+        guard += 1
+        val updated = packOnce(current)
+        continue = updated != current && updated.subtypeExists(local(_).isDefined)
+        current = updated
+      }
+      current
+    }
+  }
+
+  /** The parents of a template, as one type: `Base`, or `Base with T`. */
+  private def parentsOf(td: ScTemplateDefinition)(implicit projectContext: ProjectContext): ScType = td.superTypes match {
+    case Seq()       => AnyRef
+    case Seq(single) => single
+    case several     => ScCompoundType(several)
+  }
 }

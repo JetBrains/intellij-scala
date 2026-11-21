@@ -24,4 +24,4 @@ trait TestExample {
     case ex.ExtractValue(n) => ex.valueToString(/*start*/n/*end*/)
   }
 }
-//ex.Value
+//TestExample.this.ex.Value

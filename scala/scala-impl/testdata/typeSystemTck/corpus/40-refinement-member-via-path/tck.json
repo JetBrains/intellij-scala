@@ -1,0 +1,24 @@
+{
+  "description": "A refinement member reached through a path is not re-rewritten: for val clone = s.cloneSymbol, clone.NameType is s.NameType and conforms to Name.",
+  "concepts": ["refinement", "type-member", "asSeenFrom", "path-dependent"],
+  "types": [
+    { "name": "CloneNameType", "expr": "clone.NameType", "anchor": "inDecoded" },
+    { "name": "SNameType", "expr": "s.NameType", "anchor": "inDecoded" },
+    { "name": "Name", "expr": "Name" }
+  ],
+  "conformance": [
+    { "lhs": "CloneNameType", "rhs": "Name", "expect": true },
+    { "lhs": "CloneNameType", "rhs": "SNameType", "expect": true },
+    { "lhs": "SNameType", "rhs": "CloneNameType", "expect": true }
+  ],
+  "equivalence": [
+    { "lhs": "CloneNameType", "rhs": "SNameType", "expect": true }
+  ],
+  "baseTypeSeq": [],
+  "termTypes": [
+    { "name": "clone", "expr": "clone", "anchor": "inDecoded" },
+    { "name": "cloneName", "expr": "clone.name", "anchor": "inDecoded" },
+    { "name": "cloneNameType", "expr": "null: clone.NameType", "anchor": "inDecoded" },
+    { "name": "cloneNameDecode", "expr": "clone.name.decode", "anchor": "inDecoded" }
+  ]
+}

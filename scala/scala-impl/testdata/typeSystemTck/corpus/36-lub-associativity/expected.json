@@ -1,0 +1,9 @@
+{
+  "conformance": [],
+  "baseTypeSeq": {},
+  "termTypes": {
+    "nary": "scala.collection.immutable.Iterable[scala.Int] with scala.Function1[scala.Int, scala.AnyVal] with scala.Equals { def iterableFactory: scala.collection.IterableFactory[[_]scala.collection.immutable.Iterable[_] with Int with _ => Any with Equals] }",
+    "foldLeft": "scala.collection.immutable.Iterable[scala.Int] with scala.Function1[scala.Int, scala.AnyVal] with scala.Equals { def iterableFactory: scala.collection.IterableFactory[[_]scala.collection.immutable.Iterable[_] with Int with _ => Any with Equals{def iterableFactory: scala.collection.IterableFactory[[_]scala.collection.immutable.Iterable[_] with Int with _ => Any with Equals]}] }",
+    "foldRight": "scala.collection.immutable.Iterable[scala.Int] with scala.Function1[scala.Int, scala.AnyVal] with scala.Equals { def iterableFactory: scala.collection.IterableFactory[[_]scala.collection.immutable.Iterable[_] with Int with _ => Any with Equals] }"
+  }
+}

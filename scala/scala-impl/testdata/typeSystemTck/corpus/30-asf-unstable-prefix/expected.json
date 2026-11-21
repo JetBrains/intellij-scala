@@ -1,0 +1,8 @@
+{
+  "conformance": [],
+  "baseTypeSeq": {},
+  "termTypes": {
+    "arr": "scala.Array[_1] forSome { type _1 >: scala.Nothing <: X with scala.Singleton }",
+    "self": "X"
+  }
+}

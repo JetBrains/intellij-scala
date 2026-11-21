@@ -1,0 +1,11 @@
+{
+  "conformance": [],
+  "baseTypeSeq": {},
+  "termTypes": {
+    "localClassThisType": "java.lang.Object { def me: this.type }",
+    "localClass": "Base",
+    "localValInvariant": "Ref[_1] forSome { type _1 >: scala.Nothing <: Tree with scala.Singleton }",
+    "localObject": "Base",
+    "localClassInvariant": "Ref[_1] forSome { type _1 >: scala.Nothing <: Base }"
+  }
+}
