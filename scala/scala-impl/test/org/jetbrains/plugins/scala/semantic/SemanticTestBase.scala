@@ -32,12 +32,12 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: String*) extends ProjectCorpusTestBase(definition(dependencies, packages)) {
   private abstract sealed class Mode extends Product with Serializable
   private object Mode {
-    case object Test extends Mode // Test listed classes
-    case object Print extends Mode // Find and print classes to scala/scala-impl/target/comparison/; update the test source file
+    case object Test extends Mode      // Test listed classes
+    case object Elaborate extends Mode // Find and elaborate classes (../semantic data), update listed classes in the source file
   }
 
   private val mode: Mode =
-    if (System.getenv("SEMANTIC_TEST_MODE") == "Print") Mode.Print
+    if (System.getenv("SEMANTIC_TEST_MODE") == "Elaborate") Mode.Elaborate
     else Mode.Test
 
   private val DataDirectory = Path.of("..", "semantic-data")
@@ -80,7 +80,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
     val classNames = mode match {
       case Mode.Test => classes.split('\n').map(_.trim).filterNot(_.isEmpty).toSeq // Listed
-      case Mode.Print => inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName).distinct) // Find
+      case Mode.Elaborate => inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName).distinct) // Find
     }
 
     val futures = splitInto(numBatches, classNames).map { classes =>
@@ -98,7 +98,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
             .getOrElse(throw new IllegalArgumentException("Cannot find class: " + fqn)).asInstanceOf[ScTypeDefinition]
 
           mode match {
-            case Mode.Test => // Test listed clases
+            case Mode.Test => // Test listed classes
               val (compilerText, pluginText) = {
                 def result: (String, String) = textOf(cls, decompiler) { (compilerText, pluginText) =>
                   if (isCommented && (compilerText.length < pluginText.length || CharSequence.compare(compilerText.subSequence(0, pluginText.length), pluginText) != 0)) {
@@ -112,7 +112,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
               } else {
                 Assert.assertEquals(s"$fqn [compiler | plugin]", compilerText, pluginText)
               }
-            case Mode.Print => // Print found classes to scala/scala-impl/target/comparison/
+            case Mode.Elaborate => // Elaborate found classes (../semantic-data)
               try {
                 val (compilerText, pluginText) = textOf(cls, decompiler)((_, _) => ()) // Full result
                 foundClasses ::= (if (compilerText != pluginText) "//" else "") + fqn
@@ -164,7 +164,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
     mode match {
       case Mode.Test =>
-      case Mode.Print => // Update the test source file
+      case Mode.Elaborate => // Update the test source file
         val sourceFile = (getClass.getPackageName.split('.').toSeq :+ (getClass.getSimpleName + ".scala")).foldLeft(TestDirectory)(_.resolve(_))
         Assert.assertTrue(s"Test source not found: ${sourceFile.toString}", Files.exists(sourceFile))
         val contents = Files.readString(sourceFile)
