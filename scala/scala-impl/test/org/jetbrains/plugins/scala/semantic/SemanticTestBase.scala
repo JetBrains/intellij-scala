@@ -30,10 +30,9 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 
 @Category(Array(classOf[SemanticTests]))
 abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: String*) extends ProjectCorpusTestBase(definition(dependencies, packages)) {
-  private abstract sealed class Mode extends Product with Serializable
-  private object Mode {
-    case object Test extends Mode      // Test listed classes
-    case object Elaborate extends Mode // Find and elaborate classes (../semantic data), update listed classes in the source file
+  private enum Mode {
+    case Test      // Test listed classes
+    case Elaborate // Find and elaborate classes (../semantic data), update listed classes in the source file
   }
 
   private val mode: Mode =
