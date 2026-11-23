@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocQuickInf
 import org.jetbrains.plugins.scala.extensions.{&, _}
 import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.InvocationDetails.{ArgumentClause, ArgumentClauseTarget, ImplicitValueClause, ValueClause}
+import org.jetbrains.plugins.scala.lang.psi.api.InvocationDetails.{ArgumentClause, ArgumentClauseTarget, AutoAppliedClause, ImplicitValueClause, ValueClause}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
@@ -115,15 +115,30 @@ class ImplicitHintsPass(
       val typeParamIds = invocation.argumentClauses.collect {
         case clause: ArgumentClause.Type => clause.arguments.map(_.parameter.typeParamId)
       }.flatten.toSet
-
-      val clauses = invocation.argumentClauses.flatMap {
-        case clause: ArgumentClause.Type if includeTypeAndApply =>
-          typeArgumentHints(clause, typeParamIds, editor)
-        case clause: ImplicitValueClause
+      val indexedClauses = invocation.argumentClauses.zipWithIndex
+      val visibleImplicitClauses = indexedClauses.collect {
+        case (clause: ImplicitValueClause, index)
           if shouldSearchForImplicits(enabledForElement) &&
-            shouldShowImplicitArgumentsOrErrors(enabledForElement, clause.arguments) =>
+            shouldShowImplicitArgumentsOrErrors(enabledForElement, clause.arguments) => (clause.anchor, index)
+        case (clause: ValueClause, index)
+          if ImplicitHints.enabled && clause.origin.flatMap(_.asOptionOf[ScArgumentExprList]).exists(_.isUsing) =>
+          (clause.anchor, index)
+      }
+
+      val clauses = indexedClauses.flatMap {
+        case (clause: ArgumentClause.Type, _) if includeTypeAndApply =>
+          typeArgumentHints(clause, typeParamIds, editor)
+        // Keep omitted `()` before implicit arguments, without exposing a synthetic trailing constructor clause.
+        case (clause: AutoAppliedClause, index) if visibleImplicitClauses.exists {
+          case (anchor, implicitIndex) => implicitIndex > index && anchor == clause.anchor
+        } =>
+          Seq(Hint(
+            Seq(Text("()")), clause.anchor, position = HintPosition.AfterElement,
+            menu = menu.ImplicitArguments, relatesToPrecedingElement = true
+          ))
+        case (clause: ImplicitValueClause, index) if visibleImplicitClauses.exists(_._2 == index) =>
           Seq(implicitArgumentsHint(clause, owner)(using editor.getColorsScheme))
-        case clause: ValueClause if ImplicitHints.enabled =>
+        case (clause: ValueClause, _) if ImplicitHints.enabled =>
           clause.target match {
             case ArgumentClauseTarget.ScalaParameters(parameters) if parameters.isImplicit =>
               clause.origin.toSeq.flatMap(_.asOptionOf[ScArgumentExprList]).flatMap(explicitImplicitArgumentsHint)

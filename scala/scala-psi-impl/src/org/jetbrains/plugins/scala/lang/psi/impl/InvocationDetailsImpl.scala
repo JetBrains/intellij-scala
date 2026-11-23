@@ -5,7 +5,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScConstructorInvocation, ScMethodLike}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScConstructorInvocation, ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, InvocationDetails, InvocationDetailsOwner}
@@ -103,13 +103,23 @@ private[psi] object InvocationDetailsImpl {
     val withInferredTypes = call.copy(inferred = LongMap.from(inferred))
     val withTypeArguments = invocation.typeArgList.fold(withInferredTypes)(withInferredTypes.typeArguments(_, anchor))
     val withDefaults =
-      if (invocation.arguments.forall(_.isUsing)) withTypeArguments.autoApplyConstructorDefaults
+      if (invocation.arguments.isEmpty) withTypeArguments.autoApplyConstructorDefaults
       else withTypeArguments
+    // Scala 3's Typer.adaptToArgs checks the primary constructor's original first clause,
+    // even when inserting an empty application between later argument lists.
+    val canOmitEmptyClauses = target.exists(_.element match {
+      case constructor: ScPrimaryConstructor =>
+        constructor.effectiveParameterClauses.headOption.exists(_.effectiveParameters.isEmpty)
+      case _ => false
+    })
     val applied = invocation.arguments
       .zipWithIndex
       .foldLeft(withDefaults) {
         case (call, (args, clauseIndex)) =>
-          val prepared = call.omittedBefore(isType = false, args.isUsing)
+          val beforeArguments = call.omittedBefore(isType = false, args.isUsing)
+          val prepared =
+            if (args.isUsing && canOmitEmptyClauses) beforeArguments.autoApplyEmptyClauses
+            else beforeArguments
           prepared.nextValue
             .map { signature =>
               val subst = prepared.substitution(prepared.inferred)
@@ -419,7 +429,7 @@ private[psi] object InvocationDetailsImpl {
         )
       }
 
-    /** Like an omitted `()` in `new C`, only the first ordinary clause can be supplied this way. */
+    /** A constructor call without argument lists can use the defaults of its first ordinary clause. */
     def autoApplyConstructorDefaults: Call = {
       val prepared = omittedBefore(isType = false, isUsing = true)
       prepared.nextValue match {
@@ -427,6 +437,13 @@ private[psi] object InvocationDetailsImpl {
           prepared.valueArguments(None, Seq.empty, autoTupling = false, prepared.anchor)
         case _ => this
       }
+    }
+
+    @tailrec
+    final def autoApplyEmptyClauses: Call = nextValue match {
+      case Some(signature) if !signature.isImplicit && signature.parameters.isEmpty =>
+        applied(AutoAppliedClause()(signature.target, anchor)).autoApplyEmptyClauses
+      case _ => this
     }
 
     def substitution(inferred: LongMap[ScType]): ScSubstitutor =

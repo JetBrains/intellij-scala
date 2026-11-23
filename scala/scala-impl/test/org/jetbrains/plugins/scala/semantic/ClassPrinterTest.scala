@@ -116,6 +116,26 @@ class ClassPrinterTest extends ScalaLightCodeInsightFixtureTestCase {
       |"""
   )
 
+  def testOmittedEmptyConstructorClauseBeforeUsing(): Unit = doTest(
+    """package example
+      |class Foo()(using x: Int)
+      |object Defaults {
+      |  given v: Int = 1
+      |}
+      |import Defaults.v
+      |class Test extends Foo {
+      |  def foo: Foo = new Foo
+      |}
+      |""",
+    """package example
+      |
+      |class Test extends example.Foo()(using example.Defaults.v) {
+      |  def foo: example.Foo =
+      |    new example.Foo()(using example.Defaults.v)
+      |}
+      |"""
+  )
+
   def testSuperclassLeadingUsingArguments(): Unit = doTest(
     """package example
       |class Parent(using n: Int)
@@ -124,6 +144,38 @@ class ClassPrinterTest extends ScalaLightCodeInsightFixtureTestCase {
     """package example
       |
       |class Test extends example.Parent(using 1)
+      |"""
+  )
+
+  def testOmittedEmptyConstructorClauseBeforeExplicitUsing(): Unit = doTest(
+    """package example
+      |class Foo()(using x: Int)
+      |class Test extends Foo(using 2) {
+      |  def foo: Foo = new Foo(using 3)
+      |}
+      |""",
+    """package example
+      |
+      |class Test extends example.Foo()(using 2) {
+      |  def foo: example.Foo =
+      |    new example.Foo()(using 3)
+      |}
+      |"""
+  )
+
+  def testOmittedEmptyConstructorClausesBeforeExplicitUsing(): Unit = doTest(
+    """package example
+      |class Foo()()(using x: Int)()(using y: String)
+      |class Test extends Foo(using 2)(using "parent") {
+      |  def foo: Foo = new Foo()(using 3)(using "new")
+      |}
+      |""",
+    """package example
+      |
+      |class Test extends example.Foo()()(using 2)()(using "parent") {
+      |  def foo: example.Foo =
+      |    new example.Foo()()(using 3)()(using "new")
+      |}
       |"""
   )
 

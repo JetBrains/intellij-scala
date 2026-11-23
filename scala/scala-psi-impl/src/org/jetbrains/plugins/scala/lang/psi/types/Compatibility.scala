@@ -899,22 +899,40 @@ object Compatibility {
   )(implicit
     ctx: ProjectContext
   ): (ScType, ApplicabilityCheckResult, Seq[ImplicitArgumentsClause]) = {
-    val args                       = constrInvocation.arguments
-    val argExprs                   = args.map(_.exprs)
-    val shouldInjectEmptyArgClause = args.forall(_.isUsing)
-
-    // the implied empty clause of a constructor with only `using` clauses is the last one,
-    // see ScPrimaryConstructor.effectiveSignatureClauses
-    val injectEmptyArgClauseInFront = shouldInjectEmptyArgClause && (cons match {
-      case constructor: ScPrimaryConstructor =>
-        !constructor.effectiveParameterClauses.lastOption.exists(ScPrimaryConstructor.isImpliedEmptyClause)
-      case _ => true
-    })
-
-    val nonEmptyArgs =
-      if (!shouldInjectEmptyArgClause)      argExprs
-      else if (injectEmptyArgClauseInFront) Seq(Seq.empty[Expression]) ++ argExprs
-      else                                  argExprs :+ Seq.empty[Expression]
+    val args = constrInvocation.arguments
+    val writtenClauses = if (args.isEmpty) Seq(None) else args.map(Some(_))
+    var hasExcessArgumentClause = false
+    val argumentClauses: Seq[Option[ScArgumentExprList]] = cons match {
+      case constructor: ScMethodLike =>
+        var remaining = constructor.effectiveParameterClauses
+        // Typer.adaptToArgs checks the primary constructor's original first clause,
+        // including when it inserts empty applications between later using clauses.
+        val canOmitEmptyClauses = constructor.is[ScPrimaryConstructor] &&
+          remaining.headOption.exists(_.effectiveParameters.isEmpty)
+        val applied = writtenClauses.flatMap { origin =>
+          if (!origin.exists(_.isUsing))
+            remaining = remaining.dropWhile(c => c.isImplicit && (origin.isEmpty || c.hasUsingKeyword))
+          val omitted =
+            if (canOmitEmptyClauses && origin.exists(_.isUsing))
+              remaining.takeWhile(c => !c.isImplicit && c.effectiveParameters.isEmpty).size
+            else 0
+          remaining = remaining.drop(omitted)
+          if (remaining.isEmpty && origin.isDefined)
+            hasExcessArgumentClause = true
+          remaining = remaining.drop(1)
+          Seq.fill(omitted)(None) :+ origin
+        }
+        // Since Scala 2.13, constructors also auto-apply trailing empty clauses, regardless of the first clause.
+        // This includes the implied final () of a constructor with only using clauses.
+        val trailing =
+          if (constrInvocation.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13 &&
+            remaining.forall(c => c.isImplicit || c.effectiveParameters.isEmpty))
+            remaining.count(!_.isImplicit)
+          else 0
+        applied ++ Seq.fill(trailing)(None)
+      case _ => writtenClauses
+    }
+    val nonEmptyArgs: Seq[Seq[Expression]] = argumentClauses.map(_.toSeq.flatMap(_.exprs))
 
     def retryWithAutoTupling(
       f:      Seq[Expression] => (ScType, ApplicabilityCheckResult),
@@ -1005,23 +1023,22 @@ object Compatibility {
         )
 
         val shouldNotUpdateTrailingImplicits = {
-          val nextArgClauseIdx = i + (if (injectEmptyArgClauseInFront) 0 else 1)
+          // Inserted empty clauses do not consume a written argument list. In particular,
+          // keep a later explicit using clause available instead of inferring its arguments.
+          argumentClauses.iterator.drop(i + 1).flatten.nextOption() match {
+            case Some(argList) =>
+              argList.isUsing || {
+                val nextParamClause =
+                  Compatibility.correspondingParamClause(
+                    paramClauses,
+                    nonEmptyArgs,
+                    i + 1
+                  )
 
-          args.nonEmpty &&
-            (args.lift(nextArgClauseIdx) match {
-              case Some(argList) =>
-                argList.isUsing || {
-                  val nextParamClause =
-                    Compatibility.correspondingParamClause(
-                      paramClauses,
-                      nonEmptyArgs,
-                      i + 1
-                    )
-
-                  nextParamClause.exists(_.hasImplicitKeyword)
-                }
-              case _ => false
-            })
+                nextParamClause.exists(_.hasImplicitKeyword)
+              }
+            case _ => false
+          }
         }
 
         if (!shouldNotUpdateTrailingImplicits) {
@@ -1187,11 +1204,11 @@ object Compatibility {
 
     val initialApplicabilityRes = ApplicabilityCheckResult(Seq.empty)
 
-    // The compiler infers type arguments from the expected type before it searches for the arguments of leading
-    // implicit clauses, if only empty and implicit clauses follow them (`ProtoTypes.constrainResult`, `normalize`).
+    // The compiler infers type arguments from the expected type before implicit search when the constructor
+    // has only empty and implicit clauses (`ProtoTypes.constrainResult`, `normalize`).
     // E.g. `class C[A](using a: A)` is `C[A](using a: A)()`, and `val c: C[Int] = new C` is `new C[Int](using given_Int)()`,
     // but with `class D[A](using a: A)(x: Int)`, `val d: D[Int] = new D(1)` doesn't compile.
-    def infersLeadingImplicitsFromExpectedType(tpe: ScType): Boolean = {
+    def infersImplicitsFromExpectedType(tpe: ScType): Boolean = {
       @tailrec
       def onlyEmptyOrImplicitClauses(tpe: ScType): Boolean = tpe match {
         case ScMethodType(result, params, isImplicit) => (isImplicit || params.isEmpty) && onlyEmptyOrImplicitClauses(result)
@@ -1199,8 +1216,8 @@ object Compatibility {
       }
 
       tpe match {
-        case ScTypePolymorphicType(ScMethodType(result, _, true), _) => onlyEmptyOrImplicitClauses(result)
-        case _                                                       => false
+        case ScTypePolymorphicType(method: ScMethodType, _) => onlyEmptyOrImplicitClauses(method)
+        case _ => false
       }
     }
 
@@ -1215,7 +1232,7 @@ object Compatibility {
     val (typeWithoutLeadingImplicits, leadingImplicitArgs) =
       if (args.headOption.exists(_.isUsing))
         (consType, Seq.empty)
-      else if (infersLeadingImplicitsFromExpectedType(consType))
+      else if (infersImplicitsFromExpectedType(consType))
         try leadingImplicits(withExpectedType(consType), withExpected = true)
         catch {
           case _: SafeCheckException => leadingImplicits(consType, withExpected = false)
@@ -1248,22 +1265,22 @@ object Compatibility {
       if (inferValueType) resTpe.inferValueType
       else                resTpe
 
-    val withMissedParameterClauseProblems = cons match {
+    val withParameterClauseProblems = cons match {
       case scalaCons: ScMethodLike =>
-        val missedParameterClauseProblems =
+        val parameterClauseProblems =
           missedParameterClauseProblemsFor(
             scalaCons.effectiveParameterClauses,
             nonEmptyArgs.length,
             isConstructorInvocation = true
-          )
+          ) ++ Option.when(hasExcessArgumentClause)(DoesNotTakeParameters)
 
-        if (missedParameterClauseProblems.isEmpty) applicabilityRes
+        if (parameterClauseProblems.isEmpty) applicabilityRes
         else
-          applicabilityRes.copy(problems = applicabilityRes.problems ++ missedParameterClauseProblems)
+          applicabilityRes.copy(problems = applicabilityRes.problems ++ parameterClauseProblems)
       case _ => applicabilityRes
     }
 
-    (tpe, withMissedParameterClauseProblems, leadingImplicitArgs ++ implicitArgs ++ trailingImplicitArgs)
+    (tpe, withParameterClauseProblems, leadingImplicitArgs ++ implicitArgs ++ trailingImplicitArgs)
   }
 
   def missedParameterClauseProblemsFor(

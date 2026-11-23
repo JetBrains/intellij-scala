@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
 import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
-import org.junit.Assert.assertEquals
+import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
 import org.junit.experimental.categories.Category
 
 
@@ -2642,14 +2642,14 @@ class InvocationDetailsTest_Scala3 extends InvocationDetailsTestBase {
     """
       |class A(i: Int = 1)(using s: String)
       |
-      |new A(using "s")
+      |new A()(using "s")
       |""",
     """
-      |A(using "s")
+      |A()(using "s")
       |  props:    constructor invocation
       |  target:   A
-      |  (i = 1) (auto applied, after `A`)
-      |  (s = "s") (explicit, after `A`)
+      |  (i = 1) (explicit, after `A`)
+      |  (s = "s") (explicit, after `()`)
       |"""
   )
 
@@ -3130,6 +3130,195 @@ class InvocationDetailsTest_Scala3 extends InvocationDetailsTestBase {
       |  (using given_String) (inferred, after `(1)`)
       |"""
   )
+
+  def testOmittedEmptyConstructorClauseBeforeUsing(): Unit = doTest(
+    """
+      |class Foo()(using x: Int)
+      |given v: Int = 1
+      |
+      |new Foo
+      |""",
+    """
+      |Foo
+      |  props:    constructor invocation
+      |  target:   Foo
+      |  () (auto applied, after `Foo`)
+      |  (using v) (inferred, after `Foo`)
+      |"""
+  )
+
+  def testOmittedEmptyParentConstructorClauseBeforeUsing(): Unit = doTestOfLastConstructorInvocation(
+    """
+      |class Foo()(using x: Int)
+      |given v: Int = 1
+      |
+      |class Bar extends Foo
+      |""",
+    """
+      |Foo
+      |  props:    constructor invocation
+      |  target:   Foo
+      |  () (auto applied, after `Foo`)
+      |  (using v) (inferred, after `Foo`)
+      |"""
+  )
+
+  def testOmittedEmptyConstructorClausesBeforeExplicitUsing(): Unit = doTest(
+    """
+      |class Foo()()(using x: Int)
+      |
+      |new Foo(using 2)
+      |""",
+    """
+      |Foo(using 2)
+      |  props:    constructor invocation
+      |  target:   Foo
+      |  () (auto applied, after `Foo`)
+      |  () (auto applied, after `Foo`)
+      |  (x = 2) (explicit, after `Foo`)
+      |"""
+  )
+
+  def testOmittedEmptyConstructorClausesBeforeInferredUsing(): Unit = doTest(
+    """
+      |class Foo()()(using x: Int)
+      |given v: Int = 1
+      |
+      |new Foo
+      |""",
+    """
+      |Foo
+      |  props:    constructor invocation
+      |  target:   Foo
+      |  () (auto applied, after `Foo`)
+      |  () (auto applied, after `Foo`)
+      |  (using v) (inferred, after `Foo`)
+      |"""
+  )
+
+  def testOmittedEmptyConstructorClauseAfterExplicitEmptyClause(): Unit = doTest(
+    """
+      |class Foo()()(using x: Int)
+      |
+      |new Foo()(using 2)
+      |""",
+    """
+      |Foo()(using 2)
+      |  props:    constructor invocation
+      |  target:   Foo
+      |  () (explicit, after `Foo`)
+      |  () (auto applied, after `()`)
+      |  (x = 2) (explicit, after `()`)
+      |"""
+  )
+
+  def testOmittedEmptyConstructorClausesAfterOrdinaryArgument(): Unit = doTest(
+    """
+      |class Foo()(i: Int)()()(using x: String)
+      |
+      |new Foo()(1)(using "s")
+      |""",
+    """
+      |Foo()(1)(using "s")
+      |  props:    constructor invocation
+      |  target:   Foo
+      |  () (explicit, after `Foo`)
+      |  (i = 1) (explicit, after `()`)
+      |  () (auto applied, after `(1)`)
+      |  () (auto applied, after `(1)`)
+      |  (x = "s") (explicit, after `(1)`)
+      |"""
+  )
+
+  def testOmittedEmptyConstructorClauseBetweenUsingClauses(): Unit = doTest(
+    """
+      |class Foo()(using x: Int)()(using y: String)
+      |
+      |new Foo(using 2)(using "s")
+      |""",
+    """
+      |Foo(using 2)(using "s")
+      |  props:    constructor invocation
+      |  target:   Foo
+      |  () (auto applied, after `Foo`)
+      |  (x = 2) (explicit, after `Foo`)
+      |  () (auto applied, after `(using 2)`)
+      |  (y = "s") (explicit, after `(using 2)`)
+      |"""
+  )
+
+  def testOmittedEmptyConstructorClausesWithTypeInference(): Unit = doTest(
+    """
+      |class Foo[T]()()(using x: T)
+      |
+      |new Foo(using 2)
+      |""",
+    """
+      |Foo(using 2)
+      |  props:    constructor invocation
+      |  target:   Foo
+      |  [T = ?Int] (inferred, after `Foo`)
+      |  () (auto applied, after `Foo`)
+      |  () (auto applied, after `Foo`)
+      |  (x = 2) (explicit, after `Foo`)
+      |"""
+  )
+
+  def testOmittedTrailingEmptyConstructorClauses(): Unit = doTest(
+    """
+      |class Foo(i: Int)()()
+      |
+      |new Foo(1)
+      |""",
+    """
+      |Foo(1)
+      |  props:    constructor invocation
+      |  target:   Foo
+      |  (i = 1) (explicit, after `Foo`)
+      |  () (auto applied, after `(1)`)
+      |  () (auto applied, after `(1)`)
+      |"""
+  )
+
+  def testOmittedEmptyConstructorClausesWithExpectedType(): Unit = doTest(
+    """
+      |class Foo[T]()()(using x: T)
+      |given v: Int = 1
+      |
+      |val foo: Foo[Int] = new Foo
+      |""",
+    """
+      |Foo
+      |  props:    constructor invocation
+      |  target:   Foo
+      |  [T = ?Int] (inferred, after `Foo`)
+      |  () (auto applied, after `Foo`)
+      |  () (auto applied, after `Foo`)
+      |  (using v) (inferred, after `Foo`)
+      |"""
+  )
+
+  def testInvalidConstructorOmissionsBeforeExplicitUsing(): Unit = {
+    // These calls are rejected by scalac. Recovery must not invent omitted applications
+    // before the explicit using clause, either for defaults or for a nonempty first clause.
+    val examples = Seq(
+      "class Foo(i: Int = 1)(using s: String); new Foo(using \"s\")",
+      "class Foo(i: Int)()(using s: String); new Foo(1)(using \"s\")",
+      "class Foo(using i: Int)()(using s: String); new Foo(using 1)(using \"s\")"
+    )
+    examples.foreach { code =>
+      val file = configureFromFileText(code)
+      val invocation = file.depthFirst().filterByType[ConstructorInvocationLike].toSeq.last
+      val details = invocation.invocationDetails.get
+      assertTrue(code, details.target.isDefined)
+      val lastUsing = invocation.arguments.last
+      val beforeUsing = details.argumentClauses.takeWhile(!_.origin.contains(lastUsing))
+      assertFalse(code, beforeUsing.exists {
+        case clause: ArgumentClause.Value => clause.isAutoApplied
+        case _ => false
+      })
+    }
+  }
 
   def testConstructorInvocationOfAGiven(): Unit = doTestOfLastConstructorInvocation(
     """

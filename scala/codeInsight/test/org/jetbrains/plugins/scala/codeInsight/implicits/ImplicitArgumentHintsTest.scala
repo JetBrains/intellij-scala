@@ -10,6 +10,19 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
   //Scala 3 renders a compound type with `&` instead of `with`
   protected def compoundTypeText: String = "Bar with Serializable"
 
+  def testOmittedEmptyConstructorClauseBeforeImplicit(): Unit = doTest(
+    s"""
+       |class Foo()(implicit x: Int)
+       |implicit val v: Int = 1
+       |
+       |class Bar extends Foo$S()$E$S(v)$E
+       |new Foo$S()$E$S(v)$E
+       |new Foo()$S(v)$E
+       |new Foo()(${S}using${E}v)
+       |new Foo$S()$E(using v)
+       |""".stripMargin
+  )
+
   def testSimpleImplicitArgument(): Unit = doTest(
     s"""
        |class A
@@ -404,6 +417,36 @@ class ImplicitArgumentHintsTestScala3 extends ImplicitArgumentHintsTest {
     version >= ScalaVersion.Latest.Scala_3_0
 
   override protected def compoundTypeText: String = "Bar & Serializable"
+
+  def testOmittedEmptyConstructorClauses(): Unit = doTest(
+    s"""
+       |class Foo()()(using x: Int)
+       |given v: Int = 1
+       |
+       |class Bar extends Foo$S()$E$S()$E$S(v)$E
+       |new Foo$S()$E$S()$E$S(v)$E
+       |new Foo$S()$E$S()$E(using 2)
+       |new Foo()$S()$E(using 2)
+       |""".stripMargin
+  )
+
+  def testOmittedEmptyConstructorClausesAfterOrdinaryArgument(): Unit = doTest(
+    s"""
+       |class Foo()(i: Int)()()(using x: String)
+       |given s: String = "s"
+       |
+       |new Foo()(1)$S()$E$S()$E(using "s")
+       |new Foo()(1)$S()$E$S()$E$S(s)$E
+       |""".stripMargin
+  )
+
+  def testOmittedEmptyConstructorClauseBetweenUsingClauses(): Unit = doTest(
+    s"""
+       |class Foo()(using x: Int)()(using y: String)
+       |
+       |new Foo$S()$E(using 2)$S()$E(using "s")
+       |""".stripMargin
+  )
 
   def testMultipleUsingClausesTrailing(): Unit = {
     doTest(

@@ -682,6 +682,12 @@ object InferUtil {
       case _                                   => tp
     }
 
+    @tailrec
+    def removeEmptyClauses(tp: ScType): ScType = tp match {
+      case ScMethodType(result, params, _) if params.isEmpty => removeEmptyClauses(result)
+      case _ => tp
+    }
+
     val withoutImplicits = withoutImplicitClause(tpe)
 
     if (!shouldTruncateMethodType) withoutImplicits
@@ -690,7 +696,9 @@ object InferUtil {
         case _: ScPostfixExpr =>
           withoutImplicits //SCL-17198
         case _: ConstructorInvocationLike =>
-          removeNComponents(withoutImplicits, 1)
+          // A constructor auto-applies the remaining empty clauses; they do not make
+          // its result a Function0 when constraining it against the expected type.
+          removeEmptyClauses(removeNComponents(withoutImplicits, 1))
         case inv: MethodInvocation =>
           removeNComponents(withoutImplicits, countParameterLists(inv))
         case _ =>

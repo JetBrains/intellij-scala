@@ -378,6 +378,36 @@ class TypeArgumentsHintTest extends InlayHintsTestBase {
        |""".stripMargin
   )
 
+  def testOmittedEmptyConstructorClauseBeforeUsing(): Unit = doTestWithImplicitHints(
+    s"""
+       |class Foo()(using x: Int)
+       |given v: Int = 1
+       |
+       |class Bar extends Foo$S()$E$S(v)$E
+       |new Foo$S()$E$S(v)$E
+       |class Baz extends Foo$S()$E(using v)
+       |new Foo$S()$E(using v)
+       |""".stripMargin
+  )
+
+  def testOmittedEmptyConstructorClauseAfterInferredTypeArguments(): Unit = doTestWithImplicitHints(
+    s"""
+       |class Foo[A]()(using x: A)
+       |given v: Int = 1
+       |
+       |val foo: Foo[Int] = new Foo$S[Int]$E$S()$E$S(v)$E
+       |val explicit: Foo[Int] = new Foo$S[Int]$E$S()$E(using v)
+       |""".stripMargin
+  )
+
+  def testOmittedEmptyConstructorClausesWithTypeArgumentInferredFromUsing(): Unit = doTestWithImplicitHints(
+    s"""
+       |class Foo[T]()()(using x: T)
+       |
+       |new Foo$S[Int]$E$S()$E$S()$E(using 2)
+       |""".stripMargin
+  )
+
   def testConstructorWithExplicitArgumentAndUsingClause(): Unit = doTestWithImplicitHints(
     s"""
        |trait Show[A]

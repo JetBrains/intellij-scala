@@ -42,6 +42,27 @@ abstract class ImpliedEmptyConstructorClauseTestBase extends ScalaHighlightingTe
         |""".stripMargin
   )
 
+  def testOmittedEmptyConstructorClauses(): Unit = assertNoErrors(
+    """given Int = 1
+      |given String = "s"
+      |class Leading()()()(using Int)
+      |class Later()(i: Int)()()(using String)
+      |class Between()(using Int)()(using String)
+      |class Trailing(i: Int)()()
+      |class Generic[T]()()(using T)
+      |
+      |val a = new Leading(using 2)
+      |val b = new Leading
+      |val c = new Leading()(using 2)
+      |val d = new Later()(1)(using "s")
+      |val e = new Between(using 2)(using "s")
+      |val f = new Trailing(1)
+      |val g: Generic[Int] = new Generic(using 2)
+      |val h: Generic[Int] = new Generic
+      |class Parent extends Leading(using 2)
+      |""".stripMargin
+  )
+
   // `I()(implicit y: Int)`
   def testLeadingImplicitConstructor(): Unit = assertErrors(
     Declarations +
@@ -110,8 +131,7 @@ class ImpliedEmptyConstructorClauseTest_3_3 extends ImpliedEmptyConstructorClaus
         |val g3 = C4[Int](using s)
         |val g4 = C4[Int]()
         |""".stripMargin,
-    Error("(using s)()", "Unspecified value parameters: show$A$0: Show[Int]"),
-    Error(" s", "Too many arguments for constructor C4"),
+    Error("(using s)()", "Cannot apply constructor C4"),
   )
 }
 
@@ -227,14 +247,16 @@ class ImpliedEmptyConstructorClauseTypeTest_3_9 extends ImpliedEmptyConstructorC
   def testContextBoundWithUsingArguments(): Unit = checkType("C4[Int](using s)", "C4[Int]")
 }
 
-/** Known differences with the compiler */
-class ImpliedEmptyConstructorClauseFailingTest extends ScalaLightCodeInsightFixtureTestCase {
+class ImpliedEmptyConstructorClauseExcessArgumentsTest extends ScalaLightCodeInsightFixtureTestCase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_9
 
-  override protected def shouldPass = false
-
   // Arguments after the implied empty clause: the compiler reports that the constructor does not take more parameters.
-  // Excess argument clauses aren't reported for constructors in general, e.g. `class E(); new E()()`.
+
+  def testExcessArgumentsAfterOmittedEmptyClauses(): Unit = checkHasErrorAroundCaret(
+    s"""class U()()(using Int)
+       |val u = new U(using 1)($CARET)
+       |""".stripMargin
+  )
 
   def testUsingOnlyConstructorExcessArguments(): Unit = checkHasErrorAroundCaret(
     s"""given Int = 1
