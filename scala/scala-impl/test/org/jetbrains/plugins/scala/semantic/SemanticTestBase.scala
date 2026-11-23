@@ -82,6 +82,10 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
       case Mode.Elaborate => inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName).distinct) // Find
     }
 
+    val total = classNames.length
+    println(s"${ mode match { case Mode.Test => "Testing"; case Mode.Elaborate => "Elaborating" } } $total classes:")
+
+    var n = 0
     val futures = splitInto(numBatches, classNames).map { classes =>
       Future {
         val decompiler = Decompiler(classpath, decompilerClassLoader)
@@ -89,7 +93,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
         var foundClasses = List.empty[String]
 
         classes.foreach { name =>
-          println(s"${ mode match { case Mode.Test => "Testing"; case Mode.Elaborate => "Elaborating" } }: $name")
+          synchronized { println(f"${n += 1; n}%04d/$total%s: $name") }
           val isCommented = name.startsWith("//")
           val fqn = if (isCommented) name.substring(2) else name
 
