@@ -31,8 +31,8 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 @Category(Array(classOf[SemanticTests]))
 abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: String*) extends ProjectCorpusTestBase(definition(dependencies, packages)) {
   private enum Mode {
-    case Test      // Test listed classes
-    case Elaborate // Find and elaborate classes (../semantic data), update listed classes in the source file
+    case Test      // Test listed cases
+    case Elaborate // Find and elaborate classes (../semantic data), update listed cases in test source file
   }
 
   private val mode: Mode =
@@ -77,31 +77,31 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
     implicit val executionContext: ExecutionContext = ExecutionContext.fromExecutorService(AppExecutorUtil.getAppExecutorService)
 
-    val classNames = mode match {
+    val allTestCases = mode match {
       case Mode.Test => classes.split('\n').map(_.trim).filterNot(_.isEmpty).toSeq // Listed
       case Mode.Elaborate => inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName).distinct) // Find
     }
 
-    val total = classNames.length
+    val total = allTestCases.length
     println(s"${ mode match { case Mode.Test => "Testing"; case Mode.Elaborate => "Elaborating" } } $total classes:")
 
     var n = 0
-    val futures = splitInto(numBatches, classNames).map { classes =>
+    val futures = splitInto(numBatches, allTestCases).map { testCases =>
       Future {
         val decompiler = Decompiler(classpath, decompilerClassLoader)
 
-        var foundClasses = List.empty[String]
+        var foundTestCases = List.empty[String]
 
-        classes.foreach { name =>
-          synchronized { println(f"${n += 1; n}%04d/$total%s: $name") }
-          val isCommented = name.startsWith("//")
-          val fqn = if (isCommented) name.substring(2) else name
+        testCases.foreach { testCase =>
+          synchronized { println(f"${n += 1; n}%04d/$total%s: $testCase") }
+          val isCommented = testCase.startsWith("//")
+          val fqn = if (isCommented) testCase.substring(2) else testCase
 
           val cls = inReadAction(ScalaPsiManager.instance(getProject).getCachedClass(GlobalSearchScope.allScope(getProject), fqn))
             .getOrElse(throw new IllegalArgumentException("Cannot find class: " + fqn)).asInstanceOf[ScTypeDefinition]
 
           mode match {
-            case Mode.Test => // Test listed classes
+            case Mode.Test => // Test listed cases
               val (compilerText, pluginText) = {
                 def result: (String, String) = textOf(cls, decompiler) { (compilerText, pluginText) =>
                   if (isCommented && (compilerText.length < pluginText.length || CharSequence.compare(compilerText.subSequence(0, pluginText.length), pluginText) != 0)) {
@@ -118,7 +118,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
             case Mode.Elaborate => // Elaborate found classes (../semantic-data)
               try {
                 val (compilerText, pluginText) = textOf(cls, decompiler)((_, _) => ()) // Full result
-                foundClasses ::= (if (compilerText != pluginText) "//" else "") + fqn
+                foundTestCases ::= (if (compilerText != pluginText) "//" else "") + fqn
                 val sourceText = inReadAction {
                   val sourceClass = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
                   val header = {
@@ -155,11 +155,11 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
           }
         }
 
-        foundClasses
+        foundTestCases
       }
     }
 
-    val foundClasses = try {
+    val foundTestCases = try {
       Await.result(Future.sequence(futures), 10.minutes).flatten
     } catch {
       case e: ExecutionException => throw e.getCause
@@ -167,15 +167,15 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
     mode match {
       case Mode.Test =>
-      case Mode.Elaborate => // Update the test source file
+      case Mode.Elaborate => // Update listed cases in test source file
         val sourceFile = (getClass.getPackageName.split('.').toSeq :+ (getClass.getSimpleName + ".scala")).foldLeft(TestDirectory)(_.resolve(_))
         Assert.assertTrue(s"Test source not found: ${sourceFile.toString}", Files.exists(sourceFile))
         val contents = Files.readString(sourceFile)
         val ContentsPattern = "(?s)(.*?\"\"\"\n).*(\n\\s*\"\"\".*?)".r
         contents match {
           case ContentsPattern(prefix, suffix) =>
-            val uncommented = foundClasses.filterNot(_.startsWith("//")).toSet
-            val testCases = foundClasses.filterNot(s => s.startsWith("//") && uncommented(s.substring(2))).sortBy(_.stripPrefix("//")).map("    " + _).mkString("\n")
+            val uncommented = foundTestCases.filterNot(_.startsWith("//")).toSet
+            val testCases = foundTestCases.filterNot(s => s.startsWith("//") && uncommented(s.substring(2))).sortBy(_.stripPrefix("//")).map("    " + _).mkString("\n")
             Files.write(sourceFile, (prefix + testCases + suffix).getBytes)
           case _ =>
             Assert.fail(s"Cannot find placeholder for test cases: ${sourceFile.toString}")
