@@ -32,7 +32,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: String*) extends ProjectCorpusTestBase(definition(dependencies, packages)) {
   private enum Mode {
     case Test      // Test listed cases
-    case Elaborate // Find and elaborate classes (../semantic data), update listed cases in test source file
+    case Elaborate // Find and elaborate classes to ../semantic-data, update listed cases in test source file
   }
 
   private val mode: Mode =
@@ -78,12 +78,15 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
     implicit val executionContext: ExecutionContext = ExecutionContext.fromExecutorService(AppExecutorUtil.getAppExecutorService)
 
     val allTestCases = mode match {
-      case Mode.Test => classes.split('\n').map(_.trim).filterNot(_.isEmpty).toSeq // Listed
-      case Mode.Elaborate => inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName).distinct) // Find
+      case Mode.Test =>      classes.split('\n').map(_.trim).filterNot(_.isEmpty).toSeq // Listed cases
+      case Mode.Elaborate => inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName).distinct) // Find classes
     }
 
     val total = allTestCases.length
-    println(s"${ mode match { case Mode.Test => "Testing"; case Mode.Elaborate => "Elaborating" } } $total classes:")
+    mode match {
+      case Mode.Test =>      println(s"Testing $total cases:")
+      case Mode.Elaborate => println(s"Elaborating $total classes to $DataDirectory:")
+    }
 
     var n = 0
     val futures = splitInto(numBatches, allTestCases).map { testCases =>
@@ -115,7 +118,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
               } else {
                 Assert.assertEquals(s"$fqn [compiler | plugin]", compilerText, pluginText)
               }
-            case Mode.Elaborate => // Elaborate found classes (../semantic-data)
+            case Mode.Elaborate => // Elaborate found classes to ../semantic-data
               try {
                 val (compilerText, pluginText) = textOf(cls, decompiler)((_, _) => ()) // Full result
                 foundTestCases ::= (if (compilerText != pluginText) "//" else "") + fqn
