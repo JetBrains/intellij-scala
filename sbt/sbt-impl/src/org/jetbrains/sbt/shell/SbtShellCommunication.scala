@@ -555,7 +555,8 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
    *
    * On macOS and Linux, "\n" ends the line in both shells.
    */
-  private def enterKey: String =
+  @VisibleForTesting
+  private[sbt] def enterKey: String =
     if SystemInfo.isWindows && process.isRunWithNewShell then "\r" else "\n"
 
   /**
