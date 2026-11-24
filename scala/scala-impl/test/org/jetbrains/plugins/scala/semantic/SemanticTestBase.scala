@@ -85,7 +85,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
     val total = allTestCases.length
     mode match {
       case Mode.Test =>      println(s"Testing $total cases:")
-      case Mode.Elaborate => println(s"Elaborating $total classes to $DataDirectory:")
+      case Mode.Elaborate => println(s"Elaborating $total classes to ${DataDirectory.toAbsolutePath.normalize}:")
     }
 
     var n = 0
