@@ -28,13 +28,16 @@ sealed trait MethodTypeProvider[+T <: PsiElement] {
   def typeParameters: Seq[PsiTypeParameter]
 
   /**
-    * Returns internal type with type parameters.
-    */
+   * Returns internal type with type parameters.
+   * `extensionReceiverApplied` keeps contextual clauses following an extension receiver;
+   * `dropExtensionClauses` drops the whole extension prefix for calls within the same extension.
+   */
   def polymorphicType(
-    s:                    ScSubstitutor       = ScSubstitutor.empty,
-    returnType:           Option[ScType]      = None,
-    dropExtensionClauses: Boolean             = false,
-    extensionOwner:       Option[ScExtension] = None,
+    s:                        ScSubstitutor       = ScSubstitutor.empty,
+    returnType:               Option[ScType]      = None,
+    dropExtensionClauses:     Boolean             = false,
+    extensionOwner:           Option[ScExtension] = None,
+    extensionReceiverApplied: Boolean             = false,
   ): ScType = {
     val mTpe       = methodType(returnType)
     val typeParams = typeParameters
@@ -153,13 +156,14 @@ object MethodTypeProvider {
     }
 
     override def polymorphicType(
-      s:                    ScSubstitutor,
-      returnType:           Option[ScType],
-      dropExtensionClauses: Boolean,
-      extensionOwner:       Option[ScExtension]
+      s:                        ScSubstitutor,
+      returnType:               Option[ScType],
+      dropExtensionClauses:     Boolean,
+      extensionOwner:           Option[ScExtension],
+      extensionReceiverApplied: Boolean
     ): ScType = {
       val (extensionClauses, functionClauses) =
-        element.effectiveSignatureClausesWithExtension(extensionOwner)
+        element.effectiveSignatureClausesWithExtension(extensionOwner, dropExtensionReceiver = extensionReceiverApplied)
 
       def interleavedPolymorphicType(
         signatureClauses: Seq[ScSignatureClause],

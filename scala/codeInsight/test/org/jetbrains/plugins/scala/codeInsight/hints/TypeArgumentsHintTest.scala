@@ -610,6 +610,19 @@ class TypeArgumentsHintTest extends InlayHintsTestBase {
        |""".stripMargin
   )
 
+  def testExtensionUsingClauses(): Unit = doTestWithImplicitHints(
+    s"""
+       |extension (x: Int)(using ext: Long)
+       |  def foo[T](using method: Boolean): Unit = ???
+       |given Long = 1L
+       |given Boolean = true
+       |
+       |2.foo$S(given_Long)$E[Int]$S(given_Boolean)$E
+       |2.foo(using ${S}ext = ${E}1L)[Int](using ${S}method = ${E}true)
+       |2.foo$S(given_Long)$E$S[Nothing]$E$S(given_Boolean)$E
+       |""".stripMargin
+  )
+
   def testFactoryAndApplyAtSameAnchor(): Unit = doTestWithImplicitHints(
     s"""
        |class Callable {

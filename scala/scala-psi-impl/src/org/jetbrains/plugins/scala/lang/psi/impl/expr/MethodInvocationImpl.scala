@@ -637,14 +637,12 @@ object MethodInvocationImpl {
       withTypeParametersOfInvoked(`type`, polymorphicType(resolveResult))
 
     private def polymorphicType(result: ScalaResolveResult): ScType = {
-      val dropExtensionClauses =
-        result.isExtensionCall ||
-          (result.extensionContext.nonEmpty &&
-            result.element.asOptionOf[ScFunction].flatMap(_.extensionMethodOwner) == result.extensionContext)
-
       result.element.asInstanceOf[PsiMethod]
         .methodTypeProvider(invocation.elementScope)
-        .polymorphicType(result.substitutor, dropExtensionClauses = dropExtensionClauses)
+        .polymorphicType(result.substitutor,
+          dropExtensionClauses = result.shouldDropExtensionClauses,
+          extensionOwner = result.exportedInExtension,
+          extensionReceiverApplied = result.isExtensionCall)
     }
   }
 

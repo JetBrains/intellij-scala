@@ -398,7 +398,8 @@ object MethodResolveProcessor {
         val maybeMethodType = fun match {
           case m: PsiMethod =>
             m.methodTypeProvider(place.elementScope)
-              .polymorphicType(dropExtensionClauses = srr.shouldDropExtensionClauses)
+              .polymorphicType(dropExtensionClauses = srr.shouldDropExtensionClauses,
+                extensionOwner = srr.exportedInExtension, extensionReceiverApplied = srr.isExtensionCall)
               .toOption
           case fun: ScSyntheticFunction => fun.polymorphicType().toOption
           case _                        => None
@@ -762,7 +763,12 @@ object MethodResolveProcessor {
             else
               byArgClauseIndex(fun.signatureClauses, argClauseIdx - 1, 0).getOrElse(Seq.empty)
           } else {
-            val allClauses = fun.signatureClauses
+            val allClauses =
+              if (isExtension) {
+                val (extensionClauses, methodClauses) =
+                  fun.effectiveSignatureClausesWithExtension(exportedInExtension, dropExtensionReceiver = true)
+                extensionClauses ++ methodClauses
+              } else fun.signatureClauses
 
             byArgClauseIndex(allClauses, argClauseIdx, 0).getOrElse(Seq.empty)
           }
@@ -1415,7 +1421,8 @@ object MethodResolveProcessor {
           if (!hasParams && (args.nonEmpty || mismatchedTypeArgs))
             applyOrUpdateMethodsFor(
               f.methodTypeProvider(proc.ref.elementScope)
-               .polymorphicType(dropExtensionClauses = r.isExtensionCall)
+               .polymorphicType(dropExtensionClauses = r.shouldDropExtensionClauses,
+                 extensionOwner = r.exportedInExtension, extensionReceiverApplied = r.isExtensionCall)
             )
           else
             noExpansion

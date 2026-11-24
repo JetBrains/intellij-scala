@@ -397,6 +397,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           s,
           maybeResult,
           dropExtensionClauses = result.shouldDropExtensionClauses,
+          extensionReceiverApplied = result.isExtensionCall,
           extensionOwner       = extensionOwner
         )
       case result @ ScalaResolveResult(fun: ScFunction, s) =>
@@ -405,6 +406,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             s,
             result.intersectedReturnType,
             dropExtensionClauses = result.shouldDropExtensionClauses,
+            extensionReceiverApplied = result.isExtensionCall,
             extensionOwner       = extensionOwner
           )
           .updateTypeOfDynamicCall(result.isDynamic)

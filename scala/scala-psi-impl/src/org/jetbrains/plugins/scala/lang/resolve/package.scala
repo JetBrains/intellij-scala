@@ -43,8 +43,8 @@ package object resolve {
     def functionParamClauses: Seq[ScParameterClause] =
       srr.element match {
         case fun: ScFunction =>
-          if (srr.shouldDropExtensionClauses) fun.paramClauses.clauses
-          else                                fun.parameterClausesWithExtension(srr.exportedInExtension)
+          if (srr.shouldDropExtensionClauses) fun.effectiveParameterClauses
+          else fun.parameterClausesWithExtension(srr.exportedInExtension, dropExtensionReceiver = srr.isExtensionCall)
         case cons: ScMethodLike => cons.effectiveParameterClauses
         case _ => Seq.empty
       }

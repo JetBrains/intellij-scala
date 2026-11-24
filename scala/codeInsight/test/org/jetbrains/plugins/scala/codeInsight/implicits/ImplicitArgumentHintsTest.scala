@@ -413,6 +413,61 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
 class ImplicitArgumentHintsTestScala3 extends ImplicitArgumentHintsTest {
   import Hint.{End => E, Start => S}
 
+  def testExtensionUsingClauses(): Unit = doTest(
+    s"""
+       |extension (x: Int)(using Long)
+       |  def foo[T](using Boolean): Unit = ???
+       |given Long = 1L
+       |given Boolean = true
+       |
+       |2.foo$S(given_Long)$E[Int]$S(given_Boolean)$E
+       |""".stripMargin
+  )
+
+  def testExtensionUsingClausesMissing(): Unit = doTest(
+    s"""
+       |extension (x: Int)(using Long)
+       |  def foo[T](using Boolean): Unit = ???
+       |
+       |2.foo$S(?: Long)$E[Int]$S(?: Boolean)$E
+       |""".stripMargin
+  )
+
+  def testExtensionUsingClausesExplicit(): Unit = doTest(
+    """
+      |extension (x: Int)(using Long)
+      |  def foo[T](using Boolean): Unit = ???
+      |
+      |2.foo(using 1L)[Int](using true)
+      |""".stripMargin
+  )
+
+  def testExtensionUsingClausesBeforeAndAfterReceiver(): Unit = doTest(
+    s"""
+       |extension (using Int)(using String)(i: Int)(using Long)
+       |  def foo[T](using Boolean): Unit = ???
+       |given Int = 1
+       |given String = "s"
+       |given Long = 1L
+       |given Boolean = true
+       |
+       |2.foo$S(given_Long)$E[Int]$S(given_Boolean)$E
+       |2.foo(using 2L)[Int]$S(given_Boolean)$E
+       |2.foo(using 2L)[Int](using true)
+       |""".stripMargin
+  )
+
+  def testExtensionUsingClausesBeforeExplicitReceiver(): Unit = doTest(
+    s"""
+       |extension (using Int)(i: Int)
+       |  def foo: Int = i
+       |given Int = 1
+       |
+       |foo$S(given_Int)$E(2)
+       |foo(using 3)(2)
+       |""".stripMargin
+  )
+
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= ScalaVersion.Latest.Scala_3_0
 

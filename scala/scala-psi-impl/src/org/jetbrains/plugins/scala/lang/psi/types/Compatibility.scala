@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiBundle, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.PsiMethodTypeProviderExt
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult, ScalaResolveResultUtils}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.scalaMeta.QuasiquoteInferUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
@@ -824,32 +824,7 @@ object Compatibility {
           return checkParameterListConformance(params)
         }
 
-        val isQualifiedExtensionCall = srr.isExtensionCall
-
-        def isRecursiveOrSameScopeExtensionCall =
-          isDefinedOrExportedInExtension &&
-            !isQualifiedExtensionCall &&
-            (srr.extensionContext.nonEmpty && srr.extensionContext == fun.extensionMethodOwner)
-
-        /**
-         * We ignore parameter clauses coming from extension if:
-         * 1. `fun` was invoked as a proper extension, e.g. `x.fun(bar)`
-         * 2. `fun` was invoked from inside the body of an extension method defined in the
-         * same collective extension as `fun`, e.g.
-         * {{{
-         * extension (x: T)
-         *  def fun2 = fun
-         *  def fun = ???
-         * }}}
-         */
-        val shouldDropExtensionParameterClauses = isQualifiedExtensionCall || isRecursiveOrSameScopeExtensionCall
-
-        val clauses =
-          if (shouldDropExtensionParameterClauses) fun.effectiveParameterClauses
-          else {
-            val extensionOwner = srr.exportedInExtension
-            fun.parameterClausesWithExtension(extensionOwner)
-          }
+        val clauses = srr.functionParamClauses
 
         val currentClause = correspondingParamClause(clauses, argClauses, argClauseIdx)
 

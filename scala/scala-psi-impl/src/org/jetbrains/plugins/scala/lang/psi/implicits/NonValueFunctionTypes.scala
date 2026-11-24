@@ -90,7 +90,10 @@ private object NonValueFunctionTypes {
         val typeParams = owner.typeParameters.map(TypeParameter(_))
         //NOTE: allClauses and not effectiveParameterClauses, since context bounds are translated to
         //      context parameters on individual methods and as such are NOT required to construct an extension.
-        val methodType = MethodTypeProvider.constructMethodType(Any, owner.allClauses)
+        // Only the clauses through the receiver are applied while selecting an extension.
+        // Its trailing context clauses belong to the method call, which may provide them explicitly.
+        val receiverIndex = owner.allClauses.indexWhere(!_.isImplicit)
+        val methodType = MethodTypeProvider.constructMethodType(Any, owner.allClauses.take(receiverIndex + 1))
 
         if (typeParams.isEmpty) methodType
         else                    ScTypePolymorphicType(methodType, typeParams)

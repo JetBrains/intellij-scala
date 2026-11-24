@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, InvocationDetails, InvocationDetailsOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.InvocationDetails._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionExt, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -305,7 +305,15 @@ private[psi] object InvocationDetailsImpl {
           if (method.isConstructor && !selfInvocation) method.getClassTypeParameters.toSeq.flatMap(types)
           else Seq.empty
 
-        classTypes ++ method.effectiveSignatureClauses.map {
+        val signatureClauses = method match {
+          case function: ScFunction if !result.shouldDropExtensionClauses =>
+            val (extensionClauses, methodClauses) = function.effectiveSignatureClausesWithExtension(
+              result.exportedInExtension, dropExtensionReceiver = result.isExtensionCall
+            )
+            extensionClauses ++ methodClauses
+          case _ => method.effectiveSignatureClauses
+        }
+        classTypes ++ signatureClauses.map {
           case ScSignatureClause.TypeClause(clause) =>
             TypeSignature(ArgumentClauseTarget.TypeParameters(clause), clause.typeParameters.map(TypeParameter(_)))
           case ScSignatureClause.TermClause(clause) => values(clause)

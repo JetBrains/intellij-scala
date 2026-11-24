@@ -3110,6 +3110,135 @@ class InvocationDetailsTest_Scala3 extends InvocationDetailsTestBase {
       |"""
   )
 
+  def testExtensionUsingClauses(): Unit = doTest(
+    """
+      |extension (x: Int)(using Long)
+      |  def foo[T](using Boolean): Unit = ???
+      |given Long = 1L
+      |given Boolean = true
+      |
+      |2.foo[Int]
+      |""",
+    """
+      |2.foo[Int]
+      |  target:   foo
+      |  thisExpr: 2
+      |  (using given_Long) (inferred, after `2.foo`)
+      |  [T = Int] (explicit, after `2.foo`)
+      |  (using given_Boolean) (inferred, after `2.foo[Int]`)
+      |2.foo
+      |  no call
+      |"""
+  )
+
+  def testExtensionUsingClausesMissing(): Unit = doTest(
+    """
+      |extension (x: Int)(using Long)
+      |  def foo[T](using Boolean): Unit = ???
+      |
+      |2.foo[Int]
+      |""",
+    """
+      |2.foo[Int]
+      |  target:   foo
+      |  thisExpr: 2
+      |  (using <not found>) (inferred, after `2.foo`)
+      |  [T = Int] (explicit, after `2.foo`)
+      |  (using <not found>) (inferred, after `2.foo[Int]`)
+      |2.foo
+      |  no call
+      |"""
+  )
+
+  def testExtensionUsingClausesExplicit(): Unit = doTest(
+    """
+      |extension (x: Int)(using ext: Long)
+      |  def foo[T](using method: Boolean): Unit = ???
+      |
+      |2.foo(using 1L)[Int](using true)
+      |""",
+    """
+      |2.foo(using 1L)[Int](using true)
+      |  target:   foo
+      |  thisExpr: 2
+      |  (ext = 1L) (explicit, after `2.foo`)
+      |  [T = Int] (explicit, after `2.foo(using 1L)`)
+      |  (method = true) (explicit, after `2.foo(using 1L)[Int]`)
+      |2.foo(using 1L)[Int]
+      |  no call
+      |2.foo(using 1L)
+      |  no call
+      |2.foo
+      |  no call
+      |"""
+  )
+
+  def testExtensionUsingClausesBeforeAndAfterReceiver(): Unit = doTest(
+    """
+      |extension (using Int)(using String)(i: Int)(using Long)
+      |  def foo[T](using Boolean): Unit = ???
+      |given Int = 1
+      |given String = "s"
+      |given Long = 1L
+      |given Boolean = true
+      |
+      |2.foo[Int]
+      |""",
+    """
+      |2.foo[Int]
+      |  target:   foo
+      |  thisExpr: 2
+      |  (using given_Long) (inferred, after `2.foo`)
+      |  [T = Int] (explicit, after `2.foo`)
+      |  (using given_Boolean) (inferred, after `2.foo[Int]`)
+      |2.foo
+      |  no call
+      |"""
+  )
+
+  def testExtensionUsingClausesBeforeReceiverWithExplicitTrailingClauses(): Unit = doTest(
+    """
+      |extension (using Int)(i: Int)(using ext: Long)
+      |  def foo[T](using method: Boolean): Unit = ???
+      |given Int = 1
+      |
+      |2.foo(using 2L)[Int](using true)
+      |""",
+    """
+      |2.foo(using 2L)[Int](using true)
+      |  target:   foo
+      |  thisExpr: 2
+      |  (ext = 2L) (explicit, after `2.foo`)
+      |  [T = Int] (explicit, after `2.foo(using 2L)`)
+      |  (method = true) (explicit, after `2.foo(using 2L)[Int]`)
+      |2.foo(using 2L)[Int]
+      |  no call
+      |2.foo(using 2L)
+      |  no call
+      |2.foo
+      |  no call
+      |"""
+  )
+
+  def testExtensionUsingClausesBeforeExplicitReceiver(): Unit = doTest(
+    """
+      |extension (using leading: Int)(i: Int)
+      |  def foo: Int = i
+      |
+      |foo(using 3)(2)
+      |""",
+    """
+      |foo(using 3)(2)
+      |  target:   foo
+      |  (leading = 3) (explicit, after `foo`)
+      |  (i = 2) (explicit, after `foo(using 3)`)
+      |foo(using 3)
+      |  no call
+      |foo
+      |  no call
+      |"""
+  )
+
   //-----------------------------------------------------------------------------------------------
   // constructor calls
   //-----------------------------------------------------------------------------------------------

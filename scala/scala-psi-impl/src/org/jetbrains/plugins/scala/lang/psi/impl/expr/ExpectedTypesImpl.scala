@@ -302,7 +302,10 @@ class ExpectedTypesImpl extends ExpectedTypes {
               if (srr.innerResolveResult.exists(inner => syntheticKindProjectorApplyNames.contains(inner.name)))
                 tp
               else {
-                val applyType = fun.polymorphicType(s, dropExtensionClauses = r.isExtensionCall)
+                val applyType = fun.polymorphicType(s,
+                  dropExtensionClauses = r.shouldDropExtensionClauses,
+                  extensionOwner = r.exportedInExtension,
+                  extensionReceiverApplied = r.isExtensionCall)
 
                 srr match {
                   // `tp` is the type of the method that `apply` is invoked on the result of, whose undetermined type

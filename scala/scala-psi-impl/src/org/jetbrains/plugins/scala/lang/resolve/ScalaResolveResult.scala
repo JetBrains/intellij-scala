@@ -225,13 +225,13 @@ class ScalaResolveResult(
   def exportedInExtension: Option[ScExtension] = exportedInfo.flatMap(_.exportedIn.getContext.asOptionOf[ScExtension])
 
   /**
-   * Useful when typing a reference to [[ScFunction]].
+   * Unqualified calls within the same collective extension reuse all of its clauses.
+   * Qualified extension calls still apply contextual clauses following the receiver.
    * See: [[MethodTypeProvider.polymorphicType()]] `dropExtensionClauses` parameter.
    */
   def shouldDropExtensionClauses: Boolean = element match {
     case fun: ScFunction =>
-      isExtensionCall ||
-        (extensionContext.nonEmpty && fun.extensionMethodOwner == extensionContext)
+      !isExtensionCall && extensionContext.nonEmpty && fun.extensionMethodOwner == extensionContext
     case _ => false
   }
 

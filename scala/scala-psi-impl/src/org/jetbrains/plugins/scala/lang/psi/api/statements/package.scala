@@ -34,8 +34,8 @@ package object statements {
       }
     }
 
-    def parameterClausesWithExtension(owner: Option[ScExtension] = None): Seq[ScParameterClause] = {
-      val (extensionClauses, functionClauses) = effectiveSignatureClausesWithExtension(owner)
+    def parameterClausesWithExtension(owner: Option[ScExtension] = None, dropExtensionReceiver: Boolean = false): Seq[ScParameterClause] = {
+      val (extensionClauses, functionClauses) = effectiveSignatureClausesWithExtension(owner, dropExtensionReceiver)
 
       val extensionTermClauses = extensionClauses.collect {
         case ScSignatureClause.TermClause(clause) => clause
@@ -56,7 +56,8 @@ package object statements {
     def isRightAssoc: Boolean = ScalaNamesUtil.clean(function.name).endsWith(":")
 
     def effectiveSignatureClausesWithExtension(
-      owner: Option[ScExtension] = None
+      owner: Option[ScExtension] = None,
+      dropExtensionReceiver: Boolean = false
     ): (Seq[ScSignatureClause], Seq[ScSignatureClause]) = {
       val extensionClauses =
         owner.orElse(function.extensionMethodOwner) match {
@@ -66,33 +67,45 @@ package object statements {
 
       val functionClauses = function.effectiveSignatureClauses
 
-      if (!isRightAssoc || extensionClauses.isEmpty) extensionClauses -> functionClauses
-      else {
-        //https://nightly.scala-lang.org/docs/reference/contextual/right-associative-extension-methods.html
-        val firstTypeParamClause  = functionClauses.headOption.filter(_.is[ScSignatureClause.TypeClause]).toSeq
-        val firstValueParamClause = functionClauses.find(_.is[ScSignatureClause.TermClause]).toSeq
-        val restOfFunctionClauses = functionClauses.drop(firstTypeParamClause.size + firstValueParamClause.size)
+      val (receiverClauses, methodClauses) =
+        if (!isRightAssoc || extensionClauses.isEmpty) extensionClauses -> functionClauses
+        else {
+          //https://nightly.scala-lang.org/docs/reference/contextual/right-associative-extension-methods.html
+          val firstTypeParamClause  = functionClauses.headOption.filter(_.is[ScSignatureClause.TypeClause]).toSeq
+          val firstValueParamClause = functionClauses.find(_.is[ScSignatureClause.TermClause]).toSeq
+          val restOfFunctionClauses = functionClauses.drop(firstTypeParamClause.size + firstValueParamClause.size)
 
-        val receiverClauseIndex = extensionClauses.indexWhere {
-          case ScSignatureClause.TermClause(clause) => !clause.isImplicit
-          case ScSignatureClause.TypeClause(_)      => false
+          val receiverClauseIndex = extensionClauses.indexWhere {
+            case ScSignatureClause.TermClause(clause) => !clause.isImplicit
+            case ScSignatureClause.TypeClause(_)      => false
+          }
+
+          val (extensionClausesUpToReceiverTermClause, restOfExtensionClauses) =
+            if (receiverClauseIndex == -1)
+              extensionClauses -> Seq.empty
+            else
+              extensionClauses.splitAt(receiverClauseIndex)
+
+          val newExtensionClauses =
+            extensionClausesUpToReceiverTermClause ++
+              firstTypeParamClause ++
+              firstValueParamClause
+
+          val newFunctionClauses = restOfExtensionClauses ++ restOfFunctionClauses
+
+          newExtensionClauses -> newFunctionClauses
         }
 
-        val (extensionClausesUpToReceiverTermClause, restOfExtensionClauses) =
-          if (receiverClauseIndex == -1)
-            extensionClauses -> Seq.empty
-          else
-            extensionClauses.splitAt(receiverClauseIndex)
+      // Selecting an extension applies its receiver and the clauses preceding it. Context
+      // clauses after the receiver remain part of the call and can be supplied explicitly.
+      val remainingExtensionClauses =
+        if (dropExtensionReceiver) receiverClauses.dropWhile {
+          case ScSignatureClause.TermClause(clause) => clause.isImplicit
+          case _ => true
+        }.drop(1)
+        else receiverClauses
 
-        val newExtensionClauses =
-          extensionClausesUpToReceiverTermClause ++
-            firstTypeParamClause ++
-            firstValueParamClause
-
-        val newFunctionClauses = restOfExtensionClauses ++ restOfFunctionClauses
-
-        newExtensionClauses -> newFunctionClauses
-      }
+      remainingExtensionClauses -> methodClauses
     }
   }
 
