@@ -12,10 +12,9 @@ import org.jetbrains.plugins.scala.editor.AutoBraceUtils.{canBeContinuedWith, co
 import org.jetbrains.plugins.scala.editor.{AutoBraceAdvertiser, AutoBraceUtils, DocumentExt}
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScPostfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil.calcIndent
 
 import java.util as ju
@@ -211,8 +210,8 @@ object AutoBraceInsertionTools {
   }
 
   private val startsStatement = {
-    import ScalaTokenType._
-    import ScalaTokenTypes._
+    import ScalaTokenType.*
+    import ScalaTokenTypes.*
     Set(
       // modifier
       kABSTRACT,
