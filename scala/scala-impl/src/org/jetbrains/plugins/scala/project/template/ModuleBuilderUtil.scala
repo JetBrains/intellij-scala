@@ -18,7 +18,7 @@ import com.intellij.openapi.roots.{ContentEntry, ModifiableRootModel}
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.intellij.psi.{PsiFile, PsiManager}
+import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.annotations.{ApiStatus, Nullable}
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
@@ -159,7 +159,7 @@ object ModuleBuilderUtil {
    *      The run action part runs on a background thread but scheduled as a separate computation.
    *      That way, the PSI access is outside the first action.
    *   1. Finally, the non-blocking read action finishes by scheduling a computation on the UI thread.
-   *      Here, the queried `PsiFile` instances are opened in editors.
+   *      Here, opening of the queried `PsiFile` instances in editors is requested; the editors open asynchronously.
    */
   def openFilesInEditor(files: Seq[VirtualFile], project: Project): Unit = {
     if (files.isEmpty) return
@@ -171,14 +171,17 @@ object ModuleBuilderUtil {
     if (project.isDisposed) return
 
     ReadAction
-      .nonBlocking[Array[PsiFile]](() => {
+      .nonBlocking[Array[PsiElement]](() => {
         val manager = PsiManager.getInstance(project)
-        files.flatMap(vf => Option(manager.findFile(vf))).toArray
+        files.flatMap(vf => Option[PsiElement](manager.findFile(vf))).toArray
       })
       .expireWhen(() => project.isDisposed)
-      .finishOnUiThread(ModalityState.nonModal(), EditorHelper.openFilesInEditor(_))
+      .finishOnUiThread(ModalityState.nonModal(), psiFiles => requestOpenFilesInEditor(psiFiles))
       .submit(AppExecutorUtil.getAppExecutorService)
   }
+
+  private def requestOpenFilesInEditor(psiFiles: Array[PsiElement]): Unit =
+    ReadAction.runBlocking[RuntimeException](() => EditorHelper.requestOpenFilesInEditor(psiFiles))
 
   private def doSetupRootModel(
     model: ModifiableRootModel,
