@@ -128,11 +128,11 @@ class ScalaRenameTest extends ScalaRenameTestBase {
 class Scala3RenameTest extends ScalaRenameTestBase {
   override def supportedIn(v: ScalaVersion): Boolean = v >= LatestScalaVersions.Scala_3_0
 
-  // TODO also from type & type reference
   def testObjectAndAbstractType(): Unit = doTest()
 
-  // TODO also from type & type reference
   def testObjectAndOpaqueType(): Unit = doTest()
+
+  def testOpaqueTypeDefinitionAndObject(): Unit = doTest()
 
   def testTopLevelMethod(): Unit = doTest()
 
