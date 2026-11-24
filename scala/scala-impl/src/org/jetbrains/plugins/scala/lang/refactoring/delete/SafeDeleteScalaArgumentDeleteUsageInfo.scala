@@ -19,7 +19,7 @@ class SafeDeleteScalaArgumentDeleteUsageInfo(element: PsiElement, referencedElem
           .asOptionOf[ScMethodCall]
           .flatMap(_.argumentExpressions.headOption)
           .foreach { arg =>
-            val inner = new SafeDeleteScalaArgumentDeleteUsageInfo(arg, getReferencedElement, isSafeDelete = true)
+            val inner = new SafeDeleteScalaArgumentDeleteUsageInfo(arg, findReferencedElement, isSafeDelete = true)
             inner.deleteElement()
           }
 
