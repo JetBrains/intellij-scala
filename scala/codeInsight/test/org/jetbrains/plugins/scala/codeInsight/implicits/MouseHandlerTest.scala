@@ -7,12 +7,11 @@ import com.intellij.testFramework.PlatformTestUtil
 import org.jetbrains.plugins.scala.annotator.hints.Hint.MenuProvider
 import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.junit.Assert.assertEquals
 
 import java.awt.Cursor
 import java.awt.event.{InputEvent, MouseEvent}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class MouseHandlerTest extends ScalaLightCodeInsightFixtureTestCase {
   def testHoverInScalaFile(): Unit = checkHover("Example.scala")
