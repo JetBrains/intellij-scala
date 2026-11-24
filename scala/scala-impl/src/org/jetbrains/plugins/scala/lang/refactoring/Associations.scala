@@ -186,11 +186,18 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
   }
 
   def restoreFor(movedElement: PsiElement): Unit = restoreFor(movedElement, AfterIndentOffsetAdjuster.empty)
-  def restoreFor(movedElement: PsiElement, adjuster: AfterIndentOffsetAdjuster): Unit = {
+  def restoreFor(movedElement: PsiElement, adjuster: AfterIndentOffsetAdjuster): Unit =
+    restoreFor(movedElement, adjuster, Set.empty)
+
+  /** As restoreFor, leaving out the references recorded under `skipPaths` (what moved along with the element). */
+  def restoreFor(movedElement: PsiElement, skipPaths: Set[String]): Unit =
+    restoreFor(movedElement, AfterIndentOffsetAdjuster.empty, skipPaths)
+
+  private def restoreFor(movedElement: PsiElement, adjuster: AfterIndentOffsetAdjuster, skipPaths: Set[String]): Unit = {
     val associations = Data(movedElement)
     if (associations != null) {
       try {
-        associations.restore(movedElement.getTextRange, adjuster)(identity)(using movedElement.getProject, movedElement.getContainingFile)
+        associations.restore(movedElement.getTextRange, adjuster)(_.filterNot(binding => skipPaths(binding.path)))(using movedElement.getProject, movedElement.getContainingFile)
       } finally {
         Data(movedElement) = null
       }

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.move
 
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.util.Key
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiDirectory, PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassHandler
@@ -30,6 +31,13 @@ final class MoveScalaClassHandler extends MoveClassHandler {
   override def finishMoveClass(clazz: PsiClass): Unit = clazz.getContainingFile match {
     case scalaFile: ScalaFile =>
       restoreAssociations(clazz)
+      // The companion moved with the class is not necessarily found from the class here (its new file has only just
+      // changed), so restore the references recorded for it from the companion doMoveClass moved.
+      Option(clazz.getUserData(MovedCompanion)).foreach { case (companion, classPath) =>
+        clazz.putUserData(MovedCompanion, null)
+        // Not the class itself: the companion's references to it were recorded under its old package.
+        Associations.restoreFor(companion, skipPaths = Set(classPath))
+      }
       val documentManager = PsiDocumentManager.getInstance(scalaFile.getProject)
       val document = documentManager.getDocument(scalaFile)
       if (document != null) {
@@ -78,11 +86,13 @@ final class MoveScalaClassHandler extends MoveClassHandler {
           }
       }
 
+      val classPath = definition.qualifiedName
       val (newClass, fileWasDeleted) = deleteClass(definition)(createNewClass)
       if (fileWasDeleted) newClass.navigate(true)
 
       maybeCompanion.foreach { companion =>
-        deleteClass(companion)(newClass.getContainingFile.add)
+        val (newCompanion, _) = deleteClass(companion)(newClass.getContainingFile.add)
+        newClass.putUserData(MovedCompanion, (newCompanion, classPath))
       }
       newClass
     case _ => null
@@ -99,6 +109,9 @@ final class MoveScalaClassHandler extends MoveClassHandler {
 }
 
 object MoveScalaClassHandler {
+
+  /** The companion moved with a class, and the class's qualified name before the move. */
+  private val MovedCompanion: Key[(PsiClass, String)] = Key.create("MoveScalaClassHandler.MovedCompanion")
 
   private def fileName(templateDefinition: ScTemplateDefinition) =
     templateDefinition.name + "." + ScalaFileType.INSTANCE.getDefaultExtension
