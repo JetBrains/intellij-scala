@@ -200,7 +200,7 @@ lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
   .dependsOn(scalaLanguageUtilsRt)
   .settings(
     intellijPlugins += "com.intellij.xml".toPlugin,
-    packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala.api"),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala.api", embedded = true),
   )
 
 lazy val settingsShared = newProject("settings-shared", file("scala/settings/shared"))
@@ -212,13 +212,13 @@ lazy val settingsShared = newProject("settings-shared", file("scala/settings/sha
       "-no-indent",
       "-Wconf:msg=Non local returns are no longer supported:s",
     ),
-    packageMethod := PackagingMethod.PluginModule("scalaCommunity.settings.shared")
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.settings.shared", embedded = true)
   )
 
 lazy val scalaPsiApi = newProject("scala-psi-api", file("scala/scala-psi-api"))
   .dependsOn(scalaApi)
   .settings(
-    packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala.psi.api"),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala.psi.api", embedded = true),
   )
 
 lazy val scalaPsiImpl = newProject("scala-psi-impl", file("scala/scala-psi-impl"))
@@ -236,7 +236,7 @@ lazy val scalaPsiImpl = newProject("scala-psi-impl", file("scala/scala-psi-impl"
       "-Wconf:msg=Non local returns are no longer supported:s",
     ),
     intellijPlugins += "com.intellij.xml".toPlugin,
-    packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala.psi.impl"),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala.psi.impl", embedded = true),
   )
 
 /**
@@ -252,7 +252,7 @@ lazy val formattingShared = newProject("formatting-shared", file("scala/formatti
       "-no-indent",
       "-Wconf:msg=Non local returns are no longer supported:s",
     ),
-    packageMethod := PackagingMethod.PluginModule("scalaCommunity.formatting.shared"),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.formatting.shared", embedded = true),
   )
 
 /**
@@ -305,7 +305,7 @@ lazy val editorShared = newProject("editor-shared", file("scala/editor/shared"))
       "-Wconf:msg=Non local returns are no longer supported:s",
     ),
     intellijPlugins += "com.intellij.xml".toPlugin,
-    packageMethod := PackagingMethod.PluginModule("scalaCommunity.editor.shared"),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.editor.shared", embedded = true),
   )
 
 lazy val scalaFrontend = newProject("scala-frontend", file("scala/scala-frontend"))
@@ -378,7 +378,7 @@ lazy val sbtKotlinIjPluginInterop =
 lazy val sbtCore = newProject("sbt-core", file("sbt/sbt-core"))
   .dependsOn(scalaApi)
   .settings(
-    packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt.core"),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt.core", embedded = true),
   )
 
 lazy val sbtApi =
@@ -405,7 +405,7 @@ lazy val sbtApi =
         "sbtStructurePath_2" -> relativeJarPath(Dependencies.structureExtractor_2),
       ),
       buildInfoOptions += BuildInfoOption.ConstantValue,
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt.api"),
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt.api", embedded = true),
     )
 
 lazy val codeInsight = newProject(
