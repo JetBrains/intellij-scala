@@ -31,9 +31,6 @@ import scala.concurrent.duration.DurationInt
 abstract class SbtRunConfiguration_BuildBeforeLaunch_TestBase extends SbtRunConfiguration_MockedProcess_ExecutionTestBase {
 
   protected def assertFreshSbtRunConfiguration_DoesNotRunBuild(options: TestExecutionOptions): Unit = {
-    // TODO: SCL-26340 the new sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
-    if (isDisabledOnWindows(options)) return
-
     val buildTracker = runFreshSbtRunConfiguration_BuildBeforeLaunch(options) { _ =>
       ()
     }
@@ -41,9 +38,6 @@ abstract class SbtRunConfiguration_BuildBeforeLaunch_TestBase extends SbtRunConf
   }
 
   protected def assertFreshSbtRunConfiguration_RunsExplicitBuildBeforeLaunch(options: TestExecutionOptions): Unit = {
-    // TODO: SCL-26340 the new sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
-    if (isDisabledOnWindows(options)) return
-
     val buildTracker = runFreshSbtRunConfiguration_BuildBeforeLaunch(options) { configuration =>
       CompileStepBeforeRunTestUtil.addCompileStepBeforeRunTask(getProject, configuration)
     }

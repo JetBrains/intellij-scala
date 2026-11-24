@@ -10,16 +10,14 @@ import com.intellij.util.system.OS
 object SbtShellTestsOnWindows {
 
   /**
-   * The mock sbt process doesn't receive the commands of the new sbt shell, and in neither shell does it see the
-   * end-of-file character of the EOF action.
+   * In neither sbt shell does the mock sbt process see the end-of-file character (Ctrl+D) of the EOF action. A Windows
+   * console doesn't treat Ctrl+D as end of file: in line mode, it keeps it in the line and waits for Enter.
    *
    * Checked by:
-   *  - `SbtRunConfiguration_MockedProcess_ExecutionTestBase`: the new sbt shell scenarios of the mocked run configuration
-   *    suites, including the before-launch suites
    *  - `SbtShellEOFActionTestBase`: all its tests
    */
-  // TODO: SCL-26340 re-enable the tests that send input to the mock sbt process on Windows
-  def mockProcessInputTestsDisabled: Boolean = OS.CURRENT == OS.Windows
+  // TODO: SCL-26340 re-enable the EOF action tests with the mock sbt process on Windows
+  def mockProcessEndOfFileTestsDisabled: Boolean = OS.CURRENT == OS.Windows
 
   /**
    * With real sbt, the new sbt shell fails intermittently: imports find an empty structure file, and the echoed

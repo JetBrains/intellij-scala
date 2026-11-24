@@ -14,7 +14,7 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.runner.TestExecutionOptions.SbtProcessMode
 import org.jetbrains.sbt.runner.utils.{ExecutionDiagnostics, RunConfigurationExecutionObserver}
 import org.jetbrains.sbt.settings.SbtSettings
-import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellTestUtil, SbtShellTestsOnWindows}
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellTestUtil}
 import org.junit.Assert.{assertFalse, assertTrue}
 
 import java.nio.file.Path
@@ -102,13 +102,6 @@ abstract class SbtRunConfiguration_MockedProcess_ExecutionTestBase extends JavaM
 
   protected def getTestProjectPath: Path =
     PlatformTestUtil.getOrCreateProjectBaseDir(getProject).toNioPath
-
-  /**
-   * The new sbt shell scenarios are disabled on Windows, see [[SbtShellTestsOnWindows.mockProcessInputTestsDisabled]].
-   * Scenario helpers return early when this is `true`; the old sbt shell and no-shell scenarios keep running.
-   */
-  protected final def isDisabledOnWindows(options: TestExecutionOptions): Boolean =
-    SbtShellTestsOnWindows.mockProcessInputTestsDisabled && options.useSbtShellInRunConfig && options.useNewSbtShell
 
   protected final def initSbtShellIfNeeded(options: TestExecutionOptions): Unit = {
     options.sbtProcessMode match {

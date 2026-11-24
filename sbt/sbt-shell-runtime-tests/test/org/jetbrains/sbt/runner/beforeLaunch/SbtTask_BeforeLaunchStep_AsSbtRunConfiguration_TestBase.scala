@@ -53,9 +53,6 @@ abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends S
   }
 
   protected def assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationUsesExpectedRunnerDelegation(options: TestExecutionOptions): Unit = {
-    // TODO: SCL-26340 the new sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
-    if (isDisabledOnWindows(options)) return
-
     val (_, handler) = runAndAssertSbtTaskAsBeforeLaunchStepOfDependentConfiguration(options)
     val usesSbtShellDelegation = handler.getClass.getName.contains("DummyProcessHandler")
     if (shouldUseSyntheticSbtShellProcessHandler(options)) {
@@ -66,16 +63,10 @@ abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends S
   }
 
   protected def assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationNotifiesExecutionListeners(options: TestExecutionOptions): Unit = {
-    // TODO: SCL-26340 the new sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
-    if (isDisabledOnWindows(options)) return
-
     runAndAssertSbtTaskAsBeforeLaunchStepOfDependentConfiguration(options)
   }
 
   protected def assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationDoesNotBlockDependentRunConfiguration(options: TestExecutionOptions): Unit = {
-    // TODO: SCL-26340 the new sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
-    if (isDisabledOnWindows(options)) return
-
     val (result, _) = runAndAssertSbtTaskAsBeforeLaunchStepOfDependentConfiguration(options)
 
     val sbtTaskTerminated = singleEvent(result.sbtTaskEvents, "processTerminated")
