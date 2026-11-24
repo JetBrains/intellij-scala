@@ -1970,6 +1970,22 @@ abstract class InvocationDetailsTestBase extends ScalaLightCodeInsightFixtureTes
       |"""
   )
 
+  def testConstructorInvocationWithImpliedEmptyClauseBeforeImplicit(): Unit = doTest(
+    """
+      |class A(implicit i: Int)
+      |implicit val i: Int = 1
+      |
+      |new A
+      |""",
+    """
+      |A
+      |  props:    constructor invocation
+      |  target:   A
+      |  () (auto applied, after `A`)
+      |  (using i) (inferred, after `A`)
+      |"""
+  )
+
   def testConstructorInvocationWithTemplateBody(): Unit = doTest(
     """
       |class A[T](t: T)

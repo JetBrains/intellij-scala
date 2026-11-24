@@ -10,6 +10,61 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
   //Scala 3 renders a compound type with `&` instead of `with`
   protected def compoundTypeText: String = "Bar with Serializable"
 
+  def testOmittedDeclaredEmptyConstructorClauses(): Unit = doTest(
+    s"""
+       |class Test()
+       |class Trailing(i: Int)()()
+       |class Implied
+       |
+       |class Parent extends Test$S()$E
+       |new Test$S()$E
+       |new Test()
+       |new Trailing(1)$S()$E$S()$E
+       |new Trailing(1)()$S()$E
+       |new Implied
+       |new Implied()
+       |""".stripMargin
+  )
+
+  def testOmittedDeclaredEmptyConstructorClauseWithoutImplicitHints(): Unit = doTest(
+    """
+      |class Test()
+      |class Parent extends Test
+      |new Test
+      |new Test()
+      |""".stripMargin,
+    enabled = false
+  )
+
+  def testImpliedEmptyConstructorClauseBeforeImplicitIsHidden(): Unit = doTest(
+    s"""
+       |class Foo(implicit x: Int)
+       |implicit val v: Int = 1
+       |
+       |class Bar extends Foo$S(v)$E
+       |new Foo$S(v)$E
+       |new Foo()$S(v)$E
+       |new Foo()(${S}using${E}v)
+       |new Foo(using v)
+       |""".stripMargin
+  )
+
+  def testMissingConstructorArgumentsWithoutImplicitHints(): Unit = doTest(
+    s"""
+       |trait X
+       |class Implied(implicit x: X)
+       |class Declared()(implicit x: X)
+       |
+       |class A extends Implied$S(...)$E
+       |class B extends Declared$S()$E$S(...)$E
+       |new Implied$S(...)$E
+       |new Declared$S()$E$S(...)$E
+       |new Implied()$S(...)$E
+       |new Declared()$S(...)$E
+       |""".stripMargin,
+    enabled = false
+  )
+
   def testOmittedEmptyConstructorClauseBeforeImplicit(): Unit = doTest(
     s"""
        |class Foo()(implicit x: Int)
@@ -412,6 +467,19 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
 
 class ImplicitArgumentHintsTestScala3 extends ImplicitArgumentHintsTest {
   import Hint.{End => E, Start => S}
+
+  def testDeclaredEmptyConstructorClauseAfterUsing(): Unit = doTest(
+    s"""
+       |class Declared(using x: Int)()
+       |class Implied(using x: Int)
+       |given v: Int = 1
+       |
+       |new Declared$S(v)$E$S()$E
+       |new Declared(using 2)$S()$E
+       |new Implied$S(v)$E
+       |new Implied(using 2)
+       |""".stripMargin
+  )
 
   def testExtensionUsingClauses(): Unit = doTest(
     s"""

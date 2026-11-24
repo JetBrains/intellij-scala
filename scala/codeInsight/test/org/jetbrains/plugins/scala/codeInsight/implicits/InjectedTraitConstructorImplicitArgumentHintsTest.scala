@@ -27,6 +27,16 @@ class InjectedTraitConstructorImplicitArgumentHintsTest extends ImplicitHintsTes
        |""".stripMargin
   )
 
+  def testIndirectParentWithDeclaredEmptyClause(): Unit = doTest(
+    s"""
+       |trait X
+       |trait Foo()(implicit x: X)
+       |trait Bar extends Foo
+       |
+       |class A extends Bar$S with Foo()(?: X)$E
+       |""".stripMargin
+  )
+
   def testImplementedBySuperClass(): Unit = doTest(
     s"""
        |trait Foo(implicit x: Int)
@@ -38,6 +48,7 @@ class InjectedTraitConstructorImplicitArgumentHintsTest extends ImplicitHintsTes
        |""".stripMargin
   )
 
+  // Direct parents get ordinary implicit argument hints, but no injected `with Foo` hint.
   def testImplementedDirectlyNoHint(): Unit = doTest(
     s"""
        |trait X
@@ -46,6 +57,15 @@ class InjectedTraitConstructorImplicitArgumentHintsTest extends ImplicitHintsTes
        |class Bar extends Foo$S(?: X)$E
        |""".stripMargin
 
+  )
+
+  def testImplementedDirectlyWithDeclaredEmptyClause(): Unit = doTest(
+    s"""
+       |trait X
+       |trait Foo()(implicit x: X)
+       |
+       |class Bar extends Foo$S()$E$S(?: X)$E
+       |""".stripMargin
   )
 
 

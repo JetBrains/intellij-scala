@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.extensions.{&, _}
 import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.InvocationDetails.{ArgumentClause, ArgumentClauseTarget, AutoAppliedClause, ImplicitValueClause, ValueClause}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
@@ -110,6 +111,12 @@ class ImplicitHintsPass(
     }
 
     def invocationHints(invocation: InvocationDetails, includeTypeAndApply: Boolean = true): Seq[Hint] = {
+      def isDeclaredEmptyConstructorClause(clause: AutoAppliedClause): Boolean = clause.target match {
+        case ArgumentClauseTarget.ScalaParameters(parameters) =>
+          invocation.isConstructorInvocation && !ScPrimaryConstructor.isImpliedEmptyClause(parameters)
+        case _ => false
+      }
+
       val owner = invocation.origin.asOptionOfUnsafe[ImplicitArgumentsOwner]
       val enabledForElement = showImplicitErrors(invocation.origin)
       val typeParamIds = invocation.argumentClauses.collect {
@@ -128,10 +135,11 @@ class ImplicitHintsPass(
       val clauses = indexedClauses.flatMap {
         case (clause: ArgumentClause.Type, _) if includeTypeAndApply =>
           typeArgumentHints(clause, typeParamIds, editor)
-        // Keep omitted `()` before implicit arguments, without exposing a synthetic trailing constructor clause.
-        case (clause: AutoAppliedClause, index) if visibleImplicitClauses.exists {
-          case (anchor, implicitIndex) => implicitIndex > index && anchor == clause.anchor
-        } =>
+        // Show omitted `()` declared in the signature; compiler-implied clauses remain only in invocation details.
+        case (clause: AutoAppliedClause, index) if isDeclaredEmptyConstructorClause(clause) &&
+          (ImplicitHints.enabled || visibleImplicitClauses.exists {
+            case (anchor, implicitIndex) => implicitIndex > index && anchor == clause.anchor
+          }) =>
           Seq(Hint(
             Seq(Text("()")), clause.anchor, position = HintPosition.AfterElement,
             menu = menu.ImplicitArguments, relatesToPrecedingElement = true
@@ -190,7 +198,11 @@ class ImplicitHintsPass(
               val implicitArgsFlat = implicitArgsClauses.flatMap(_.args)
 
               if (shouldShowImplicitArgumentsOrErrors(enabledForElement, implicitArgsFlat)) {
-                Text(s" with $name") +:
+                val declaredLeadingEmptyClauses = cons.effectiveParameterClauses
+                  .takeWhile(!_.isImplicit)
+                  .count(clause => !ScPrimaryConstructor.isImpliedEmptyClause(clause))
+
+                Text(s" with $name${"()" * declaredLeadingEmptyClauses}") +:
                   implicitArgsClauses.flatMap(clause =>
                     presentationOf(clause.args, None)(using editor.getColorsScheme)
                   )

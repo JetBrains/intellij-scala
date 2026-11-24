@@ -7,11 +7,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.junit.Assert
 
 trait ImplicitHintsTestBase extends InlayHintsTestBase {
-  protected def doTest(text: String, expand: Boolean = false): Unit = {
+  protected def doTest(text: String, expand: Boolean = false, enabled: Boolean = true): Unit = {
     val oldEnabled = ImplicitHints.enabled
     val oldExpanded = ImplicitHints.expanded
     try {
-      ImplicitHints.enabled = true
+      ImplicitHints.enabled = enabled
       ImplicitHints.expanded = expand
       doInlayTest(text)
     } finally {
