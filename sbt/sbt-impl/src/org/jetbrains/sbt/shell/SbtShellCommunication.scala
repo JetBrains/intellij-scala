@@ -526,13 +526,7 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
       val commandText = request.sbtCommandText
       recordDiagnosticEvent(SbtShellDiagnosticEvent.Trace(s"processCommand command text: requestId=$requestId, command=${oneLine(commandText)}"))
       shell.print(s" $commandText")
-      // note: the reason why instead of simply doing "shell.println", it was split into command execution and "\n" is Windows
-      // and how com.pty4j.windows.winpty.WinPTYOutputStream works
-      // (it doesn't impact macos and Linux, because on these systems "\n" is the default new line character).
-      // By default, "println" method on Windows add "\r\n", and winpty interprets it as two keypresses (RETURN followed by Ctrl-RETURN).
-      // In order to prevent double return pressing, it is enough to send "\n", which results in a single newline call.
-      // https://github.com/JetBrains/pty4j/commit/e3e9695066eaddb1994c0081dfbdcd2eb6bd8524
-      shell.print("\n")
+      shell.print(enterKey)
       shell.flush()
     }
 
@@ -549,6 +543,20 @@ final class SbtShellCommunication(project: Project) extends SbtShellCommandSubmi
       recordDiagnosticEvent(SbtShellDiagnosticEvent.ProcessCommandFinish(requestId, resultString, currentState))
     }
   }
+
+  /**
+   * The input that presses Enter in the running sbt shell, sent as a single character instead of `println`'s "\r\n" on Windows.
+   *
+   * The Windows PTY turns each character into a key press, and which key depends on the PTY backend:
+   *  - winpty (old shell) presses Enter for "\r" and Ctrl+Enter for "\n", so "\r\n" would press it twice
+   *    (https://github.com/JetBrains/pty4j/commit/e3e9695066eaddb1994c0081dfbdcd2eb6bd8524). "\n" alone presses it once.
+   *  - ConPTY (new shell) presses Ctrl+J for "\n". sbt's JLine accepts the line on Ctrl+J, but a program that reads
+   *    the console in line mode, such as the mock sbt process in tests, only gets the line on Enter, so send "\r".
+   *
+   * On macOS and Linux, "\n" ends the line in both shells.
+   */
+  private def enterKey: String =
+    if SystemInfo.isWindows && process.isRunWithNewShell then "\r" else "\n"
 
   /**
    * To be called when the process is reinitialized externally.
