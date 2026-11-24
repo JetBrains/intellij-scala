@@ -144,7 +144,8 @@ class ScalaFmtSettingsPanelTest extends HeavyPlatformTestCase {
       if (chooseAnother) {
         PlatformTestUtil.waitWithEventsDispatching("A file chosen through Browse should load into the preview",
           () => fixture.panel.getEditor.getDocument.getText == "version = 2.7.5\nmaxColumn = 120", 10)
-        assertEquals("Browse should copy the chosen file's path into Settings", fixture.chosenFile.getPath, fixture.pathField.getText)
+        // The platform's Browse action shows the presentable path, which uses backslashes on Windows.
+        assertEquals("Browse should copy the chosen file's path into Settings", fixture.chosenFile.getPresentableUrl, fixture.pathField.getText)
       }
     }, false)
   }
