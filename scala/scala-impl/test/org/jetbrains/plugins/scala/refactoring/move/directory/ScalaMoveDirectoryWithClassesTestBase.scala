@@ -7,12 +7,13 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.psi.{JavaPsiFacade, PsiDirectory, PsiPackage}
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveDirectoryWithClassesProcessor
+import com.intellij.refactoring.move.moveFilesOrDirectories.MoveFilesOrDirectoriesProcessor
 import com.intellij.refactoring.rename.RenamePsiPackageProcessor
 import com.intellij.testFramework.{PlatformTestUtil, PsiTestUtil}
 import junit.framework.TestCase.{assertNotNull, assertTrue}
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteCommandAction}
 import org.jetbrains.plugins.scala.refactoring.move.ScalaMoveTestBase
-import org.jetbrains.plugins.scala.refactoring.move.directory.ScalaMoveDirectoryWithClassesTestBase.{MovePackageTestAction, PackageTestAction, RenamePackageTestAction}
+import org.jetbrains.plugins.scala.refactoring.move.directory.ScalaMoveDirectoryWithClassesTestBase.{MoveFileTestAction, MovePackageTestAction, PackageTestAction, RenamePackageTestAction}
 
 import java.nio.file.Path
 import scala.util.chaining.scalaUtilChainingOps
@@ -56,9 +57,25 @@ abstract class ScalaMoveDirectoryWithClassesTestBase extends ScalaMoveTestBase {
 
   protected def doMovePackageTest(sourcePackageName: String = "pack1", targetPkgName: String = "targetPack"): Unit =
     doTest(new MovePackageTestAction(sourcePackageName, targetPkgName)(using getProject))
+
+  /** Moves one file (its name, in a package) to another package, as Move File does. */
+  protected def doMoveFileTest(sourcePackageName: String, fileName: String, targetPkgName: String): Unit =
+    doTest(new MoveFileTestAction(sourcePackageName, fileName, targetPkgName)(using getProject))
 }
 
 object ScalaMoveDirectoryWithClassesTestBase {
+  class MoveFileTestAction(sourcePackageName: String, fileName: String, targetPackageName: String)(implicit project: Project)
+    extends PackageTestAction {
+    override def run(): Unit = {
+      val file = findPackage(sourcePackageName).getDirectories.flatMap(d => Option(d.findFile(fileName))).head
+      val targetDir = findPackage(targetPackageName).getDirectories.head
+      val processor = new MoveFilesOrDirectoriesProcessor(project, Array(file), targetDir, true, false, false, null, null)
+      processor.run()
+
+      FileDocumentManager.getInstance().saveAllDocuments()
+    }
+  }
+
   abstract class PackageTestAction(implicit project: Project) {
     protected def findPackage(name: String): PsiPackage = {
       val psiFacade = JavaPsiFacade.getInstance(project)
