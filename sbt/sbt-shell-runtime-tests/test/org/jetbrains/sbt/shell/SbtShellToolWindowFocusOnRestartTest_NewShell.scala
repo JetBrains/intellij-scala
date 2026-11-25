@@ -2,6 +2,7 @@ package org.jetbrains.sbt.shell
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.sbt.process.mock.MockSbtProcessForTestsSetup
 import org.jetbrains.sbt.runner.consoleOutput.SbtShellToolWindowActivationTestUtil.installSbtShellToolWindowActivationProbe
@@ -14,6 +15,8 @@ import org.junit.experimental.categories.Category
  */
 @Category(Array(classOf[SlowTests2]))
 class SbtShellToolWindowFocusOnRestartTest_NewShell extends SbtRuntimeTest_WithSbtShell {
+
+  override protected def projectJdkLanguageLevel: LanguageLevel = MockSbtProcessForTestsSetup.MockProcessJdk
 
   override protected def useNewShell: Boolean = true
 

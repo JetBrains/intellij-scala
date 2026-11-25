@@ -15,8 +15,8 @@ import scala.concurrent.duration.DurationInt
 /**
  * Checks that the EOF action (Ctrl+D) stops real sbt in the sbt shell.
  *
- * [[SbtShellEOFActionTestBase]] checks the same with the mock sbt process, but not on Windows, where the mock doesn't see
- * Ctrl+D (SCL-26340). This test runs on every OS, so it covers Windows too.
+ * [[SbtShellEOFActionTestBase]] checks the same with the mock sbt process. On Windows, the mock has to read the console
+ * in a special way to see Ctrl+D at all (SCL-26340), so this test makes sure the EOF action also works with real sbt.
  */
 @RunWith(classOf[JUnit4])
 abstract class SbtShellEOFActionRealSbtTestBase extends SbtRuntimeTest_WithSbtShell {
