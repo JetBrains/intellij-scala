@@ -33,16 +33,20 @@ private[sbt] object MockSbtProcessForTests {
     private val mainClass: String,
     private val slowShutdownReleaseFile: Option[Path] = None,
     private val slowShutdownStartedFile: Option[Path] = None,
+    private val vmOptions: Seq[String] = Seq.empty
   ) {
     def configureJavaParameters(params: JavaParameters): Unit = {
       params.getClassPath.clear()
       params.getClassPath.add(classpath.toString)
       params.setMainClass(mainClass)
-      slowShutdownVmOptions.foreach(params.getVMParametersList.add)
+      allVmOptions.foreach(params.getVMParametersList.add)
     }
 
     def mainClassCommandLineTail: Seq[String] =
-      slowShutdownVmOptions ++ Seq("-cp", classpath.toString, mainClass)
+      allVmOptions ++ Seq("-cp", classpath.toString, mainClass)
+
+    private def allVmOptions: Seq[String] =
+      vmOptions ++ slowShutdownVmOptions
 
     private def slowShutdownVmOptions: Seq[String] =
       slowShutdownReleaseFile.toSeq.map(path => s"-D${VmOptions.SlowShutdownReleaseFileProperty}=$path") ++

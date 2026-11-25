@@ -1,5 +1,6 @@
  package org.jetbrains.sbt.shell
 
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.sbt.process.mock.MockSbtProcessForTestsSetup
@@ -27,6 +28,8 @@ import scala.concurrent.duration.DurationInt
  */
 @Category(Array(classOf[SlowTests2]))
 class SbtShellHardKillDuringInProgressSoftShutdownCancelsAfterRestartTest_WithMockSbt extends SbtRuntimeTest_WithSbtShell {
+
+  override protected def projectJdkLanguageLevel: LanguageLevel = MockSbtProcessForTestsSetup.MockProcessJdk
 
   override protected def getRelativeTestProjectPath: String =
     "sbt-shell-runtime-tests/testdata/sbt/shell/testShellState"

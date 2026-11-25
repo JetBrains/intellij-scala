@@ -48,6 +48,8 @@ abstract class SbtRunConfiguration_MockedProcess_ExecutionTestBase extends JavaM
   )
   private var simpleCompilerTester: SimpleCompilerTester = uninitialized
 
+  override def defaultJdkVersion: LanguageLevel = MockSbtProcessForTestsSetup.MockProcessJdk
+
   private lazy val testProjectJdk: TestProjectJdkHolder = new TestProjectJdkHolder(testProjectJdkVersion)
 
   override protected def getProjectLanguageLevel: LanguageLevel =

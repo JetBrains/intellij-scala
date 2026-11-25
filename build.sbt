@@ -658,7 +658,9 @@ lazy val sbtMockProcess =
 
       Test / sourceDirectory := baseDirectory.value / "src",
       Test / unmanagedSourceDirectories := Seq((Test / sourceDirectory).value),
-      Test / javacOptions := outOfIDEAProcessJavacOptions,
+      // Java 25, unlike the other out-of-IDEA-process modules (`--release 8`): on Windows, the mock reads the console
+      // through the JDK's foreign function API (Java 22+). Tests run the mock on JDK 25, see MockSbtProcessForTestsSetup.
+      Test / javacOptions := globalJavacOptions,
 
       // It looks like, even though there are no regular Scala sources in this module,
       // the `build-info` plugin generates a Scala file that requires the Scala compiler to be available.

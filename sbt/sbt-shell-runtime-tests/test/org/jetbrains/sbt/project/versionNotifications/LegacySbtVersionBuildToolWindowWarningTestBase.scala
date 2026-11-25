@@ -3,6 +3,7 @@ package org.jetbrains.sbt.project.versionNotifications
 import com.intellij.build.events.MessageEvent
 import com.intellij.openapi.externalSystem.service.notification.ExternalSystemProgressNotificationManager
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.sbt.process.mock.MockSbtProcessForTestsSetup
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.{IdeaProjectFixtureOptions, TestProjectCopyOptions}
@@ -35,6 +36,8 @@ import java.nio.file.Files
  *       `useSbtShellForImport` modes.
  */
 abstract class LegacySbtVersionBuildToolWindowWarningTestBase extends SbtExternalSystemImportingTestLike {
+
+  override protected def projectJdkLanguageLevel: LanguageLevel = MockSbtProcessForTestsSetup.MockProcessJdk
 
   override protected def getTestDataProjectPath: String = {
     // NOTE: this could be any sbt project.

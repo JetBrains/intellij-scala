@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.shell
 
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.sbt.process.mock.{MockSbtProcessCommands, MockSbtProcessForTestsSetup}
@@ -25,6 +26,8 @@ import scala.util.Failure
  */
 @Category(Array(classOf[SlowTests2]))
 class SbtShellStateIntegrationTest_WithMockSbt extends SbtShellStateIntegrationTest {
+
+  override protected def projectJdkLanguageLevel: LanguageLevel = MockSbtProcessForTestsSetup.MockProcessJdk
 
   override protected def setupBeforeProjectImport(): Unit = {
     super.setupBeforeProjectImport()
