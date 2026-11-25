@@ -4,12 +4,9 @@ import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, H
 import com.intellij.ide.trustedProjects.TrustedProjects
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
-import com.intellij.psi.{PsiElement, PsiFile, PsiJavaFile}
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.extensions.PsiFileExt
-import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
-import org.jetbrains.plugins.scala.project.{ProjectExt, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.concurrent.duration._
 
@@ -42,11 +39,7 @@ object ScalaHighlightingMode {
         showCompilerErrorsScala2(project) && project.hasScala)
 
   def isShowErrorsFromCompilerEnabled(file: PsiFile): Boolean =
-    file match {
-      case scalaFile: ScalaFile => isShowErrorsFromCompilerEnabled(scalaFile)
-      case javaFile: PsiJavaFile => isShowErrorsFromCompilerEnabled(javaFile)
-      case _ => false
-    }
+    ScalaHighlightingSettings.isShowErrorsFromCompilerEnabled(file)
 
   private[scala] def shouldHighlightBasedOnFileLevel(psiFile: PsiFile, project: Project): Boolean = {
     val level = HighlightingSettingsPerFile.getInstance(project).getHighlightingSettingForRoot(psiFile)
@@ -56,31 +49,6 @@ object ScalaHighlightingMode {
       case _ => false
     }
   }
-
-  private def isShowErrorsFromCompilerEnabled(file: ScalaFile): Boolean = {
-    val virtualFile = file match {
-      case ScFile.VirtualFile(vFile) => vFile
-      case _                         => return false
-    }
-
-    val project = file.getProject
-    val isRegularScalaFile = virtualFile.getFileType == ScalaFileType.INSTANCE
-    if (ScalaHighlightingSettings.isLeftToAnnotator(file)) {
-      false
-    } else if (isRegularScalaFile) {
-      file.isScala3File && showCompilerErrorsScala3(project) ||
-        file.isScala2File && showCompilerErrorsScala2(project)
-    } else if (file.isWorksheetFile) {
-      // actually this should work for regular files as well
-      file.isInScala3Module && showCompilerErrorsScala3(project) ||
-        file.isInScalaModule && showCompilerErrorsScala2(project)
-    } else {
-      false
-    }
-  }
-
-  private def isShowErrorsFromCompilerEnabled(javaFile: PsiJavaFile): Boolean =
-    showCompilerErrorsScala3(javaFile.getProject) && javaFile.isInScala3Module
 
   private def nonNegativeDuration(key: String): FiniteDuration =
     math.max(Registry.intValue(key), 0).millis
