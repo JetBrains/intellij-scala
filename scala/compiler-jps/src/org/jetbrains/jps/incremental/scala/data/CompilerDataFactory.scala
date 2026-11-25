@@ -121,9 +121,9 @@ object CompilerDataFactory
     val configuredOptions = compilerSettings.getCompilerOptionsAsStrings(hasScala3).asScala.toSeq
 
     val bootOptions = bootClasspathOptions(hasOldScala(modules))
-    val semanticDBOptions = semanticDbOptionsFor(configuredOptions, chunk)
+    val sourceRootOptions = sourceRootOptionsFor(configuredOptions, chunk, hasScala3)
 
-    val options = bootOptions ++ semanticDBOptions ++ configuredOptions
+    val options = bootOptions ++ sourceRootOptions ++ configuredOptions
 
     // The compiler plugin is currently only compatible with Scala 3.3+ (see CompilerPlugin)
     // For those versions, we run DocumentCompiler in addition to JPS compilation (see AbstractRemoteServerConnector.scalaParameters)
@@ -148,28 +148,28 @@ object CompilerDataFactory
       Seq.empty
     }
 
-  private val SourceRootOptionScala2 = "-P:semanticdb:sourceroot"
-  private val SourceRootOptionScala3 = "-sourceroot"
-  private val SemanticDbOptionScala3 = "-Xsemanticdb"
+  private val SemanticDbPluginSourceRoot = "-P:semanticdb:sourceroot"
+  private val Scala3SourceRoot = "-sourceroot"
 
   /**
-   * When semantic db is enabled (via compiler plugin in Scala 2 or via compiler option in Scala3)
-   * See SCL-17519 and SCL-20779
+   * * Scala 2: If -Xplugin:semanticdb-scalac is present, add -P:semanticdb:sourceroot:BASE_DIRECTORY if unspecified; see SCL-17519, SCL-20779
+   * * Scala 3: Add -sourceroot:BASE_DIRECTORY if unspecified; see SCL-26524
    */
-  private def semanticDbOptionsFor(configuredOptions: Seq[String], chunk: ModuleChunk): Seq[String] = {
-    val isSemanticDbEnabledScala2 = configuredOptions.exists(isSemanticDbPluginOption)
-    val hasSemanticDbPluginSourceRootOptionScala2 = configuredOptions.exists(_.startsWith(SourceRootOptionScala2))
+  private def sourceRootOptionsFor(configuredOptions: Seq[String], chunk: ModuleChunk, isScala3: Boolean): Seq[String] = {
+    def isSemanticDbPluginEnabled = configuredOptions.exists(isSemanticDbPluginOption)
+    def hasSemanticDbPluginSourceRoot = configuredOptions.exists(_.startsWith(SemanticDbPluginSourceRoot))
 
-    val isSemanticDbEnabledScala3= configuredOptions.contains(SemanticDbOptionScala3)
-    val hasSemanticDbPluginSourceRootOptionScala3 = configuredOptions.contains(SourceRootOptionScala3)
+    def hasScala3SourceRoot = configuredOptions.exists(_.startsWith(Scala3SourceRoot))
 
-    lazy val project = chunk.representativeTarget.getModule.getProject
-    lazy val baseDirectory = JpsModelSerializationDataService.getBaseDirectory(project).getAbsolutePath
+    def baseDirectory = {
+      val project = chunk.representativeTarget.getModule.getProject
+      JpsModelSerializationDataService.getBaseDirectory(project).getAbsolutePath
+    }
 
-    if (isSemanticDbEnabledScala2 && !hasSemanticDbPluginSourceRootOptionScala2)
-      Seq(s"$SourceRootOptionScala2:$baseDirectory")
-    else if (isSemanticDbEnabledScala3 && !hasSemanticDbPluginSourceRootOptionScala3)
-      Seq(s"$SourceRootOptionScala3:$baseDirectory")
+    if (isScala3 && !hasScala3SourceRoot)
+      Seq(s"$Scala3SourceRoot:$baseDirectory")
+    else if (isSemanticDbPluginEnabled && !hasSemanticDbPluginSourceRoot)
+      Seq(s"$SemanticDbPluginSourceRoot:$baseDirectory")
     else
       Seq.empty
   }
