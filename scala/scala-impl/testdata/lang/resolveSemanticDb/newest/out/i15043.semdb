@@ -1,0 +1,129 @@
+Document tests/pos/i15043.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/deriving/
+(1:23..1:29) scala/deriving/Mirror#
+(1:23..1:29) scala/deriving/Mirror.
+(3:21..3:24) scala/Int#
+(3:29..3:32) scala/Int#
+(3:37..3:40) scala/Int#
+(4:22..4:25) scala/Int#
+(4:30..4:33) scala/Int#
+(4:38..4:41) scala/Int#
+(4:46..4:49) scala/Int#
+(4:54..4:57) scala/Int#
+(4:62..4:65) scala/Int#
+(4:70..4:73) scala/Int#
+(4:78..4:81) scala/Int#
+(4:86..4:89) scala/Int#
+(4:95..4:98) scala/Int#
+(4:104..4:107) scala/Int#
+(4:113..4:116) scala/Int#
+(4:122..4:125) scala/Int#
+(4:131..4:134) scala/Int#
+(4:140..4:143) scala/Int#
+(4:149..4:152) scala/Int#
+(4:158..4:161) scala/Int#
+(4:167..4:170) scala/Int#
+(4:176..4:179) scala/Int#
+(4:185..4:188) scala/Int#
+(4:194..4:197) scala/Int#
+(4:203..4:206) scala/Int#
+(5:22..5:25) scala/Int#
+(5:30..5:33) scala/Int#
+(5:38..5:41) scala/Int#
+(5:46..5:49) scala/Int#
+(5:54..5:57) scala/Int#
+(5:62..5:65) scala/Int#
+(5:70..5:73) scala/Int#
+(5:78..5:81) scala/Int#
+(5:86..5:89) scala/Int#
+(5:95..5:98) scala/Int#
+(5:104..5:107) scala/Int#
+(5:113..5:116) scala/Int#
+(5:122..5:125) scala/Int#
+(5:131..5:134) scala/Int#
+(5:140..5:143) scala/Int#
+(5:149..5:152) scala/Int#
+(5:158..5:161) scala/Int#
+(5:167..5:170) scala/Int#
+(5:176..5:179) scala/Int#
+(5:185..5:188) scala/Int#
+(5:194..5:197) scala/Int#
+(5:203..5:206) scala/Int#
+(5:212..5:215) scala/Int#
+(7:25..7:30) scala/Tuple#
+(7:35..7:40) scala/Tuple#
+(7:43..7:44) _empty_/i15043$package.FieldValuePair#[X] -> 7:21
+(8:8..8:18) scala/Tuple$package.EmptyTuple#
+(8:22..8:23) _empty_/i15043$package.FieldValuePair#[X] -> 7:21
+(9:10..9:12) scala/`*:`#
+(9:19..9:20) local0 -> 9:8
+(9:21..9:23) scala/`*:`#
+(9:24..9:38) _empty_/i15043$package.FieldValuePair# -> 7:6
+(9:39..9:41) local1 -> 9:13
+(12:28..12:34) scala/deriving/Mirror.
+(12:35..12:44) scala/deriving/Mirror.ProductOf#
+(12:45..12:46) _empty_/i15043$package.baz().[A] -> 12:16
+(12:52..12:57) scala/Tuple.
+(12:58..12:61) scala/Tuple.Zip#
+(12:62..12:63) _empty_/i15043$package.baz().(m) -> 12:25
+(12:64..12:82) scala/deriving/Mirror#MirroredElemLabels#
+(12:84..12:98) _empty_/i15043$package.FieldValuePair# -> 7:6
+(12:99..12:100) _empty_/i15043$package.baz().(m) -> 12:25
+(12:124..12:125) _empty_/i15043$package.baz().(a) -> 12:49
+(14:2..14:6) scala/main#
+(15:12..15:15) _empty_/i15043$package.baz(). -> 12:12
+(15:16..15:21) _empty_/Size3# -> 3:12
+(15:28..15:30) scala/Predef.`->`().
+(15:39..15:41) scala/Predef.`->`().
+(15:50..15:52) scala/Predef.`->`().
+(17:13..17:16) _empty_/i15043$package.baz(). -> 12:12
+(17:17..17:23) _empty_/Size22# -> 4:12
+(17:30..17:32) scala/Predef.`->`().
+(17:41..17:43) scala/Predef.`->`().
+(17:52..17:54) scala/Predef.`->`().
+(17:63..17:65) scala/Predef.`->`().
+(17:74..17:76) scala/Predef.`->`().
+(17:85..17:87) scala/Predef.`->`().
+(17:96..17:98) scala/Predef.`->`().
+(18:8..18:10) scala/Predef.`->`().
+(18:19..18:21) scala/Predef.`->`().
+(18:31..18:33) scala/Predef.`->`().
+(18:44..18:46) scala/Predef.`->`().
+(18:57..18:59) scala/Predef.`->`().
+(18:70..18:72) scala/Predef.`->`().
+(18:83..18:85) scala/Predef.`->`().
+(18:96..18:98) scala/Predef.`->`().
+(19:9..19:11) scala/Predef.`->`().
+(19:22..19:24) scala/Predef.`->`().
+(19:35..19:37) scala/Predef.`->`().
+(19:48..19:50) scala/Predef.`->`().
+(19:61..19:63) scala/Predef.`->`().
+(19:74..19:76) scala/Predef.`->`().
+(19:87..19:89) scala/Predef.`->`().
+(22:13..22:16) _empty_/i15043$package.baz(). -> 12:12
+(22:17..22:23) _empty_/Size23# -> 5:12
+(22:30..22:32) scala/Predef.`->`().
+(22:41..22:43) scala/Predef.`->`().
+(22:52..22:54) scala/Predef.`->`().
+(22:63..22:65) scala/Predef.`->`().
+(22:74..22:76) scala/Predef.`->`().
+(22:85..22:87) scala/Predef.`->`().
+(22:96..22:98) scala/Predef.`->`().
+(23:10..23:12) scala/Predef.`->`().
+(23:21..23:23) scala/Predef.`->`().
+(23:33..23:35) scala/Predef.`->`().
+(23:46..23:48) scala/Predef.`->`().
+(23:59..23:61) scala/Predef.`->`().
+(23:72..23:74) scala/Predef.`->`().
+(23:85..23:87) scala/Predef.`->`().
+(23:98..23:100) scala/Predef.`->`().
+(24:11..24:13) scala/Predef.`->`().
+(24:24..24:26) scala/Predef.`->`().
+(24:37..24:39) scala/Predef.`->`().
+(24:50..24:52) scala/Predef.`->`().
+(24:63..24:65) scala/Predef.`->`().
+(24:76..24:78) scala/Predef.`->`().
+(24:89..24:91) scala/Predef.`->`().
+(24:102..24:104) scala/Predef.`->`().
+

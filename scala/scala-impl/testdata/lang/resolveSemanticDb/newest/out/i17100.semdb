@@ -5,7 +5,7 @@ Document tests/pos/i17100.scala
 (4:37..4:40) scala/Predef.`???`().
 (5:26..5:32) scala/Predef.String#
 (5:37..5:40) scala/Int#
-(5:44..5:47) scala/Predef.`???`().
+(5:45..5:48) scala/Predef.`???`().
 (6:26..6:32) scala/Predef.String#
 (6:38..6:41) scala/Predef.`???`().
 (8:16..8:19) _empty_/Sel# -> 1:7

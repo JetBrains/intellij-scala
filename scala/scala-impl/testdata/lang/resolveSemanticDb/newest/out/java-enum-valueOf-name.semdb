@@ -1,0 +1,5 @@
+Document tests/pos/java-enum-valueOf-name/Test.scala
+(3:11..3:12) _empty_/E#
+(3:13..3:20) _empty_/E#valueOf().
+(3:21..3:25) _empty_/E#valueOf().(name)
+

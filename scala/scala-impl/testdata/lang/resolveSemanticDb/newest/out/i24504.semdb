@@ -1,0 +1,18 @@
+Document tests/pos/i24504.scala
+(3:19..3:29) scala/NamedTuple.
+(3:30..3:34) scala/NamedTuple.From#
+(3:35..3:36) _empty_/Unpack.Expr#[T] -> 2:14
+(5:28..5:31) scala/Int#
+(5:36..5:39) scala/Int#
+(6:18..6:22) _empty_/Unpack.Expr# -> 2:9
+(6:23..6:27) _empty_/Unpack.Pair# -> 5:20
+(6:31..6:32) _empty_/Unpack.unapply().(e) -> 6:15
+(6:33..6:39) _empty_/Unpack.Expr#Fields# -> 3:10
+(6:42..6:45) scala/Predef.`???`().
+(8:10..8:14) _empty_/Unpack.Expr# -> 2:9
+(8:15..8:19) _empty_/Unpack.Pair# -> 5:20
+(8:23..8:26) scala/Predef.`???`().
+(9:3..9:4) _empty_/Unpack.x. -> 8:7
+(10:10..10:16) _empty_/Unpack. -> 1:8
+(10:26..10:29) scala/Predef.`???`().
+

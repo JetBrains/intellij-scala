@@ -1,0 +1,7 @@
+Document tests/pos/i27548.scala
+(9:19..9:23) java/
+(9:24..9:28) java/lang/
+(9:29..9:33) java/lang/Enum#
+(9:34..9:38) _empty_/Java# -> 9:6
+(14:13..14:16) scala/Int#
+

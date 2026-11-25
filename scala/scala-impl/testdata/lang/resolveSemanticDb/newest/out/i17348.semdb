@@ -1,0 +1,13 @@
+Document tests/pos/i17348.scala
+(1:13..1:17) java/
+(1:18..1:22) java/util/
+(1:23..1:31) java/util/function/
+(1:32..1:43) java/util/function/IntFunction#
+(1:49..1:50) _empty_/i17348$package.m().[U] -> 1:7
+(1:54..1:58) scala/Unit#
+(3:13..3:17) scala/Unit#
+(5:3..5:4) _empty_/i17348$package.m(). -> 1:5
+(5:12..5:13) local0 -> 4:7
+(5:14..5:26) scala/Any#asInstanceOf().
+(5:27..5:30) scala/Any#
+

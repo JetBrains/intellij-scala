@@ -1,0 +1,16 @@
+[0,95]: PackageDef
+[8,11]: Ident
+[13,25]: Import
+[20,23]: Ident
+[27,95]: ValDef
+[32,32]: TypeTree
+[37,95]: Apply
+[37,54]: Select
+[37,46]: Apply
+[37,42]: Ident
+[43,45]: Literal
+[55,95]: Match
+[61,75]: CaseDef
+[66,68]: Literal
+[69,75]: Block
+[72,75]: Ident

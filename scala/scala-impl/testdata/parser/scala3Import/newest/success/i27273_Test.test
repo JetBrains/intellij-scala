@@ -1,0 +1,165 @@
+import scala.language.strictEquality
+
+def jdk(m: java.nio.file.AccessMode) = m match
+  case java.nio.file.AccessMode.READ => 1
+  case _ => 2
+
+def local(c: JColor) = c match
+  case JColor.RED => 1
+  case _ => 2
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.language.strictEquality
+        CodeReferenceElement: scala.language
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('strictEquality')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: jdk
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('jdk')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: m
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('m')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: java.nio.file.AccessMode
+              CodeReferenceElement: java.nio.file.AccessMode
+                CodeReferenceElement: java.nio.file
+                  CodeReferenceElement: java.nio
+                    CodeReferenceElement: java
+                      PsiElement(identifier)('java')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('nio')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('file')
+                PsiElement(.)('.')
+                PsiElement(identifier)('AccessMode')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: m
+        PsiElement(identifier)('m')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          StableElementPattern
+            ReferenceExpression: java.nio.file.AccessMode.READ
+              ReferenceExpression: java.nio.file.AccessMode
+                ReferenceExpression: java.nio.file
+                  ReferenceExpression: java.nio
+                    ReferenceExpression: java
+                      PsiElement(identifier)('java')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('nio')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('file')
+                PsiElement(.)('.')
+                PsiElement(identifier)('AccessMode')
+              PsiElement(.)('.')
+              PsiElement(identifier)('READ')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            IntegerLiteral
+              PsiElement(integer)('1')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            IntegerLiteral
+              PsiElement(integer)('2')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: local
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('local')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: c
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('c')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: JColor
+              CodeReferenceElement: JColor
+                PsiElement(identifier)('JColor')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: c
+        PsiElement(identifier)('c')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          StableElementPattern
+            ReferenceExpression: JColor.RED
+              ReferenceExpression: JColor
+                PsiElement(identifier)('JColor')
+              PsiElement(.)('.')
+              PsiElement(identifier)('RED')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            IntegerLiteral
+              PsiElement(integer)('1')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            IntegerLiteral
+              PsiElement(integer)('2')

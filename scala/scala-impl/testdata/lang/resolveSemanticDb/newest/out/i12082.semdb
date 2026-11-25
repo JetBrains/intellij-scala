@@ -1,0 +1,17 @@
+Document tests/pos/i12082.scala
+(2:28..2:43) scala/PartialFunction#
+(2:44..2:45) _empty_/ReproTrait#[E] -> 1:24
+(2:47..2:48) _empty_/ReproTrait#[F] -> 1:18
+(2:49..2:53) scala/Unit#
+(2:58..2:62) scala/Unit#
+(2:65..2:68) scala/Predef.`???`().
+(5:47..5:54) scala/Boolean#
+(5:64..5:70) scala/AnyVal#
+(6:34..6:44) _empty_/ReproTrait# -> 1:7
+(6:45..6:46) _empty_/ReproExtensionClass#[F] -> 5:27
+(6:48..6:57) scala/package.Throwable#
+(6:61..6:65) scala/Unit#
+(7:5..7:7) _empty_/ReproExtensionClass#reproExtensionFunction().(me) -> 6:30
+(7:8..7:21) _empty_/ReproTrait#reproFunction(). -> 2:7
+(8:7..8:10) scala/Predef.`???`().
+

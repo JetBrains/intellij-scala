@@ -7,8 +7,8 @@ Document tests/pos/i14953.scala
 (8:14..8:18) _empty_/Test.head().
 (36:4..36:14) scala/deprecated#
 (43:4..43:14) scala/deprecated#
-(80:4..80:14) scala/annotation/
-(80:15..80:28) scala/annotation/unspecialized#
+(86:4..86:14) scala/annotation/
+(86:15..86:28) scala/annotation/unspecialized#
 (91:4..91:10) scala/throws#
 (91:11..91:36) scala/package.IndexOutOfBoundsException#
 (123:4..123:12) scala/inline#
@@ -39,7 +39,7 @@ Document tests/pos/i14953.scala
 (784:4..784:12) scala/inline#
 (786:4..786:14) scala/deprecated#
 (787:4..787:12) scala/inline#
-(838:4..838:10) scala/inline#
+(842:4..842:10) scala/inline#
 (992:4..992:24) scala/deprecatedOverriding#
 (1010:4..1010:14) scala/deprecated#
 (1011:4..1011:10) scala/inline#

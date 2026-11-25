@@ -1,0 +1,4 @@
+Document tests/pos/inline-trait-inline-return.scala
+(4:10..4:13) scala/Int#
+(6:21..6:25) _empty_/Base# -> 3:14
+

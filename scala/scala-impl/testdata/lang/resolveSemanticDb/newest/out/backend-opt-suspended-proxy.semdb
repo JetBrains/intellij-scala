@@ -1,0 +1,28 @@
+Document tests/pos/backend-opt-suspended-proxy/Macro.scala
+(3:8..3:13) scala/
+(3:14..3:20) scala/quoted/
+(6:30..6:31) demo/M.id().[T] -> 6:17
+(6:34..6:35) demo/M.id().[T] -> 6:17
+(6:41..6:47) demo/M.idImpl(). -> 7:7
+(7:17..7:21) demo/M.idImpl().[T] -> 7:14
+(7:17..7:21) scala/quoted/Type#
+(7:26..7:30) scala/quoted/Expr#
+(7:31..7:32) demo/M.idImpl().[T] -> 7:14
+(7:41..7:47) scala/quoted/Quotes#
+(7:50..7:54) scala/quoted/Expr#
+(7:55..7:56) demo/M.idImpl().[T] -> 7:14
+(7:60..7:61) demo/M.idImpl().(x) -> 7:23
+
+Document tests/pos/backend-opt-suspended-proxy/Outer.scala
+(4:20..4:23) scala/Int#
+(4:28..4:31) scala/Int#
+(5:10..5:13) scala/Int#
+(5:16..5:17) demo/M. -> 5:8
+(5:18..5:20) demo/M.id(). -> 6:14
+
+Document tests/pos/backend-opt-suspended-proxy/User.scala
+(4:15..4:18) scala/Int#
+(4:28..4:33) demo/Outer. -> 3:8
+(4:34..4:37) demo/Outer.Foo# -> 4:9
+(4:38..4:39) demo/User#a. -> 4:12
+

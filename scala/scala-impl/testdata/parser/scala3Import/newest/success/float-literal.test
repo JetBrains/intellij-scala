@@ -1,0 +1,145 @@
+class C:
+  def meth(x: Float, y: Float): Unit = ()
+
+object D:
+  val c = C()
+  c.meth(1.0, 2.0) // OK
+  c.meth(1.0f, 2.0) // OK
+-----
+ScalaFile
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: meth
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('meth')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Float
+                    CodeReferenceElement: Float
+                      PsiElement(identifier)('Float')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: y
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('y')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Float
+                    CodeReferenceElement: Float
+                      PsiElement(identifier)('Float')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScObject: D
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('D')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: c
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: c
+              PsiElement(identifier)('c')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: C
+              PsiElement(identifier)('C')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: c.meth
+            ReferenceExpression: c
+              PsiElement(identifier)('c')
+            PsiElement(.)('.')
+            PsiElement(identifier)('meth')
+          ArgumentList
+            PsiElement(()('(')
+            DoubleLiteral
+              PsiElement(double)('1.0')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            DoubleLiteral
+              PsiElement(double)('2.0')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// OK')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: c.meth
+            ReferenceExpression: c
+              PsiElement(identifier)('c')
+            PsiElement(.)('.')
+            PsiElement(identifier)('meth')
+          ArgumentList
+            PsiElement(()('(')
+            FloatLiteral
+              PsiElement(float)('1.0f')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            DoubleLiteral
+              PsiElement(double)('2.0')
+            PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// OK')

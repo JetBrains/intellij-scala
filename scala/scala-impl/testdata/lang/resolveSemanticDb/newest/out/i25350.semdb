@@ -1,0 +1,13 @@
+Document tests/pos/i25350.scala
+(5:11..5:16) first/ -> 2:9
+(5:35..5:42) scala/Boolean#
+(5:46..5:52) first/Filter.pass().(result) -> 5:27
+(8:10..8:16) first/Filter. -> 4:16
+(8:17..8:21) first/Filter.pass(). -> 5:22
+(9:20..9:27) scala/Boolean#
+(9:30..9:36) scala/Predef.String#
+(10:20..10:26) scala/Predef.String#
+(10:29..10:33) first/Worker#make(). -> 9:7
+(13:12..13:18) first/Worker# -> 7:7
+(13:21..13:25) first/Worker#call(). -> 10:14
+

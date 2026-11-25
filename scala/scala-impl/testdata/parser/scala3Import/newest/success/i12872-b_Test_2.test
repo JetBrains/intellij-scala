@@ -1,0 +1,32 @@
+def test = {
+  Ctx.Owner()
+}
+-----
+ScalaFile
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: Ctx.Owner
+          ReferenceExpression: Ctx
+            PsiElement(identifier)('Ctx')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Owner')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

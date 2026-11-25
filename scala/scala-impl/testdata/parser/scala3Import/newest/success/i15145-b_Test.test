@@ -1,0 +1,73 @@
+import Package.DependentCaseClass2
+
+def test: Unit =
+  val d: Package.DependentCaseClass2 = DependentCaseClass2()
+  Macro.myMacro()
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: Package.DependentCaseClass2
+        CodeReferenceElement: Package
+          PsiElement(identifier)('Package')
+        PsiElement(.)('.')
+        PsiElement(identifier)('DependentCaseClass2')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: d
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: d
+            PsiElement(identifier)('d')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Package.DependentCaseClass2
+          CodeReferenceElement: Package.DependentCaseClass2
+            CodeReferenceElement: Package
+              PsiElement(identifier)('Package')
+            PsiElement(.)('.')
+            PsiElement(identifier)('DependentCaseClass2')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: DependentCaseClass2
+            PsiElement(identifier)('DependentCaseClass2')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: Macro.myMacro
+          ReferenceExpression: Macro
+            PsiElement(identifier)('Macro')
+          PsiElement(.)('.')
+          PsiElement(identifier)('myMacro')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')

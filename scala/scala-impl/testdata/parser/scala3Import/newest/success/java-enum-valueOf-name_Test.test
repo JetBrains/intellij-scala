@@ -1,0 +1,53 @@
+// The implicitly declared `valueOf` of a Java enum parsed from source names its parameter `name`, as javac does (JLS 8.9.3)
+object Test {
+  def f = E.valueOf(name = "A")
+}
+-----
+ScalaFile
+  ScObject: Test
+    PsiComment(comment)('// The implicitly declared `valueOf` of a Java enum parsed from source names its parameter `name`, as javac does (JLS 8.9.3)')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: E.valueOf
+              ReferenceExpression: E
+                PsiElement(identifier)('E')
+              PsiElement(.)('.')
+              PsiElement(identifier)('valueOf')
+            ArgumentList
+              PsiElement(()('(')
+              AssignStatement
+                ReferenceExpression: name
+                  PsiElement(identifier)('name')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"A"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,24 @@
+trait Weird extends caps.Classifier
+
+-----
+ScalaFile
+  ScTrait: Weird
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Weird')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: caps.Classifier
+            CodeReferenceElement: caps.Classifier
+              CodeReferenceElement: caps
+                PsiElement(identifier)('caps')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Classifier')

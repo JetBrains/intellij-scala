@@ -1,0 +1,10 @@
+Document tests/pos/i25183.scala
+(1:41..1:44) scala/Int#
+(2:15..2:19) scala/Unit#
+(3:5..3:10) _empty_/CounterExample#count(). -> 1:34
+(6:18..6:21) scala/Int#
+(8:15..8:26) _empty_/Accumulator# -> 5:7
+(9:5..9:8) local0 -> 8:9
+(9:9..9:10) _empty_/Accumulator#h(). -> 6:15
+(9:13..9:14) _empty_/Accumulator#h(). -> 6:15
+

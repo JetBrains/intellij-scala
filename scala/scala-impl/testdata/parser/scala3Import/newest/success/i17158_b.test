@@ -1,0 +1,72 @@
+package bar
+
+import foo.*
+
+val a =
+  Array("").foreach {
+    case "" => ??? // was an error
+  }
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: bar
+      PsiElement(identifier)('bar')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: foo
+          PsiElement(identifier)('foo')
+        PsiElement(.)('.')
+        PsiElement(*)('*')
+    PsiWhiteSpace('\n\n')
+    ScPatternDefinition: a
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(val)('val')
+      PsiWhiteSpace(' ')
+      ListOfPatterns
+        ReferencePattern: a
+          PsiElement(identifier)('a')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: Array("").foreach
+          MethodCall
+            ReferenceExpression: Array
+              PsiElement(identifier)('Array')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('""')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('foreach')
+        PsiWhiteSpace(' ')
+        ArgumentList
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralPattern
+                  StringLiteral
+                    PsiElement(string content)('""')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// was an error')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')

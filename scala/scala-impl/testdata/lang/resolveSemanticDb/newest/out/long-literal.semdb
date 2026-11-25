@@ -1,0 +1,10 @@
+Document tests/pos/long-literal.scala
+(2:15..2:19) scala/Long#
+(2:24..2:28) scala/Long#
+(2:31..2:35) scala/Unit#
+(5:11..5:12) _empty_/C# -> 1:7
+(6:3..6:4) _empty_/D.c. -> 5:7
+(6:5..6:9) _empty_/C#meth(). -> 2:7
+(7:3..7:4) _empty_/D.c. -> 5:7
+(7:5..7:9) _empty_/C#meth(). -> 2:7
+

@@ -1,0 +1,6 @@
+Document tests/pos/i27268/A.scala
+(5:16..5:20) scala/Byte#
+(6:16..6:21) scala/Short#
+(10:17..10:21) scala/Long.
+(10:22..10:30) scala/Long.MinValue.
+

@@ -1,0 +1,3 @@
+Document tests/pos/i21652.scala
+(2:15..2:16) local3 -> 2:10
+

@@ -1,0 +1,28 @@
+Document tests/pos/i27221.scala
+(2:8..2:16) scala/language.
+(2:17..2:29) scala/language.experimental.
+(2:30..2:45) scala/language.experimental.captureChecking.
+(4:25..4:38) _empty_/IterableOnce3# -> 6:7
+(4:44..4:60) _empty_/IterableOnceOps3# -> 10:14
+(6:29..6:42) _empty_/IterableOnce3# -> 6:7
+(7:17..7:26) _empty_/Iterator3# -> 4:7
+(11:22..11:25) scala/Int#
+(11:28..11:32) scala/Unit#
+(11:35..11:38) scala/Predef.`???`().
+(12:22..12:25) scala/Int#
+(12:30..12:33) scala/Int#
+(12:36..12:40) scala/Unit#
+(12:43..12:46) scala/Predef.`???`().
+(13:22..13:25) scala/Int#
+(13:30..13:33) scala/Int#
+(13:38..13:41) scala/Int#
+(13:44..13:48) scala/Unit#
+(13:51..13:54) scala/Predef.`???`().
+(16:31..16:44) _empty_/IterableOnce3# -> 6:7
+(16:50..16:53) scala/Int#
+(16:56..16:60) scala/Unit#
+(17:5..17:10) _empty_/IterableOnce3.copyElemsToArray().(elems) -> 16:24
+(17:11..17:19) _empty_/IterableOnce3#iterator(). -> 7:7
+(17:20..17:31) _empty_/IterableOnceOps3#copyToArray(). -> 11:7
+(17:32..17:33) _empty_/IterableOnce3.copyElemsToArray().(i) -> 16:47
+

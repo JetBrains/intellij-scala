@@ -1,0 +1,14 @@
+Document tests/pos/i26969b.scala
+(2:22..2:25) _empty_/Inv# -> 1:7
+(2:26..2:27) _empty_/Sub#[T] -> 2:11
+(3:16..3:17) _empty_/i26969b$package.f().[S] -> 3:7
+(3:20..3:23) _empty_/Sub# -> 2:7
+(3:24..3:25) _empty_/i26969b$package.f().[S] -> 3:7
+(3:27..3:28) scala/`&`#
+(3:29..3:32) _empty_/Sub# -> 2:7
+(3:33..3:34) _empty_/i26969b$package.f().[T] -> 3:10
+(3:38..3:41) scala/Predef.`???`().
+(4:8..4:11) _empty_/Inv# -> 1:7
+(4:12..4:15) scala/Int#
+(4:19..4:20) _empty_/i26969b$package.f(). -> 3:5
+

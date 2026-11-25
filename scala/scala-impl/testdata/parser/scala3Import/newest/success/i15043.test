@@ -1,0 +1,1532 @@
+import scala.deriving.Mirror
+
+case class Size3(a1:Int, a2:Int, a3:Int)
+case class Size22(a1:Int, a2:Int, a3:Int, a4:Int, a5:Int, a6:Int, a7:Int, a8:Int, a9:Int, a10:Int, a11:Int, a12:Int, a13:Int, a14:Int, a15:Int, a16:Int, a17:Int, a18:Int, a19:Int, a20:Int, a21:Int, a22:Int)
+case class Size23(a1:Int, a2:Int, a3:Int, a4:Int, a5:Int, a6:Int, a7:Int, a8:Int, a9:Int, a10:Int, a11:Int, a12:Int, a13:Int, a14:Int, a15:Int, a16:Int, a17:Int, a18:Int, a19:Int, a20:Int, a21:Int, a22:Int, a23:Int)
+
+type FieldValuePair[X <:Tuple] <: Tuple = X match {
+  case EmptyTuple => X
+  case t *: ts => t *: FieldValuePair[ts]
+}
+
+inline def baz[A](using m: Mirror.ProductOf[A])(a: Tuple.Zip[m.MirroredElemLabels, FieldValuePair[m.MirroredElemTypes]]) = a
+
+@main def main =
+  val s3 = baz[Size3]("a1" -> 1, "a2" -> 2, "a3" ->3 )
+
+  val s22 = baz[Size22]("a1" -> 1, "a2" -> 2, "a3" -> 3, "a4" -> 4, "a5" -> 5, "a6" -> 6, "a7" -> 7,
+  "a8" -> 8, "a9" -> 9, "a10" -> 10, "a11" -> 11, "a12" -> 12, "a13" -> 13, "a14" -> 14, "a15" -> 15,
+  "a16" -> 16, "a17" -> 17, "a18" -> 18, "a19" -> 19, "a20" -> 20, "a21" -> 21, "a22" -> 22)
+
+
+  val s23 = baz[Size23]("a1" -> 1, "a2" -> 2, "a3" -> 3, "a4" -> 4, "a5" -> 5, "a6" -> 6, "a7" -> 7,
+    "a8" -> 8, "a9" -> 9, "a10" -> 10, "a11" -> 11, "a12" -> 12, "a13" -> 13, "a14" -> 14, "a15" -> 15,
+    "a16" -> 16, "a17" -> 17, "a18" -> 18, "a19" -> 19, "a20" -> 20, "a21" -> 21, "a22" -> 22, "a23" -> 23)
+
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.deriving.Mirror
+        CodeReferenceElement: scala.deriving
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('deriving')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Mirror')
+  PsiWhiteSpace('\n\n')
+  ScClass: Size3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Size3')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: a1
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a1')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a2
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a2')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a3
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a3')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Size22
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Size22')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: a1
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a1')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a2
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a2')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a3
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a3')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a4
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a4')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a5
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a5')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a6
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a6')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a7
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a7')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a8
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a8')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a9
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a9')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a10
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a10')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a11
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a11')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a12
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a12')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a13
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a13')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a14
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a14')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a15
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a15')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a16
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a16')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a17
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a17')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a18
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a18')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a19
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a19')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a20
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a20')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a21
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a21')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a22
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a22')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Size23
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Size23')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: a1
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a1')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a2
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a2')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a3
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a3')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a4
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a4')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a5
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a5')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a6
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a6')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a7
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a7')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a8
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a8')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a9
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a9')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a10
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a10')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a11
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a11')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a12
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a12')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a13
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a13')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a14
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a14')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a15
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a15')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a16
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a16')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a17
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a17')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a18
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a18')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a19
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a19')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a20
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a20')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a21
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a21')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a22
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a22')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: a23
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a23')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: FieldValuePair
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FieldValuePair')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: Tuple
+      CodeReferenceElement: Tuple
+        PsiElement(identifier)('Tuple')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: X match {
+  case EmptyTuple => X
+  case t *: ts => t *: FieldValuePair[ts]
+}
+      SimpleType: X
+        CodeReferenceElement: X
+          PsiElement(identifier)('X')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          SimpleType: EmptyTuple
+            CodeReferenceElement: EmptyTuple
+              PsiElement(identifier)('EmptyTuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: X
+            CodeReferenceElement: X
+              PsiElement(identifier)('X')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixType: t *: ts
+            TypeVariable: t
+              PsiElement(identifier)('t')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            TypeVariable: ts
+              PsiElement(identifier)('ts')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          InfixType: t *: FieldValuePair[ts]
+            SimpleType: t
+              CodeReferenceElement: t
+                PsiElement(identifier)('t')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            ParametrizedType: FieldValuePair[ts]
+              SimpleType: FieldValuePair
+                CodeReferenceElement: FieldValuePair
+                  PsiElement(identifier)('FieldValuePair')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: ts
+                    CodeReferenceElement: ts
+                      PsiElement(identifier)('ts')
+                PsiElement(])(']')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: baz
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('baz')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: m
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('m')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Mirror.ProductOf[A]
+              SimpleType: Mirror.ProductOf
+                CodeReferenceElement: Mirror.ProductOf
+                  CodeReferenceElement: Mirror
+                    PsiElement(identifier)('Mirror')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('ProductOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                PsiElement(])(']')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Tuple.Zip[m.MirroredElemLabels, FieldValuePair[m.MirroredElemTypes]]
+              SimpleType: Tuple.Zip
+                CodeReferenceElement: Tuple.Zip
+                  CodeReferenceElement: Tuple
+                    PsiElement(identifier)('Tuple')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Zip')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: m.MirroredElemLabels
+                    CodeReferenceElement: m.MirroredElemLabels
+                      CodeReferenceElement: m
+                        PsiElement(identifier)('m')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('MirroredElemLabels')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  ParametrizedType: FieldValuePair[m.MirroredElemTypes]
+                    SimpleType: FieldValuePair
+                      CodeReferenceElement: FieldValuePair
+                        PsiElement(identifier)('FieldValuePair')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: m.MirroredElemTypes
+                          CodeReferenceElement: m.MirroredElemTypes
+                            CodeReferenceElement: m
+                              PsiElement(identifier)('m')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('MirroredElemTypes')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: main
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: s3
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: s3
+            PsiElement(identifier)('s3')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          GenericCall
+            ReferenceExpression: baz
+              PsiElement(identifier)('baz')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Size3
+                  CodeReferenceElement: Size3
+                    PsiElement(identifier)('Size3')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a1"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a2"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('2')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a3"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              IntegerLiteral
+                PsiElement(integer)('3')
+            PsiWhiteSpace(' ')
+            PsiElement())(')')
+      PsiWhiteSpace('\n\n  ')
+      ScPatternDefinition: s22
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: s22
+            PsiElement(identifier)('s22')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          GenericCall
+            ReferenceExpression: baz
+              PsiElement(identifier)('baz')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Size22
+                  CodeReferenceElement: Size22
+                    PsiElement(identifier)('Size22')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a1"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a2"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('2')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a3"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('3')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a4"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('4')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a5"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('5')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a6"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('6')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a7"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('7')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n  ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a8"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('8')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a9"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('9')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a10"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('10')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a11"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('11')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a12"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('12')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a13"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('13')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a14"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('14')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a15"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('15')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n  ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a16"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('16')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a17"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('17')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a18"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('18')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a19"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('19')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a20"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('20')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a21"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('21')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a22"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('22')
+            PsiElement())(')')
+      PsiWhiteSpace('\n\n\n  ')
+      ScPatternDefinition: s23
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: s23
+            PsiElement(identifier)('s23')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          GenericCall
+            ReferenceExpression: baz
+              PsiElement(identifier)('baz')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Size23
+                  CodeReferenceElement: Size23
+                    PsiElement(identifier)('Size23')
+              PsiElement(])(']')
+          ArgumentList
+            PsiElement(()('(')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a1"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a2"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('2')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a3"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('3')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a4"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('4')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a5"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('5')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a6"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('6')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a7"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('7')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a8"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('8')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a9"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('9')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a10"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('10')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a11"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('11')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a12"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('12')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a13"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('13')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a14"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('14')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a15"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('15')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a16"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('16')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a17"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('17')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a18"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('18')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a19"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('19')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a20"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('20')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a21"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('21')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a22"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('22')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"a23"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ->
+                PsiElement(identifier)('->')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('23')
+            PsiElement())(')')

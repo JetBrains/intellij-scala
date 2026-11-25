@@ -1,6 +1,6 @@
 Document tests/pos/i25754.scala
 (2:26..2:27) _empty_/Tag.`@@`#[A] -> 2:18
-(3:55..3:56) local4 -> 3:50
+(3:55..3:56) local3 -> 3:50
 (6:8..6:11) _empty_/Tag. -> 1:8
 (8:24..8:27) scala/Int#
 (8:28..8:30) _empty_/Tag.`@@`# -> 2:15
