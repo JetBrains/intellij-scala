@@ -1,0 +1,7 @@
+Document tests/pos/java-package-info/Test.scala
+(1:8..1:11) pkg/
+(3:13..3:14) pkg/A#
+(3:17..3:23) scala/Predef.String#
+(3:26..3:27) _empty_/Test$package.test().(a) -> 3:10
+(3:28..3:31) pkg/A#get().
+

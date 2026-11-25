@@ -1,0 +1,190 @@
+//> using options -Werror -Wunreasonable-catch
+
+// The fromOrdinal synthesized for an enum whose cases are all singletons
+// mustn't trip -Wunreasonable-catch
+
+enum Simple:
+  case A, B
+
+enum Java extends java.lang.Enum[Java]:
+  case A, B
+
+enum Mixed:
+  case A
+  case B(x: Int)
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Werror')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Wunreasonable-catch')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('// The fromOrdinal synthesized for an enum whose cases are all singletons')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// mustn't trip -Wunreasonable-catch')
+  PsiWhiteSpace('\n\n')
+  ScEnum: Simple
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Simple')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: A, B
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: A
+            PsiElement(identifier)('A')
+            ExtendsBlock
+              <empty list>
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: B
+            PsiElement(identifier)('B')
+            ExtendsBlock
+              <empty list>
+  PsiWhiteSpace('\n\n')
+  ScEnum: Java
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Java')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: java.lang.Enum[Java]
+            SimpleType: java.lang.Enum
+              CodeReferenceElement: java.lang.Enum
+                CodeReferenceElement: java.lang
+                  CodeReferenceElement: java
+                    PsiElement(identifier)('java')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('lang')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Enum')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Java
+                  CodeReferenceElement: Java
+                    PsiElement(identifier)('Java')
+              PsiElement(])(']')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: A, B
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: A
+            PsiElement(identifier)('A')
+            ExtendsBlock
+              <empty list>
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: B
+            PsiElement(identifier)('B')
+            ExtendsBlock
+              <empty list>
+  PsiWhiteSpace('\n\n')
+  ScEnum: Mixed
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Mixed')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: A
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: A
+            PsiElement(identifier)('A')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: B
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: B
+            PsiElement(identifier)('B')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: x
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('x')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>

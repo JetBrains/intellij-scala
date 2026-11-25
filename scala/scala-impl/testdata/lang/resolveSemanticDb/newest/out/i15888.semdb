@@ -1,0 +1,79 @@
+Document tests/pos/i15888.scala
+(3:40..3:58) _empty_/x.ZIOVersionSpecific# -> 5:9
+(3:59..3:60) _empty_/x.ZIO#[R] -> 3:21
+(3:62..3:63) _empty_/x.ZIO#[E] -> 3:25
+(3:65..3:66) _empty_/x.ZIO#[A] -> 3:29
+(7:21..7:24) _empty_/x.ZIO# -> 3:16
+(7:25..7:28) scala/Any#
+(7:30..7:31) _empty_/x.IO#[E] -> 7:12
+(7:33..7:34) _empty_/x.IO#[A] -> 7:16
+(12:10..12:11) _empty_/x. -> 2:8
+(14:39..14:43) _empty_/example.Root# -> 18:9
+(16:28..16:34) _empty_/example.Panic3# -> 14:9
+(16:59..16:60) _empty_/example.Panic2#[F] -> 16:15
+(16:61..16:62) _empty_/example.Panic2#[E]
+(16:64..16:65) _empty_/example.Panic2#[A]
+(19:23..19:48) _empty_/example.RootInstancesLowPriority7# -> 21:16
+(21:50..21:76) _empty_/example.RootInstancesLowPriority12# -> 25:16
+(22:6..22:12) scala/inline#
+(22:40..22:46) _empty_/example.Panic3# -> 14:9
+(26:6..26:12) scala/inline#
+(26:64..26:68) _empty_/example.Root# -> 18:9
+(27:31..27:35) _empty_/example.Root# -> 18:9
+(27:36..27:37) scala/`&`#
+(27:38..27:39) _empty_/example.RootInstancesLowPriority12#Convert3To2().[C] -> 26:44
+(27:40..27:42) _empty_/example.RootInstancesLowPriority12#Convert3To2().[FR] -> 26:70
+(28:8..28:9) _empty_/example.RootInstancesLowPriority12#Convert3To2().[C] -> 26:44
+(28:34..28:36) _empty_/example.RootInstancesLowPriority12#Convert3To2().[FR] -> 26:70
+(28:37..28:39) _empty_/example.RootInstancesLowPriority12#Convert3To2().[R0] -> 26:86
+(28:41..28:42) _empty_/example.RootInstancesLowPriority12#Convert3To2().[E]
+(28:44..28:45) _empty_/example.RootInstancesLowPriority12#Convert3To2().[A]
+(29:7..29:20) _empty_/example.RootInstancesLowPriority12#Convert3To2().(BifunctorPlus) -> 27:16
+(29:21..29:33) scala/Any#asInstanceOf().
+(29:34..29:35) _empty_/example.RootInstancesLowPriority12#Convert3To2().[C] -> 26:44
+(29:60..29:62) _empty_/example.RootInstancesLowPriority12#Convert3To2().[FR] -> 26:70
+(29:63..29:65) _empty_/example.RootInstancesLowPriority12#Convert3To2().[R0] -> 26:86
+(29:67..29:68) _empty_/example.RootInstancesLowPriority12#Convert3To2().[E]
+(29:70..29:71) _empty_/example.RootInstancesLowPriority12#Convert3To2().[A]
+(34:6..34:12) scala/inline#
+(34:46..34:57) _empty_/example.Interpreter# -> 39:8
+(34:58..34:59) _empty_/example.FreeMonad#[F] -> 33:19
+(34:61..34:62) _empty_/example.FreeMonad#foldMap().[G] -> 34:25
+(34:77..34:83) _empty_/example.Panic2# -> 16:8
+(34:84..34:85) _empty_/example.FreeMonad#foldMap().[G] -> 34:25
+(34:89..34:90) _empty_/example.FreeMonad#foldMap().[G] -> 34:25
+(34:91..34:92) _empty_/example.FreeMonad#foldMap().[E] -> 34:36
+(34:94..34:95) _empty_/example.FreeMonad#foldMap().[A] -> 34:39
+(34:104..34:116) scala/Any#asInstanceOf().
+(34:117..34:118) _empty_/example.FreeMonad#foldMap().[G] -> 34:25
+(34:119..34:120) _empty_/example.FreeMonad#foldMap().[E] -> 34:36
+(34:122..34:123) _empty_/example.FreeMonad#foldMap().[A] -> 34:39
+(43:4..43:8) scala/main#
+(43:19..43:23) scala/Unit#
+(44:5..44:12) scala/Predef.println(+1).
+(45:7..45:17) scala/Predef.implicitly().
+(45:18..45:24) _empty_/example.Panic2# -> 16:8
+(45:25..45:27) _empty_/x.IO# -> 7:8
+(47:5..47:12) scala/Predef.println(+1).
+(48:7..48:17) scala/Predef.implicitly().
+(48:18..48:24) _empty_/example.Panic2# -> 16:8
+(48:43..48:46) _empty_/x.ZIO# -> 3:16
+(48:47..48:50) scala/Any#
+(48:52..48:53) _empty_/example.main().[E]
+(48:55..48:56) _empty_/example.main().[A]
+(51:22..51:33) _empty_/example.Interpreter# -> 39:8
+(51:50..51:52) _empty_/x.IO# -> 7:8
+(51:61..51:73) scala/Any#asInstanceOf().
+(51:74..51:85) _empty_/example.Interpreter# -> 39:8
+(51:102..51:104) _empty_/x.IO# -> 7:8
+(52:16..52:25) _empty_/example.FreeMonad# -> 33:9
+(52:42..52:49) scala/Nothing#
+(52:51..52:55) scala/Unit#
+(52:63..52:72) _empty_/example.FreeMonad# -> 33:9
+(52:89..52:96) scala/Nothing#
+(52:98..52:102) scala/Unit#
+(53:5..53:12) scala/Predef.println(+1).
+(53:13..53:18) local3 -> 52:9
+(53:19..53:26) _empty_/example.FreeMonad#foldMap(). -> 34:17
+(53:27..53:38) local0 -> 51:9
+

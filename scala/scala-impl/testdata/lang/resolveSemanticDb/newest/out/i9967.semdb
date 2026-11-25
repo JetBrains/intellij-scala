@@ -39,10 +39,10 @@ Document tests/pos/i9967.scala
 (66:4..66:14) scala/deprecated#
 (74:4..74:10) scala/inline#
 (74:27..74:41) scala/deprecatedName#
-(80:4..80:14) scala/annotation/
 (80:4..80:14) scala/deprecated#
-(80:15..80:28) scala/annotation/unspecialized#
 (81:4..81:12) scala/inline#
+(86:4..86:14) scala/annotation/
+(86:15..86:28) scala/annotation/unspecialized#
 (89:4..89:14) scala/deprecated#
 (92:4..92:14) scala/deprecated#
 (93:4..93:14) scala/deprecated#

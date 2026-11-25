@@ -1,0 +1,10 @@
+Document tests/pos/float-literal.scala
+(2:15..2:20) scala/Float#
+(2:25..2:30) scala/Float#
+(2:33..2:37) scala/Unit#
+(5:11..5:12) _empty_/C# -> 1:7
+(6:3..6:4) _empty_/D.c. -> 5:7
+(6:5..6:9) _empty_/C#meth(). -> 2:7
+(7:3..7:4) _empty_/D.c. -> 5:7
+(7:5..7:9) _empty_/C#meth(). -> 2:7
+

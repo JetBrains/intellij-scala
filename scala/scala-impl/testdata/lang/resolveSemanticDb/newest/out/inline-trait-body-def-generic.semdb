@@ -1,7 +1,7 @@
 Document tests/pos/inline-trait-body-def-generic.scala
 (4:41..4:42) _empty_/A# -> 2:14
-(4:51..4:52) local3 -> 4:36
-(4:57..4:58) local4 -> 4:48
+(4:51..4:52) local2 -> 4:36
+(4:57..4:58) local3 -> 4:48
 (4:59..4:62) _empty_/A#foo(). -> 3:7
 (6:17..6:18) _empty_/A# -> 2:14
 (7:11..7:14) _empty_/A#foo(). -> 3:7

@@ -1,0 +1,83 @@
+Document tests/pos/array-extension-method.scala
+(1:8..1:15) scala/reflect/
+(1:16..1:24) scala/reflect/ClassTag#
+(1:16..1:24) scala/reflect/ClassTag.
+(3:18..3:19) _empty_/`array-extension-method$package`.array().[A] -> 3:12
+(3:18..3:19) _empty_/`array-extension-method$package`.array(+1).[A] -> 3:12
+(4:18..4:19) _empty_/`array-extension-method$package`.array().[A] -> 3:12
+(4:21..4:29) _empty_/`array-extension-method$package`.array().[B] -> 4:13
+(4:21..4:29) scala/reflect/ClassTag#
+(4:36..4:39) scala/Int#
+(5:5..5:10) scala/Array.
+(5:11..5:15) scala/Array.fill().
+(5:16..5:17) _empty_/`array-extension-method$package`.array().[B] -> 4:13
+(5:19..5:22) _empty_/`array-extension-method$package`.array().(len) -> 4:31
+(5:24..5:25) _empty_/`array-extension-method$package`.array().(x) -> 3:15
+(6:18..6:19) _empty_/`array-extension-method$package`.array(+1).[A] -> 3:12
+(6:21..6:29) _empty_/`array-extension-method$package`.array(+1).[B] -> 6:13
+(6:21..6:29) scala/reflect/ClassTag#
+(6:37..6:40) scala/Int#
+(6:48..6:51) scala/Int#
+(7:5..7:10) scala/Array.
+(7:11..7:15) scala/Array.fill(+1).
+(7:16..7:17) _empty_/`array-extension-method$package`.array(+1).[B] -> 6:13
+(7:19..7:23) _empty_/`array-extension-method$package`.array(+1).(len1) -> 6:31
+(7:25..7:29) _empty_/`array-extension-method$package`.array(+1).(len2) -> 6:42
+(7:31..7:32) _empty_/`array-extension-method$package`.array(+1).(x) -> 3:15
+(9:2..9:6) scala/main#
+(10:10..10:16) scala/Predef.String#
+(10:17..10:18) scala/`|`#
+(10:19..10:23) scala/Null#
+(11:3..11:10) scala/Predef.println(+1).
+(11:11..11:12) local0 -> 10:7
+(11:13..11:21) java/lang/String#toString().
+(12:3..12:10) scala/Predef.println(+1).
+(12:11..12:12) local0 -> 10:7
+(12:13..12:21) scala/Any#getClass().
+(13:3..13:10) scala/Predef.println(+1).
+(13:11..13:16) scala/Array.
+(13:17..13:21) scala/Array.fill().
+(13:22..13:28) scala/Predef.String#
+(13:29..13:30) scala/`|`#
+(13:31..13:35) scala/Null#
+(13:41..13:45) scala/Array.fill().(elem)
+(16:33..16:38) _empty_/`array-extension-method$package`.array(). -> 4:7
+(16:39..16:45) java/lang/Object#
+(16:46..16:47) scala/`|`#
+(16:48..16:52) scala/Null#
+(17:32..17:37) scala/Array#
+(17:38..17:44) java/lang/Object#
+(17:45..17:46) scala/`|`#
+(17:47..17:51) scala/Null#
+(18:28..18:33) scala/Array.
+(18:34..18:39) scala/Array.ofDim().
+(18:40..18:46) java/lang/Object#
+(18:47..18:48) scala/`|`#
+(18:49..18:53) scala/Null#
+(19:28..19:33) scala/Array.
+(19:34..19:38) scala/Array.fill().
+(19:39..19:45) java/lang/Object#
+(19:46..19:47) scala/`|`#
+(19:48..19:52) scala/Null#
+(19:58..19:62) scala/Array.fill().(elem)
+(21:28..21:33) _empty_/`array-extension-method$package`.array(+1). -> 6:7
+(22:28..22:33) _empty_/`array-extension-method$package`.array(+1). -> 6:7
+(22:34..22:40) scala/Double#
+(23:24..23:29) scala/Array.
+(23:30..23:35) scala/Array.ofDim(+1).
+(23:36..23:42) scala/Double#
+(24:24..24:29) scala/Array.
+(24:30..24:34) scala/Array.fill(+1).
+(24:35..24:41) scala/Double#
+(24:51..24:55) scala/Array.fill(+1).(elem)
+(26:32..26:37) _empty_/`array-extension-method$package`.array(+1). -> 6:7
+(27:32..27:37) _empty_/`array-extension-method$package`.array(+1). -> 6:7
+(27:38..27:41) scala/Int#
+(28:30..28:35) scala/Array.
+(28:36..28:41) scala/Array.ofDim(+1).
+(28:42..28:45) scala/Int#
+(29:30..29:35) scala/Array.
+(29:36..29:40) scala/Array.fill(+1).
+(29:41..29:44) scala/Int#
+(29:54..29:58) scala/Array.fill(+1).(elem)
+

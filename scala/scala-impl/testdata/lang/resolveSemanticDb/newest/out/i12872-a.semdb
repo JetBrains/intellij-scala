@@ -1,0 +1,8 @@
+Document tests/pos/i12872-a.scala
+(1:16..1:17) _empty_/D# -> 2:7
+(1:28..1:34) scala/Option#
+(1:35..1:36) _empty_/C#`<init>`().(d) -> 1:13
+(1:37..1:41) _empty_/D#Type# -> 3:8
+(2:17..2:18) _empty_/C# -> 1:7
+(2:25..2:29) scala/None.
+

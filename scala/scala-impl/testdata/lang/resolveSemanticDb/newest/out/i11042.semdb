@@ -1,0 +1,30 @@
+Document tests/pos/i11042.scala
+(5:28..5:32) _empty_/Base# -> 3:14
+(7:28..7:32) _empty_/Base# -> 3:14
+(9:35..9:39) _empty_/Base# -> 3:14
+(9:48..9:52) _empty_/Base# -> 3:14
+(9:55..9:62) scala/Boolean#
+(9:65..9:70) _empty_/i11042$package.isParticularChild().(value) -> 9:41
+(10:11..10:12) _empty_/i11042$package.isParticularChild().[T] -> 9:30
+(14:2..14:6) scala/main#
+(15:15..15:19) _empty_/Base# -> 3:14
+(15:22..15:27) _empty_/Leaf1.
+(16:15..16:19) _empty_/Base# -> 3:14
+(16:22..16:27) _empty_/Leaf2.
+(17:3..17:10) scala/Predef.println(+1).
+(17:11..17:28) _empty_/i11042$package.isParticularChild(). -> 9:12
+(17:29..17:34) _empty_/Leaf1# -> 5:12
+(17:36..17:42) local1 -> 15:7
+(18:3..18:10) scala/Predef.println(+1).
+(18:11..18:28) _empty_/i11042$package.isParticularChild(). -> 9:12
+(18:29..18:34) _empty_/Leaf1# -> 5:12
+(18:36..18:42) local2 -> 16:7
+(19:3..19:10) scala/Predef.println(+1).
+(19:11..19:28) _empty_/i11042$package.isParticularChild(). -> 9:12
+(19:29..19:34) _empty_/Leaf2# -> 7:12
+(19:36..19:42) local1 -> 15:7
+(20:3..20:10) scala/Predef.println(+1).
+(20:11..20:28) _empty_/i11042$package.isParticularChild(). -> 9:12
+(20:29..20:34) _empty_/Leaf2# -> 7:12
+(20:36..20:42) local2 -> 16:7
+

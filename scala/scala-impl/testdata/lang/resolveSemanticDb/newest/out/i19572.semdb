@@ -1,0 +1,4 @@
+Document tests/pos/i19572.scala
+(4:11..4:14) foo/ -> 2:9
+(4:35..4:38) scala/Int#
+

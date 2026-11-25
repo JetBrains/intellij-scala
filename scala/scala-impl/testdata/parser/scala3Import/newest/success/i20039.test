@@ -1,0 +1,236 @@
+sealed trait WIO[+Err, +Out] {
+
+  def handleError[Err1,Out1 >: Out, ErrIn >: Err](
+      f: ErrIn => WIO[Err1, Out1]
+  ): WIO[Err1, Out1] = HandleError(f)
+
+}
+
+case class HandleError[+ErrOut, +Out, ErrIn](handleError: ErrIn => WIO[ErrOut, Out]) extends WIO[ErrOut, Out]
+-----
+ScalaFile
+  ScTrait: WIO
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('WIO')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Err
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('Err')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Out
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('Out')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: handleError
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('handleError')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Err1
+              PsiElement(identifier)('Err1')
+            PsiElement(,)(',')
+            TypeParameter: Out1
+              PsiElement(identifier)('Out1')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: Out
+                CodeReferenceElement: Out
+                  PsiElement(identifier)('Out')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: ErrIn
+              PsiElement(identifier)('ErrIn')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: Err
+                CodeReferenceElement: Err
+                  PsiElement(identifier)('Err')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiWhiteSpace('\n      ')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: ErrIn => WIO[Err1, Out1]
+                    SimpleType: ErrIn
+                      CodeReferenceElement: ErrIn
+                        PsiElement(identifier)('ErrIn')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: WIO[Err1, Out1]
+                      SimpleType: WIO
+                        CodeReferenceElement: WIO
+                          PsiElement(identifier)('WIO')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Err1
+                            CodeReferenceElement: Err1
+                              PsiElement(identifier)('Err1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: Out1
+                            CodeReferenceElement: Out1
+                              PsiElement(identifier)('Out1')
+                        PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: WIO[Err1, Out1]
+            SimpleType: WIO
+              CodeReferenceElement: WIO
+                PsiElement(identifier)('WIO')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Err1
+                  CodeReferenceElement: Err1
+                    PsiElement(identifier)('Err1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Out1
+                  CodeReferenceElement: Out1
+                    PsiElement(identifier)('Out1')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: HandleError
+              PsiElement(identifier)('HandleError')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: f
+                PsiElement(identifier)('f')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: HandleError
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HandleError')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: ErrOut
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('ErrOut')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Out
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('Out')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: ErrIn
+        PsiElement(identifier)('ErrIn')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: handleError
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('handleError')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              FunctionalType: ErrIn => WIO[ErrOut, Out]
+                SimpleType: ErrIn
+                  CodeReferenceElement: ErrIn
+                    PsiElement(identifier)('ErrIn')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: WIO[ErrOut, Out]
+                  SimpleType: WIO
+                    CodeReferenceElement: WIO
+                      PsiElement(identifier)('WIO')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: ErrOut
+                        CodeReferenceElement: ErrOut
+                          PsiElement(identifier)('ErrOut')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Out
+                        CodeReferenceElement: Out
+                          PsiElement(identifier)('Out')
+                    PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: WIO[ErrOut, Out]
+            SimpleType: WIO
+              CodeReferenceElement: WIO
+                PsiElement(identifier)('WIO')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: ErrOut
+                  CodeReferenceElement: ErrOut
+                    PsiElement(identifier)('ErrOut')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Out
+                  CodeReferenceElement: Out
+                    PsiElement(identifier)('Out')
+              PsiElement(])(']')

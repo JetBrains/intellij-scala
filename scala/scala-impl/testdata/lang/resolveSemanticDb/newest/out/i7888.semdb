@@ -4,6 +4,6 @@ Document tests/pos/i7888.scala
 (2:5..2:8) scala/package.Nil.
 (5:3..5:11) _empty_/i7888$package.usingSeq(). -> 1:5
 (5:25..5:28) scala/package.Seq#
-(5:29..5:30) local3 -> 5:15
-(6:5..6:6) local4 -> 5:22
+(5:29..5:30) local2 -> 5:15
+(6:5..6:6) local3 -> 5:22
 

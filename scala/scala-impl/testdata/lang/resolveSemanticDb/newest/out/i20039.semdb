@@ -1,0 +1,20 @@
+Document tests/pos/i20039.scala
+(3:32..3:35) _empty_/WIO#[Out] -> 1:25
+(3:46..3:49) _empty_/WIO#[Err] -> 1:19
+(4:10..4:15) _empty_/WIO#handleError().[ErrIn] -> 3:37
+(4:19..4:22) _empty_/WIO# -> 1:14
+(4:23..4:27) _empty_/WIO#handleError().[Err1] -> 3:19
+(4:29..4:33) _empty_/WIO#handleError().[Out1] -> 3:24
+(5:6..5:9) _empty_/WIO# -> 1:14
+(5:10..5:14) _empty_/WIO#handleError().[Err1] -> 3:19
+(5:16..5:20) _empty_/WIO#handleError().[Out1] -> 3:24
+(5:24..5:35) _empty_/HandleError.
+(5:36..5:37) _empty_/WIO#handleError().(f) -> 4:7
+(9:59..9:64) _empty_/HandleError#[ErrIn] -> 9:39
+(9:68..9:71) _empty_/WIO# -> 1:14
+(9:72..9:78) _empty_/HandleError#[ErrOut] -> 9:25
+(9:80..9:83) _empty_/HandleError#[Out] -> 9:34
+(9:94..9:97) _empty_/WIO# -> 1:14
+(9:98..9:104) _empty_/HandleError#[ErrOut] -> 9:25
+(9:106..9:109) _empty_/HandleError#[Out] -> 9:34
+

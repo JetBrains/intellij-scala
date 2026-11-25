@@ -5,10 +5,10 @@ Document tests/pos/i14966a.scala
 (36:4..36:14) scala/deprecated#
 (43:4..43:14) scala/deprecated#
 (73:4..73:12) scala/inline#
-(80:4..80:14) scala/annotation/
-(80:15..80:28) scala/annotation/unspecialized#
-(88:4..88:14) scala/annotation/
-(88:15..88:28) scala/annotation/unspecialized#
+(86:4..86:14) scala/annotation/
+(86:15..86:28) scala/annotation/unspecialized#
+(94:4..94:14) scala/annotation/
+(94:15..94:28) scala/annotation/unspecialized#
 (105:4..105:12) scala/inline#
 (152:4..152:14) scala/deprecated#
 (162:4..162:14) scala/deprecated#

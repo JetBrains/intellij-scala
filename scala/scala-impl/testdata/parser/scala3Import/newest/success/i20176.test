@@ -3,8 +3,7 @@ type Accumulator[A]
 object Accumulator {
 
   val usage =
-    use[Int]:
-      "asd"
+    use[Int][Int]("asd")
 
   inline def use[A](using DummyImplicit): [B] => Any => Any = ???
 
@@ -54,8 +53,16 @@ ScalaFile
           PsiWhiteSpace('\n    ')
           MethodCall
             GenericCall
-              ReferenceExpression: use
-                PsiElement(identifier)('use')
+              GenericCall
+                ReferenceExpression: use
+                  PsiElement(identifier)('use')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(])(']')
               TypeArgumentsList
                 PsiElement([)('[')
                 TypeArgument
@@ -64,11 +71,10 @@ ScalaFile
                       PsiElement(identifier)('Int')
                 PsiElement(])(']')
             ArgumentList
-              BlockExpression
-                PsiElement(:)(':')
-                PsiWhiteSpace('\n      ')
-                StringLiteral
-                  PsiElement(string content)('"asd"')
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"asd"')
+              PsiElement())(')')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: use
           AnnotationsList

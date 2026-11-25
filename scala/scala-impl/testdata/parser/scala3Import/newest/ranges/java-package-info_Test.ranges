@@ -1,0 +1,11 @@
+[0,46]: PackageDef
+[0,0]: Ident
+[0,12]: Import
+[7,10]: Ident
+[14,46]: DefDef
+[23,27]: ValDef
+[26,27]: Ident
+[30,36]: Ident
+[39,46]: Apply
+[39,44]: Select
+[39,40]: Ident

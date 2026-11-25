@@ -1,0 +1,289 @@
+import java.lang.invoke.{MethodHandles, VarHandle}
+import scala.annotation.static
+import scala.reflect.{ClassTag, classTag}
+
+class Wrapper(private val underlying: Int)
+object Wrapper:
+  @static private val vh = Helper.createVH[Wrapper, Int]("underlying")
+object Helper:
+  inline def createVH[Wrapper: ClassTag, Var: ClassTag](name: String): VarHandle =
+    MethodHandles.lookup().findVarHandle(
+      classTag[Wrapper].runtimeClass,
+      name,
+      classTag[Var].runtimeClass,
+    )
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.lang.invoke
+        CodeReferenceElement: java.lang
+          CodeReferenceElement: java
+            PsiElement(identifier)('java')
+          PsiElement(.)('.')
+          PsiElement(identifier)('lang')
+        PsiElement(.)('.')
+        PsiElement(identifier)('invoke')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: MethodHandles
+            PsiElement(identifier)('MethodHandles')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: VarHandle
+            PsiElement(identifier)('VarHandle')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.annotation.static
+        CodeReferenceElement: scala.annotation
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('annotation')
+        PsiElement(.)('.')
+        PsiElement(identifier)('static')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.reflect
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('reflect')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: ClassTag
+            PsiElement(identifier)('ClassTag')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: classTag
+            PsiElement(identifier)('classTag')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Wrapper
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Wrapper')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: underlying
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(private)('private')
+            PsiWhiteSpace(' ')
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('underlying')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: Wrapper
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Wrapper')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: vh
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: static
+                    CodeReferenceElement: static
+                      PsiElement(identifier)('static')
+          PsiWhiteSpace(' ')
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: vh
+              PsiElement(identifier)('vh')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            GenericCall
+              ReferenceExpression: Helper.createVH
+                ReferenceExpression: Helper
+                  PsiElement(identifier)('Helper')
+                PsiElement(.)('.')
+                PsiElement(identifier)('createVH')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Wrapper
+                    CodeReferenceElement: Wrapper
+                      PsiElement(identifier)('Wrapper')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"underlying"')
+              PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScObject: Helper
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Helper')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: createVH
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('createVH')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Wrapper
+              PsiElement(identifier)('Wrapper')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ScContextBoundImpl(context bound)
+                SimpleType: ClassTag
+                  CodeReferenceElement: ClassTag
+                    PsiElement(identifier)('ClassTag')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Var
+              PsiElement(identifier)('Var')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ScContextBoundImpl(context bound)
+                SimpleType: ClassTag
+                  CodeReferenceElement: ClassTag
+                    PsiElement(identifier)('ClassTag')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: VarHandle
+            CodeReferenceElement: VarHandle
+              PsiElement(identifier)('VarHandle')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: MethodHandles.lookup().findVarHandle
+              MethodCall
+                ReferenceExpression: MethodHandles.lookup
+                  ReferenceExpression: MethodHandles
+                    PsiElement(identifier)('MethodHandles')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('lookup')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('findVarHandle')
+            ArgumentList
+              PsiElement(()('(')
+              PsiWhiteSpace('\n      ')
+              ReferenceExpression: classTag[Wrapper].runtimeClass
+                GenericCall
+                  ReferenceExpression: classTag
+                    PsiElement(identifier)('classTag')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Wrapper
+                        CodeReferenceElement: Wrapper
+                          PsiElement(identifier)('Wrapper')
+                    PsiElement(])(']')
+                PsiElement(.)('.')
+                PsiElement(identifier)('runtimeClass')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n      ')
+              ReferenceExpression: name
+                PsiElement(identifier)('name')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n      ')
+              ReferenceExpression: classTag[Var].runtimeClass
+                GenericCall
+                  ReferenceExpression: classTag
+                    PsiElement(identifier)('classTag')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Var
+                        CodeReferenceElement: Var
+                          PsiElement(identifier)('Var')
+                    PsiElement(])(']')
+                PsiElement(.)('.')
+                PsiElement(identifier)('runtimeClass')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              PsiElement())(')')

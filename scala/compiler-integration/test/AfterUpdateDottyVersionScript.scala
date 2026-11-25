@@ -100,7 +100,7 @@ class AfterUpdateDottyVersionScript {
 
 object AfterUpdateDottyVersionScript {
   private val scala3_repo_lts_branch = "release-3.3.9"
-  private val scala3_repo_newest_branch = "release-3.10.1"
+  private val scala3_repo_newest_branch = "release-3.10.2"
   private val scala3_repo_lts_39_branch = "release-3.9.0"
 
   private val scala3_bootstrapped_module_name = "scala3-bootstrapped"

@@ -1,0 +1,17 @@
+[0,137]: PackageDef
+[8,11]: Ident
+[13,48]: TypeDef
+[35,48]: AppliedTypeTree
+[35,40]: Ident
+[41,47]: Ident
+[50,137]: ExtMethods
+[61,77]: ValDef
+[70,77]: Ident
+[81,137]: DefDef
+[93,120]: ValDef
+[96,120]: Function
+[97,103]: Ident
+[105,111]: Ident
+[116,120]: Ident
+[123,127]: Ident
+[134,137]: Ident

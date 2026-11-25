@@ -1,0 +1,65 @@
+package pkgsub
+
+def test(b: Sub.Builder): pkgbase.Base.Builder[Sub.Builder] = b
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: pkgsub
+      PsiElement(identifier)('pkgsub')
+    PsiWhiteSpace('\n\n')
+    ScFunctionDefinition: test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('test')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: b
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('b')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Sub.Builder
+                CodeReferenceElement: Sub.Builder
+                  CodeReferenceElement: Sub
+                    PsiElement(identifier)('Sub')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Builder')
+          PsiElement())(')')
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      ParametrizedType: pkgbase.Base.Builder[Sub.Builder]
+        SimpleType: pkgbase.Base.Builder
+          CodeReferenceElement: pkgbase.Base.Builder
+            CodeReferenceElement: pkgbase.Base
+              CodeReferenceElement: pkgbase
+                PsiElement(identifier)('pkgbase')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Base')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Builder')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: Sub.Builder
+              CodeReferenceElement: Sub.Builder
+                CodeReferenceElement: Sub
+                  PsiElement(identifier)('Sub')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Builder')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: b
+        PsiElement(identifier)('b')

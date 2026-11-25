@@ -1,0 +1,31 @@
+Document tests/pos/i12091/Test.scala
+(1:8..1:11) foo/
+(1:12..1:17) foo/Model#
+(4:14..4:15) _empty_/Property#[T] -> 3:16
+(4:18..4:21) scala/Predef.`???`().
+(5:14..5:15) _empty_/Property#[T] -> 3:16
+(5:18..5:21) scala/Predef.`???`().
+(9:17..9:25) _empty_/Property# -> 3:7
+(9:26..9:31) foo/Model#
+(9:36..9:40) scala/Unit#
+(9:43..9:48) _empty_/Test#ko().(model) -> 9:10
+(9:49..9:54) _empty_/Property#value(). -> 4:7
+(9:55..9:60) foo/ModelBase#clear().
+(11:17..11:22) foo/Model#
+(11:36..11:40) scala/Unit#
+(11:43..11:48) _empty_/Test#ok().(model) -> 11:10
+(11:49..11:54) foo/ModelBase#clear().
+(13:18..13:26) _empty_/Property# -> 3:7
+(13:27..13:32) foo/Model#
+(13:36..13:40) scala/Unit#
+(13:43..13:48) _empty_/Test#ok1().(model) -> 13:11
+(13:49..13:52) _empty_/Property#get(). -> 5:7
+(13:55..13:60) foo/ModelBase#clear().
+(15:18..15:26) _empty_/Property# -> 3:7
+(15:27..15:32) foo/Model#
+(15:36..15:40) scala/Unit#
+(15:53..15:58) _empty_/Test#ok2().(model) -> 15:11
+(15:59..15:64) _empty_/Property#value(). -> 4:7
+(15:66..15:67) local0 -> 15:49
+(15:68..15:73) foo/ModelBase#clear().
+

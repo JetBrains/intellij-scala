@@ -1,0 +1,56 @@
+Document tests/pos/i26969.scala
+(9:22..9:25) scala/Int#
+(9:26..9:27) inference/`<`# -> 3:7
+(9:29..9:34) inference/Abort# -> 4:7
+(9:35..9:36) inference/Abort.run().[E] -> 9:13
+(9:38..9:39) scala/`&`#
+(9:40..9:41) inference/Abort.run().[S] -> 9:16
+(9:45..9:51) inference/Result# -> 6:7
+(9:52..9:53) inference/Abort.run().[E] -> 9:13
+(9:55..9:58) scala/Int#
+(9:60..9:61) inference/`<`# -> 3:7
+(9:62..9:63) inference/Abort.run().[S] -> 9:16
+(9:66..9:69) scala/Predef.`???`().
+(12:19..12:22) scala/Int#
+(12:23..12:24) inference/`<`# -> 3:7
+(12:26..12:29) inference/Env# -> 5:7
+(12:30..12:36) scala/Predef.String#
+(12:40..12:43) scala/Int#
+(12:44..12:45) inference/`<`# -> 3:7
+(12:46..12:47) inference/Env.use().[S] -> 12:13
+(12:49..12:50) scala/`&`#
+(12:51..12:52) inference/Env.use().[S] -> 12:13
+(12:77..12:80) scala/Predef.`???`().
+(13:22..13:23) inference/Env.run().[A] -> 13:13
+(13:24..13:25) inference/`<`# -> 3:7
+(13:27..13:30) inference/Env# -> 5:7
+(13:31..13:37) scala/Predef.String#
+(13:41..13:44) scala/Int#
+(13:45..13:46) inference/`<`# -> 3:7
+(13:47..13:52) inference/Abort# -> 4:7
+(13:53..13:59) scala/Predef.String#
+(13:62..13:63) scala/`&`#
+(13:64..13:65) inference/Env.run().[S] -> 13:16
+(13:69..13:70) inference/Env.run().[A] -> 13:13
+(13:71..13:72) inference/`<`# -> 3:7
+(13:73..13:74) inference/Env.run().[S] -> 13:16
+(13:77..13:80) scala/Predef.`???`().
+(17:17..17:18) inference/i26969$package.probe().[T] -> 17:11
+(17:21..17:26) inference/Probe# -> 16:7
+(17:27..17:28) inference/i26969$package.probe().[T] -> 17:11
+(17:32..17:35) scala/Predef.`???`().
+(20:13..20:18) inference/i26969$package.probe(). -> 17:5
+(20:19..20:22) inference/Env. -> 11:8
+(20:23..20:26) inference/Env.run(). -> 13:9
+(20:27..20:32) inference/Abort. -> 8:8
+(20:33..20:36) inference/Abort.run(). -> 9:9
+(20:37..20:40) inference/Env. -> 11:8
+(20:41..20:44) inference/Env.use(). -> 12:9
+(23:13..23:18) inference/Probe# -> 16:7
+(23:19..23:25) inference/Result# -> 6:7
+(23:26..23:32) scala/Predef.String#
+(23:34..23:37) scala/Int#
+(23:39..23:40) inference/`<`# -> 3:7
+(23:41..23:44) scala/Any#
+(23:48..23:49) inference/Check.a. -> 20:9
+

@@ -1,0 +1,37 @@
+Document tests/pos/relaxed-null-checks.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:37) scala/language.strictEquality.
+(2:8..2:13) scala/
+(2:14..2:22) scala/language.
+(2:23..2:35) scala/language.experimental.
+(2:36..2:53) scala/language.experimental.relaxedNullChecks.
+(4:15..4:18) scala/Int#
+(4:19..4:20) scala/`|`#
+(4:21..4:25) scala/Null#
+(5:11..5:12) _empty_/`relaxed-null-checks$package`.values().(x) -> 4:12
+(5:13..5:15) scala/Any#`==`().
+(6:16..6:18) scala/Any#`==`().
+(6:19..6:20) _empty_/`relaxed-null-checks$package`.values().(x) -> 4:12
+(7:11..7:12) _empty_/`relaxed-null-checks$package`.values().(x) -> 4:12
+(7:13..7:15) scala/Any#`!=`().
+(8:16..8:18) scala/Any#`!=`().
+(8:19..8:20) _empty_/`relaxed-null-checks$package`.values().(x) -> 4:12
+(9:3..9:4) _empty_/`relaxed-null-checks$package`.values().(x) -> 4:12
+(11:13..11:16) scala/Int#
+(13:19..13:20) _empty_/`relaxed-null-checks$package`.generic().[A] -> 13:13
+(13:21..13:22) scala/`|`#
+(13:23..13:27) scala/Null#
+(14:11..14:12) _empty_/`relaxed-null-checks$package`.generic().(x) -> 13:16
+(14:13..14:15) scala/Any#`==`().
+(15:16..15:18) scala/Any#`!=`().
+(15:19..15:20) _empty_/`relaxed-null-checks$package`.generic().(x) -> 13:16
+(16:3..16:4) _empty_/`relaxed-null-checks$package`.generic().(x) -> 13:16
+(20:18..20:22) scala/Null#
+(20:27..20:28) _empty_/`relaxed-null-checks$package`.bounded().[A] -> 20:13
+(21:11..21:12) _empty_/`relaxed-null-checks$package`.bounded().(x) -> 20:24
+(21:13..21:15) scala/Any#`==`().
+(22:16..22:18) scala/Any#`!=`().
+(22:19..22:20) _empty_/`relaxed-null-checks$package`.bounded().(x) -> 20:24
+(23:3..23:4) _empty_/`relaxed-null-checks$package`.bounded().(x) -> 20:24
+

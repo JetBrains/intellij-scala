@@ -1,0 +1,13 @@
+[0,79]: PackageDef
+[8,14]: Ident
+[16,79]: DefDef
+[25,39]: ValDef
+[28,39]: Select
+[28,31]: Ident
+[42,75]: AppliedTypeTree
+[42,62]: Select
+[42,54]: Select
+[42,49]: Ident
+[63,74]: Select
+[63,66]: Ident
+[78,79]: Ident

@@ -1,0 +1,9 @@
+Document tests/pos/i27227/A.scala
+(5:15..5:16) test/B# -> 4:14
+(5:19..5:25) scala/Predef.String#
+(5:28..5:29) test/A.call().(b) -> 5:12
+(5:30..5:38) test/B#mkString(). -> 5:13
+
+Document tests/pos/i27227/B.scala
+(5:23..5:29) scala/Predef.String#
+

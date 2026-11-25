@@ -1,0 +1,19 @@
+Document tests/pos/i27273/Test.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:37) scala/language.strictEquality.
+(3:12..3:16) java/
+(3:17..3:20) java/nio/
+(3:21..3:25) java/nio/file/
+(3:26..3:36) java/nio/file/AccessMode#
+(3:40..3:41) _empty_/Test$package.jdk().(m) -> 3:9
+(4:8..4:12) java/
+(4:13..4:16) java/nio/
+(4:17..4:21) java/nio/file/
+(4:22..4:32) java/nio/file/AccessMode#
+(4:33..4:37) java/nio/file/AccessMode#READ.
+(7:14..7:20) _empty_/JColor#
+(7:24..7:25) _empty_/Test$package.local().(c) -> 7:11
+(8:8..8:14) _empty_/JColor#
+(8:15..8:18) _empty_/JColor#RED.
+

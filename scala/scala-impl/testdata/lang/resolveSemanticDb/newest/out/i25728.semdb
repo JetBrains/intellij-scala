@@ -1,0 +1,98 @@
+Document tests/pos/i25728/Macro_1.scala
+(1:8..1:13) scala/
+(1:14..1:20) scala/quoted/
+(3:26..3:29) scala/Int#
+(7:19..7:20) _empty_/MacroHelper.add().[L] -> 6:30
+(8:19..8:20) _empty_/MacroHelper.add().[R] -> 6:33
+(9:6..9:9) _empty_/MacroHelper.add().[Out] -> 6:36
+(9:15..9:23) _empty_/MacroHelper.inline$addMacro().
+(9:24..9:25) _empty_/MacroHelper.add().[L] -> 6:30
+(9:27..9:28) _empty_/MacroHelper.add().[R] -> 6:33
+(9:30..9:33) _empty_/MacroHelper.add().[Out] -> 6:36
+(11:27..11:31) _empty_/MacroHelper.addMacro().[L] -> 11:24
+(11:27..11:31) scala/quoted/Type#
+(11:36..11:40) _empty_/MacroHelper.addMacro().[R] -> 11:33
+(11:36..11:40) scala/quoted/Type#
+(11:47..11:51) _empty_/MacroHelper.addMacro().[Out] -> 11:42
+(11:47..11:51) scala/quoted/Type#
+(12:12..12:16) scala/quoted/Expr#
+(12:17..12:18) _empty_/MacroHelper.addMacro().[L] -> 11:24
+(13:12..13:16) scala/quoted/Expr#
+(13:17..13:18) _empty_/MacroHelper.addMacro().[R] -> 11:33
+(14:11..14:17) scala/quoted/Quotes#
+(14:20..14:24) scala/quoted/Expr#
+(14:25..14:28) _empty_/MacroHelper.addMacro().[Out] -> 11:42
+(16:16..16:19) _empty_/MacroHelper.addMacro().(lhs) -> 12:7
+(16:20..16:32) scala/Any#asInstanceOf().
+(16:33..16:40) _empty_/Wrapper# -> 3:7
+(16:42..16:47) _empty_/Wrapper#value. -> 3:19
+(17:16..17:19) _empty_/MacroHelper.addMacro().(rhs) -> 13:7
+(17:20..17:32) scala/Any#asInstanceOf().
+(17:33..17:40) _empty_/Wrapper# -> 3:7
+(17:42..17:47) _empty_/Wrapper#value. -> 3:19
+(18:11..18:18) _empty_/Wrapper# -> 3:7
+(18:19..18:20) local2 -> 16:11
+(18:21..18:22) scala/Int#`+`(+4).
+(18:23..18:24) local4 -> 17:11
+(18:26..18:38) scala/Any#asInstanceOf().
+(18:39..18:42) _empty_/MacroHelper.addMacro().[Out] -> 11:42
+
+Document tests/pos/i25728/Test_2.scala
+(7:26..7:33) _empty_/Wrapper# -> 3:7
+(8:42..8:49) _empty_/Wrapper# -> 3:7
+(8:52..8:59) _empty_/Wrapper# -> 3:7
+(9:7..9:18) _empty_/MacroHelper. -> 5:8
+(9:19..9:22) _empty_/MacroHelper.add(). -> 6:26
+(9:23..9:30) _empty_/Wrapper# -> 3:7
+(9:32..9:39) _empty_/Wrapper# -> 3:7
+(9:41..9:48) _empty_/Wrapper# -> 3:7
+(9:50..9:53) _empty_/Ops.`+`().(lhs) -> 7:21
+(9:55..9:58) _empty_/Ops.`+`().(rhs) -> 8:37
+(11:13..11:17) scala/Unit#
+(12:10..12:13) _empty_/Ops. -> 6:8
+(13:11..13:18) _empty_/Wrapper# -> 3:7
+(15:5..15:6) local0 -> 13:7
+(15:7..15:8) _empty_/Ops.`+`(). -> 8:28
+(15:9..15:10) local0 -> 13:7
+(15:11..15:12) _empty_/Ops.`+`(). -> 8:28
+(15:13..15:14) local0 -> 13:7
+(15:15..15:16) _empty_/Ops.`+`(). -> 8:28
+(15:17..15:18) local0 -> 13:7
+(15:19..15:20) _empty_/Ops.`+`(). -> 8:28
+(15:21..15:22) local0 -> 13:7
+(15:23..15:24) _empty_/Ops.`+`(). -> 8:28
+(15:25..15:26) local0 -> 13:7
+(15:27..15:28) _empty_/Ops.`+`(). -> 8:28
+(15:29..15:30) local0 -> 13:7
+(15:31..15:32) _empty_/Ops.`+`(). -> 8:28
+(15:33..15:34) local0 -> 13:7
+(15:35..15:36) _empty_/Ops.`+`(). -> 8:28
+(15:37..15:38) local0 -> 13:7
+(15:39..15:40) _empty_/Ops.`+`(). -> 8:28
+(15:41..15:42) local0 -> 13:7
+(16:5..16:6) _empty_/Ops.`+`(). -> 8:28
+(16:7..16:8) local0 -> 13:7
+(16:9..16:10) _empty_/Ops.`+`(). -> 8:28
+(16:11..16:12) local0 -> 13:7
+(16:13..16:14) _empty_/Ops.`+`(). -> 8:28
+(16:15..16:16) local0 -> 13:7
+(16:17..16:18) _empty_/Ops.`+`(). -> 8:28
+(16:19..16:20) local0 -> 13:7
+(16:21..16:22) _empty_/Ops.`+`(). -> 8:28
+(16:23..16:24) local0 -> 13:7
+(16:25..16:26) _empty_/Ops.`+`(). -> 8:28
+(16:27..16:28) local0 -> 13:7
+(16:29..16:30) _empty_/Ops.`+`(). -> 8:28
+(16:31..16:32) local0 -> 13:7
+(16:33..16:34) _empty_/Ops.`+`(). -> 8:28
+(16:35..16:36) local0 -> 13:7
+(16:37..16:38) _empty_/Ops.`+`(). -> 8:28
+(16:39..16:40) local0 -> 13:7
+(16:41..16:42) _empty_/Ops.`+`(). -> 8:28
+(16:43..16:44) local0 -> 13:7
+(17:5..17:6) _empty_/Ops.`+`(). -> 8:28
+(17:7..17:8) local0 -> 13:7
+(19:3..19:10) scala/Predef.println(+1).
+(19:11..19:17) local1 -> 14:7
+(19:18..19:23) _empty_/Wrapper#value. -> 3:19
+

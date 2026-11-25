@@ -1,0 +1,10 @@
+Document tests/pos/i27242-separate/Test_2.scala
+(3:13..3:16) pkgsub/Sub#
+(3:17..3:24) pkgsub/Sub#Builder#
+(3:27..3:34) pkgbase/
+(3:35..3:39) pkgbase/Base#
+(3:40..3:47) pkgbase/Base#Builder#
+(3:48..3:51) pkgsub/Sub#
+(3:52..3:59) pkgsub/Sub#Builder#
+(3:63..3:64) pkgsub/Test_2$package.test().(b) -> 3:10
+
