@@ -4,6 +4,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.pom.java.LanguageLevel
 
 import java.nio.file.{Files, Path}
 
@@ -13,6 +14,18 @@ import java.nio.file.{Files, Path}
 private[sbt] object MockSbtProcessForTestsSetup {
 
   private val DefaultMainClass = "MockSbtProcess"
+
+  /**
+   * The project JDK for tests that use the mock sbt process. The mock runs on the project JDK, like real sbt, and it's
+   * compiled for Java 25: on Windows, it reads the console through the JDK's foreign function API (Java 22+).
+   */
+  val MockProcessJdk: LanguageLevel = LanguageLevel.JDK_25
+
+  /**
+   * On Windows, the mock calls native code through the JDK's foreign function API. Without this option, JDK 24+ prints
+   * a warning on the first native call, and in a terminal it would end up in the sbt shell output.
+   */
+  private val MockProcessVmOptions: Seq[String] = Seq("--enable-native-access=ALL-UNNAMED")
 
   /**
    * Substitutes the lightweight `MockSbtProcess` JVM for the real sbt launcher.
@@ -37,6 +50,7 @@ private[sbt] object MockSbtProcessForTestsSetup {
       DefaultMainClass,
       slowShutdownReleaseFile,
       slowShutdownStartedFile,
+      vmOptions = MockProcessVmOptions
     )
     project.putUserData(MockSbtProcessForTests.MockProcessDataProjectStateKey, mockProcessData)
     Disposer.register(parentDisposable, () => project.putUserData(MockSbtProcessForTests.MockProcessDataProjectStateKey, null))

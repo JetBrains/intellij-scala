@@ -3,6 +3,7 @@ package org.jetbrains.sbt.shell
 import com.intellij.execution.process.ProcessOutputType
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener, ExternalSystemTaskType}
 import com.intellij.openapi.externalSystem.service.notification.ExternalSystemProgressNotificationManager
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.sbt.process.mock.{MockSbtProcessCommands, MockSbtProcessForTestsSetup}
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -18,6 +19,8 @@ import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[SlowTests2]))
 class SbtShellSyncOutputIntegrationTest_WithMockSbt extends SbtRuntimeTestBase {
+
+  override protected def projectJdkLanguageLevel: LanguageLevel = MockSbtProcessForTestsSetup.MockProcessJdk
 
   override protected def getRelativeTestProjectPath: String =
     "sbt-shell-runtime-tests/testdata/sbt/shell/testShellState"

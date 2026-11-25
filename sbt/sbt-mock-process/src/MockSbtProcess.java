@@ -1,11 +1,22 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.foreign.Arena;
+import java.lang.foreign.FunctionDescriptor;
+import java.lang.foreign.Linker;
+import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.StructLayout;
+import java.lang.foreign.SymbolLookup;
+import java.lang.foreign.ValueLayout;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.VarHandle;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.sbt.process.mock.MockSbtProcessCommands;
 
 public final class MockSbtProcess {
@@ -37,7 +48,7 @@ public final class MockSbtProcess {
 
     private static final AtomicBoolean FinalDebugPrinted = new AtomicBoolean(false);
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    static void main(String[] args) throws IOException, InterruptedException {
         Runtime.getRuntime().addShutdownHook(new Thread(
                 () -> {
                     try {
@@ -86,18 +97,31 @@ public final class MockSbtProcess {
 
     private static void runStdinCommandLoop(String promptMode) throws IOException, InterruptedException {
         logStartupDebug("starting command loop" + (promptMode == null ? "" : " (" + promptMode + ")"), promptMode != null);
+        WindowsConsoleLineReader consoleReader = isWindows() ? WindowsConsoleLineReader.openIfStdinIsConsole() : null;
+        if (consoleReader != null) {
+            logStartupDebug("reading the Windows console with ReadConsoleW", promptMode != null);
+            processCommandLoop(consoleReader::readLine, promptMode);
+            return;
+        }
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
-            processCommandLoop(reader, promptMode);
+            processCommandLoop(reader::readLine, promptMode);
         }
     }
 
-    private static void processCommandLoop(BufferedReader reader, String promptMode) throws IOException, InterruptedException {
+    @FunctionalInterface
+    private interface LineSource {
+        /** Returns the next line without its line terminator, or {@code null} at the end of the input. */
+        @Nullable
+        String readLine() throws IOException;
+    }
+
+    private static void processCommandLoop(LineSource input, String promptMode) throws IOException, InterruptedException {
         boolean shellMode = promptMode != null;
         logStartupDebug("listening for input line...", promptMode != null);
         printPromptIfNeeded(promptMode);
 
         String line;
-        while ((line = reader.readLine()) != null) {
+        while ((line = input.readLine()) != null) {
             echoInputLineIfNeeded(line, promptMode);
             Log.debug("received line=" + line, shellMode);
             String command = line.trim();
@@ -214,6 +238,7 @@ public final class MockSbtProcess {
         Files.write(file, "started".getBytes(StandardCharsets.UTF_8));
     }
 
+    @Nullable
     private static Path extractStructureFile(String command) {
         String[] commands = command.split(";");
         for (String part : commands) {
@@ -350,6 +375,131 @@ public final class MockSbtProcess {
     private static void delayMockJdwpPromptIfNeeded(String command) throws InterruptedException {
         if (command.equals(Commands.MockJdwpListeningBeforePrompt) || command.equals(Commands.MockJdwpListeningAfterPrompt)) {
             Thread.sleep(500);
+        }
+    }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name", "").startsWith("Windows");
+    }
+
+    /**
+     * Reads lines from the Windows console with {@code ReadConsoleW}, so that Ctrl+D at the start of a line ends the input,
+     * as it does in a terminal on macOS and Linux (SCL-26340).
+     * <p>
+     * In line mode, a Windows console treats Ctrl+D as an ordinary character and returns the line only on Enter, so reading
+     * {@code System.in} never reaches the end of the input. {@code ReadConsoleW} can also finish a read on chosen control
+     * characters ({@code CONSOLE_READCONSOLE_CONTROL.dwCtrlWakeupMask}), while the console stays in line mode, with its
+     * echo and line editing.
+     * <p>
+     * Uses only Windows APIs: create it only on Windows.
+     */
+    private static final class WindowsConsoleLineReader {
+        private static final int STD_INPUT_HANDLE = -10;
+        private static final int ERROR_OPERATION_ABORTED = 995;
+        private static final char CTRL_D = '\u0004';
+        private static final int BUFFER_CHARS = 4096;
+
+        private final MethodHandle readConsoleW;
+        private final MemorySegment consoleInput;
+        private final MemorySegment buffer;
+        private final MemorySegment charsRead;
+        private final MemorySegment readControl;
+        private final MemorySegment callState;
+        private final VarHandle lastError;
+        private final StringBuilder pending = new StringBuilder();
+
+        /** Returns {@code null} if the standard input isn't a console. */
+        @Nullable
+        static WindowsConsoleLineReader openIfStdinIsConsole() {
+            Linker linker = Linker.nativeLinker();
+            SymbolLookup kernel32 = SymbolLookup.libraryLookup("kernel32", Arena.global());
+            MethodHandle getStdHandle = linker.downcallHandle(
+                    kernel32.find("GetStdHandle").orElseThrow(),
+                    FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
+            MethodHandle getConsoleMode = linker.downcallHandle(
+                    kernel32.find("GetConsoleMode").orElseThrow(),
+                    FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
+            MethodHandle readConsoleW = linker.downcallHandle(
+                    kernel32.find("ReadConsoleW").orElseThrow(),
+                    FunctionDescriptor.of(
+                            ValueLayout.JAVA_INT,
+                            ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.ADDRESS),
+                    Linker.Option.captureCallState("GetLastError"));
+            try {
+                MemorySegment stdin = (MemorySegment) getStdHandle.invokeExact(STD_INPUT_HANDLE);
+                MemorySegment mode = Arena.global().allocate(ValueLayout.JAVA_INT);
+                boolean isConsole = (int) getConsoleMode.invokeExact(stdin, mode) != 0;
+                return isConsole ? new WindowsConsoleLineReader(readConsoleW, stdin) : null;
+            } catch (Throwable e) {
+                throw new IllegalStateException("Failed to check whether the standard input is a console", e);
+            }
+        }
+
+        private WindowsConsoleLineReader(MethodHandle readConsoleW, MemorySegment consoleInput) {
+            this.readConsoleW = readConsoleW;
+            this.consoleInput = consoleInput;
+            // The reader lives as long as the process.
+            Arena arena = Arena.global();
+            buffer = arena.allocate(ValueLayout.JAVA_CHAR, BUFFER_CHARS);
+            charsRead = arena.allocate(ValueLayout.JAVA_INT);
+            // CONSOLE_READCONSOLE_CONTROL: ULONG nLength, nInitialChars, dwCtrlWakeupMask, dwControlKeyState
+            readControl = arena.allocate(ValueLayout.JAVA_INT, 4);
+            readControl.setAtIndex(ValueLayout.JAVA_INT, 0, (int) readControl.byteSize());
+            readControl.setAtIndex(ValueLayout.JAVA_INT, 1, 0);
+            readControl.setAtIndex(ValueLayout.JAVA_INT, 2, 1 << CTRL_D);
+            readControl.setAtIndex(ValueLayout.JAVA_INT, 3, 0);
+            StructLayout callStateLayout = Linker.Option.captureStateLayout();
+            callState = arena.allocate(callStateLayout);
+            lastError = callStateLayout.varHandle(MemoryLayout.PathElement.groupElement("GetLastError"));
+        }
+
+        /** Returns the next line without its line terminator, or {@code null} after Ctrl+D at the start of a line. */
+        @Nullable
+        String readLine() throws IOException {
+            while (true) {
+                int newline = pending.indexOf("\n");
+                if (newline >= 0) {
+                    int end = newline > 0 && pending.charAt(newline - 1) == '\r' ? newline - 1 : newline;
+                    String line = pending.substring(0, end);
+                    pending.delete(0, newline + 1);
+                    return line;
+                }
+
+                String chunk = read();
+                int ctrlD = chunk.indexOf(CTRL_D);
+                if (ctrlD < 0) {
+                    pending.append(chunk);
+                    continue;
+                }
+                pending.append(chunk, 0, ctrlD);
+                // Like a terminal on macOS and Linux, Ctrl+D ends the input only at the start of a line.
+                if (pending.length() == 0) {
+                    Log.debug("Ctrl+D at the start of a line: end of input");
+                    return null;
+                }
+                pending.append(chunk, ctrlD + 1, chunk.length());
+            }
+        }
+
+        private String read() throws IOException {
+            int succeeded;
+            try {
+                succeeded = (int) readConsoleW.invokeExact(callState, consoleInput, buffer, BUFFER_CHARS, charsRead, readControl);
+            } catch (Throwable e) {
+                throw new IOException("ReadConsoleW failed", e);
+            }
+            if (succeeded == 0) {
+                int error = (int) lastError.get(callState, 0L);
+                // Ctrl+C aborts the read, and the JVM's console control handler then stops the process.
+                if (error == ERROR_OPERATION_ABORTED) {
+                    return "";
+                }
+                throw new IOException("ReadConsoleW failed with error " + error);
+            }
+            int count = charsRead.get(ValueLayout.JAVA_INT, 0);
+            char[] chars = new char[count];
+            MemorySegment.copy(buffer, ValueLayout.JAVA_CHAR, 0, chars, 0, count);
+            return new String(chars);
         }
     }
 
