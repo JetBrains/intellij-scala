@@ -32,11 +32,11 @@ object ScalaHighlightingMode {
 
   /**
    * Whether the Scala 3 compiler reports the errors of the element's file, so the checks it covers can be skipped.
-   * False for files left to the annotator, see [[isLeftToAnnotator]].
+   * Files not supported by compiler-based highlighting, such as Twirl templates, keep the annotator's checks.
    */
   def showCompilerErrorsScala3(element: PsiElement): Boolean =
     showCompilerErrorsScala3(element.getProject) && element.isInScala3Module &&
-      !Option(element.getContainingFile).exists(isLeftToAnnotator)
+      isShowErrorsFromCompilerEnabled(element.getContainingFile)
 
   /**
    * Mill build files are left to the annotator, like sbt build files: Mill rewrites them before compiling them, so they
