@@ -95,10 +95,9 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
       }
 
       val targetElementEvaluator = TARGET_ELEMENT_EVALUATOR.forLanguage(reference.getElement.getLanguage)
-      val refResolvedElement = targetElementEvaluator.getElementByReference(reference, 0) match {
-        case null => reference.resolve()
-        case e => e
-      }
+      val refResolvedElement = Option(targetElementEvaluator)
+        .flatMap(evaluator => Option(evaluator.getElementByReference(reference, 0)))
+        .getOrElse(reference.resolve())
       if (refResolvedElement == elementToSearch) {
         return consumer.process(reference)
       }
