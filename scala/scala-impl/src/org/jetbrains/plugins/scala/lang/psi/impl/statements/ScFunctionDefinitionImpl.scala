@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.{Key, ModificationTracker}
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
+import com.intellij.psi.util.{CachedValue, CachedValueProvider, CachedValuesManager}
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionDefinitionFactory
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
-import org.jetbrains.plugins.scala.extensions.{StubBasedExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, StubBasedExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.FUNCTION_DEFINITION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -17,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{Te
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImpl.{importantOrderFunction, isCalculatingFor, returnTypeInner}
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImpl.{importantOrderFunction, isCalculatingFor, returnTypeInner, returnUsagesKey}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, canNotBeOverridden}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
@@ -99,6 +100,38 @@ class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S
 
   override def body: Option[ScExpression] = byPsiOrStub(findChild[ScExpression])(_.bodyExpression)
 
+  override def returnUsages: Set[ScExpression] = byPsiOrStub {
+    // subtreeChanged invalidates this cache even for edits inside nested stable-type blocks.
+    CachedValuesManager.getCachedValue(this, returnUsagesKey, () =>
+      CachedValueProvider.Result.create(calculateReturnUsages, ModificationTracker.NEVER_CHANGED)
+    )
+  } { _ =>
+    // Stub bodies are detached PSI; their changes do not pass through this function's subtreeChanged.
+    calculateReturnUsages
+  }
+
+  private def calculateReturnUsages: Set[ScExpression] = {
+    val bodyExpression = body match {
+      case Some(value) => value
+      case None => return Set.empty
+    }
+
+    val allReturnStatements: Set[ScReturn] = {
+      bodyExpression.depthFirst(!_.is[ScFunction])
+        .collect { case statement: ScReturn => statement }
+        .toSet
+    }
+
+    val tailExpressions: Set[ScExpression] = bodyExpression.calculateTailReturns
+    val file = bodyExpression.getContainingFile
+    (allReturnStatements ++ tailExpressions).filter(_.getContainingFile == file)
+  }
+
+  override def subtreeChanged(): Unit = {
+    super.subtreeChanged()
+    putUserData(returnUsagesKey, null)
+  }
+
   override def hasAssign: Boolean = byStubOrPsi(_.hasAssign)(assignment.isDefined)
 
   override def getBody: FakePsiCodeBlock = body match {
@@ -136,6 +169,9 @@ class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S
 
 private object ScFunctionDefinitionImpl {
   import org.jetbrains.plugins.scala.project.UserDataHolderExt
+
+  // Non-copyable user data keeps cached expressions out of copies of the function.
+  private val returnUsagesKey: Key[CachedValue[Set[ScExpression]]] = Key.create("scala.function.return.usages")
 
   private val calculatingBlockKey: Key[UnloadableThreadLocal[Boolean]] = Key.create("calculating.function.returns.block")
 
