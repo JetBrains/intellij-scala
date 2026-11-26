@@ -97,23 +97,6 @@ package object statements {
   }
 
   implicit class ScFunctionDefinitionExt(private val function: ScFunctionDefinition) extends AnyVal {
-    def returnUsages: Set[ScExpression] = {
-      val body = function.body match {
-        case Some(value) => value
-        case None => return Set.empty
-      }
-
-      val allReturnStatements: Set[ScReturn] = {
-        body.depthFirst(!_.is[ScFunction])
-          .collect { case statement: ScReturn => statement }
-          .toSet
-      }
-
-      val tailExpressions: Set[ScExpression] = body.calculateTailReturns
-      val file = body.getContainingFile
-      (allReturnStatements ++ tailExpressions).filter(_.getContainingFile == file)
-    }
-
     def recursiveReferences: Seq[ScReference] = function.body match {
       case Some(bodyExpression) =>
         bodyExpression.depthFirst().collect {
