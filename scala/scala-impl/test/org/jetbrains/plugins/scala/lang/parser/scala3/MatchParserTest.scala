@@ -1,6 +1,86 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
 class MatchParserTest extends SimpleScala3ParserTestBase {
+  def testCaseGuardOnNextLine(): Unit = checkTree(
+    """x match
+      |  case s if
+      |      s.nonEmpty =>
+      |    1
+      |  case _ => 0
+      |""".stripMargin,
+    """ScalaFile
+      |  MatchStatement
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(match)('match')
+      |    PsiWhiteSpace('\n  ')
+      |    CaseClauses
+      |      CaseClause
+      |        PsiElement(case)('case')
+      |        PsiWhiteSpace(' ')
+      |        ReferencePattern: s
+      |          PsiElement(identifier)('s')
+      |        PsiWhiteSpace(' ')
+      |        Guard
+      |          PsiElement(if)('if')
+      |          PsiWhiteSpace('\n      ')
+      |          ReferenceExpression: s.nonEmpty
+      |            ReferenceExpression: s
+      |              PsiElement(identifier)('s')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('nonEmpty')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=>)('=>')
+      |        PsiWhiteSpace('\n    ')
+      |        BlockOfExpressions
+      |          IntegerLiteral
+      |            PsiElement(integer)('1')
+      |      PsiWhiteSpace('\n  ')
+      |      CaseClause
+      |        PsiElement(case)('case')
+      |        PsiWhiteSpace(' ')
+      |        WildcardPattern
+      |          PsiElement(_)('_')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=>)('=>')
+      |        PsiWhiteSpace(' ')
+      |        BlockOfExpressions
+      |          IntegerLiteral
+      |            PsiElement(integer)('0')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def testCaseGuardOnNextLineInObject(): Unit = checkParseErrors(
+    """object Guards:
+      |  def pick(x: Any): Int = x match
+      |    case s: String if
+      |        s.nonEmpty =>
+      |      1
+      |    case _ => 0
+      |""".stripMargin
+  )
+
+  def testCaseGuardOnNextLineInBraces(): Unit = checkParseErrors(
+    """def pick(x: Any): Int = x match {
+      |  case s: String if
+      |      s.nonEmpty =>
+      |    1
+      |  case _ => 0
+      |}
+      |""".stripMargin
+  )
+
+  def testCaseGuardOnNextLineWithLambda(): Unit = checkParseErrors(
+    """xs match
+      |  case xs if
+      |      xs.exists(x => x > 0) =>
+      |    1
+      |  case _ => 0
+      |""".stripMargin
+  )
+
   def testSimple(): Unit = checkParseErrors(
     "val a: Int match { case Int => String } = ???"
   )
