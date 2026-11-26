@@ -29,4 +29,22 @@ class ScalaExtractMethodScopeTest extends ScalaExtractMethodTestBase {
 
 class Scala3ExtractMethodScopeTest extends ScalaExtractMethodScopeTest {
   override def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  @TestFor(issues = Array("SCL-26487"))
+  def testLastMemberOfBracelessObject(): Unit = doTest()
+
+  @TestFor(issues = Array("SCL-26487"))
+  def testLastMemberOfBracelessClass(): Unit = doTest()
+
+  @TestFor(issues = Array("SCL-26487"))
+  def testLastMemberOfBracelessTrait(): Unit = doTest()
+
+  @TestFor(issues = Array("SCL-26487"))
+  def testLastMemberOfNestedBracelessTemplate(): Unit = doTest()
+
+  @TestFor(issues = Array("SCL-26487"))
+  def testBracelessTemplateWithEndMarker(): Unit = doTest()
+
+  @TestFor(issues = Array("SCL-26487"))
+  def testBracelessTemplateWithFollowingMember(): Unit = doTest()
 }

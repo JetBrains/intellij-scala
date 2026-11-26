@@ -317,8 +317,8 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
 
     def newLine = createNewLine()(using method.getManager)
 
-    def addElementBefore(elem: PsiElement, nextSibling: PsiElement, typeAdjuster: TypeAdjuster) = {
-      val added = nextSibling.getParent.addBefore(elem, nextSibling)
+    def addElementBefore(elem: PsiElement, parent: PsiElement, @Nullable nextSibling: PsiElement, typeAdjuster: TypeAdjuster) = {
+      val added = parent.addBefore(elem, nextSibling)
       typeAdjuster.markToAdjust(added)
       added
     }
@@ -328,22 +328,24 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
 
       val classText = ics.classText(canonTextForTypes = true)
       val clazz = createTemplateDefinitionFromText(classText, anchorNext.getContext, anchorNext)
-      addElementBefore(clazz, anchorNext, typeAdjuster)
-      addElementBefore(newLine, anchorNext, typeAdjuster)
+      addElementBefore(clazz, anchorNext.getParent, anchorNext, typeAdjuster)
+      addElementBefore(newLine, anchorNext.getParent, anchorNext, typeAdjuster)
     }
 
     def insertMethod(typeAdjuster: TypeAdjuster): PsiElement = {
       var insertedMethod: PsiElement = null
       settings.nextSibling match {
-        case s childOf (_: ScTemplateBody) =>
+        case s childOf (body: ScTemplateBody) =>
           // put the extract method *below* the current code if it is added to a template body.
+          // A null anchor appends to the body when the last member has no closing brace after it.
           val nextSibling = s.getNextSiblingNotWhitespaceComment
-          addElementBefore(newLine, nextSibling, typeAdjuster)
-          insertedMethod = addElementBefore(method, nextSibling, typeAdjuster)
-          addElementBefore(newLine, nextSibling, typeAdjuster)
+          addElementBefore(newLine, body, nextSibling, typeAdjuster)
+          insertedMethod = addElementBefore(method, body, nextSibling, typeAdjuster)
+          if (nextSibling != null)
+            addElementBefore(newLine, body, nextSibling, typeAdjuster)
         case s =>
-          insertedMethod = addElementBefore(method, s, typeAdjuster)
-          addElementBefore(newLine, s, typeAdjuster)
+          insertedMethod = addElementBefore(method, s.getParent, s, typeAdjuster)
+          addElementBefore(newLine, s.getParent, s, typeAdjuster)
       }
       insertedMethod
     }
