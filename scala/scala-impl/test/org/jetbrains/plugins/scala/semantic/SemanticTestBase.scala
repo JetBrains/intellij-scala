@@ -57,6 +57,11 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
       val profile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
       profile.setSettings(profile.getSettings.copy(additionalCompilerOptions = Seq("-Ykind-projector")))
     }
+    val heapSize = Runtime.getRuntime.maxMemory().toDouble / Math.pow(1024, 3) // GiB
+    val recommendedHeapSize = 4 // GiB
+    if (heapSize < recommendedHeapSize) {
+      System.err.println(f"VM heap size: $heapSize%.1fG, recommended: ${recommendedHeapSize}G+")
+    }
   }
 
   override def tearDown(): Unit = try {
