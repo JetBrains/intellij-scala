@@ -7,6 +7,10 @@ import org.junit.Test
 class AkkaClusterSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka-cluster" % "2.8.8")("akka.cluster") {
 //  @Test def single(): Unit = doTest("")
 
+  override protected val exceptions = Set(
+    "akka.cluster.ClusterEvent", // Nondeterminism
+  )
+
   @Test def test(): Unit = doTest("""
     //akka.cluster.Cluster
     akka.cluster.ClusterActorRefProvider
@@ -15,7 +19,6 @@ class AkkaClusterSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
     //akka.cluster.ClusterDaemon
     //akka.cluster.ClusterDeployer
     //akka.cluster.ClusterDomainEventPublisher
-    //akka.cluster.ClusterEvent
     akka.cluster.ClusterGossip
     akka.cluster.ClusterHeartbeat
     //akka.cluster.ClusterHeartbeatReceiver

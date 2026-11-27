@@ -7,6 +7,11 @@ import org.junit.Test
 class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % "4.8.4", "io.getquill" %% "quill-jdbc-zio" % "4.8.4")("io.getquill") {
 //  @Test def single(): Unit = doTest("")
 
+  override protected val exceptions = Set(
+    "io.getquill.parser.OperationsParser", // Nondeterminism
+    "io.getquill.quat.QuatMakingBase", // Nondeterminism
+  )
+
   @Test def test(): Unit = doTest("""
     io.getquill.Action
     io.getquill.ActionReturning
@@ -577,7 +582,6 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.parser.InfixParser
     //io.getquill.parser.Lifter
     //io.getquill.parser.Lifters
-    //io.getquill.parser.OperationsParser
     //io.getquill.parser.OptionParser
     //io.getquill.parser.OrderingParser
     //io.getquill.parser.ParserFactory
@@ -604,7 +608,6 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     io.getquill.quat.LinkedHashMapOps
     //io.getquill.quat.Quat
     //io.getquill.quat.QuatMaking
-    //io.getquill.quat.QuatMakingBase
     //io.getquill.quat.QuatNestingHelper
     io.getquill.quat.QuatOps
     //io.getquill.quat.VerifyNoBranches

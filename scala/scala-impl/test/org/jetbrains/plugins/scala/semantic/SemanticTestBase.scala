@@ -72,6 +72,9 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
     super.tearDown()
   }
 
+  // In Mode.Elaborate, and then effectively in Mode.Test
+  protected def exceptions: Set[String] = Set.empty
+
   protected def doTest(classes: String): Unit = {
     val numBatches = Runtime.getRuntime.availableProcessors
 
@@ -84,7 +87,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
     val allTestCases = mode match {
       case Mode.Test =>      classes.split('\n').map(_.trim).filterNot(_.isEmpty).toSeq // Listed cases
-      case Mode.Elaborate => inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName).distinct) // Find classes
+      case Mode.Elaborate => inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName).distinct.filterNot(exceptions)) // Find classes
     }
 
     val total = allTestCases.length
