@@ -63,8 +63,9 @@ abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase wi
       lookup.setCurrentItem(lookupItemToSelect)
       if (checkResult || finishLookup) {
         lookup.finishLookup(Lookup.AUTO_INSERT_SELECT_CHAR)
-        NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
+        // commands run via `invokeLater` and may submit non-blocking read actions (e.g. `CopyReferenceAction`, IJPL-261310)
         PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
+        NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
         NavigationTestUtil.awaitPendingNavigation(getProject)
       }
     }
