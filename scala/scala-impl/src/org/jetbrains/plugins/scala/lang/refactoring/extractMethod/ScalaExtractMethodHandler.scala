@@ -4,37 +4,34 @@ import com.intellij.openapi.actionSystem.{DataContext, DataKey}
 import com.intellij.openapi.application.{ApplicationManager, ModalityState, ReadAction}
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
-import com.intellij.psi._
+import com.intellij.psi.*
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.SlowOperations
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.annotations.{Nullable, TestOnly}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.*
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefinitionsCollector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createNewLine, createTemplateDefinitionFromText}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
-import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.result.*
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringActionHandler
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodHandler.ChosenTargetScopeKey
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.{DuplicateMatch, DuplicatesUtil}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.*
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
-
-import scala.util.Using
 
 class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
   private val REFACTORING_NAME: String = ScalaBundle.message("extract.method.title")
@@ -239,7 +236,9 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
                            lastExprType: Option[ScType])
                           (implicit project: Project, editor: Editor): Unit = {
 
-    val info = Using.resource(SlowOperations.knownIssue("SCL-23055"))(_ => ReachingDefinitionsCollector.collectVariableInfo(elements, sibling))
+    val info = computeInNonBlockingReadActionUnderProgress(ScalaBundle.message("extract.method.analyze.variables.progress.title")) {
+      ReachingDefinitionsCollector.collectVariableInfo(elements, sibling)
+    }
 
     val input = info.inputVariables
     val output = info.outputVariables

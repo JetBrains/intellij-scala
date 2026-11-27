@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.refactoring.inline
 
 import com.intellij.codeInsight.TargetElementUtil
-import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.psi.PsiReference
 import com.intellij.refactoring.BaseRefactoringProcessor
@@ -15,14 +13,13 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.computeInNonBlockingReadActionUnderProgress
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-
-import java.util.concurrent.Callable
 
 abstract class ScalaInlineDialog(element: ScNamedElement, @NlsContexts.DialogTitle title: String, helpId: String)
                                 (implicit project: Project, editor: Editor) extends InlineOptionsDialog(project, true, element) {
   protected val occurrencesNumber: Int =
-    ScalaInlineDialog.computeInNonBlockingReadActionUnderProgress(ScalaBundle.message("inline.occurrences.calculate.progress.title")) {
+    computeInNonBlockingReadActionUnderProgress(ScalaBundle.message("inline.occurrences.calculate.progress.title")) {
       initOccurrencesNumber(element)
     }
 
@@ -74,28 +71,5 @@ abstract class ScalaInlineDialog(element: ScNamedElement, @NlsContexts.DialogTit
     if (myKeepTheDeclaration.nullSafe.exists(_.isEnabled)) {
       inlineKeepSetter(settings, isKeepTheDeclaration)
     }
-  }
-}
-
-object ScalaInlineDialog {
-  /**
-   * A copy of the private `com.intellij.codeInsight.navigation.GotoTargetHandler.computeInNonBlockingReadActionUnderProgress`,
-   * the platform's replacement for the deprecated `ActionUtil.underModalProgress` (IJPL-260316).
-   */
-  private def computeInNonBlockingReadActionUnderProgress[T](@NlsContexts.ProgressTitle title: String)
-                                                            (body: => T)
-                                                            (implicit project: Project): T = {
-    val dumbService = DumbService.getInstance(project)
-    val alternativeResolve = dumbService.isAlternativeResolveEnabled
-    val computation: Callable[T] = () =>
-      if (alternativeResolve) dumbService.computeWithAlternativeResolveEnabled[T, RuntimeException](() => body)
-      else body
-
-    ProgressManager.getInstance.runProcessWithProgressSynchronously[T, RuntimeException](
-      () => ReadAction.nonBlocking(computation).executeSynchronously(),
-      title,
-      /*canBeCanceled*/ true,
-      project
-    )
   }
 }

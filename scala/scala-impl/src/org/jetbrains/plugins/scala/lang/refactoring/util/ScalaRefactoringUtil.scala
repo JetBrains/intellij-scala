@@ -4,16 +4,17 @@ import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.navigation.PsiTargetNavigator
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{ApplicationManager, ReadAction}
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsScheme}
-import com.intellij.openapi.editor.markup._
+import com.intellij.openapi.editor.markup.*
 import com.intellij.openapi.editor.{Document, Editor, RangeMarker, SelectionModel}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, JBPopupListener, LightweightWindowEvent}
-import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.openapi.util.{Key, NlsContexts, TextRange}
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import com.intellij.platform.backend.presentation.TargetPresentation
-import com.intellij.psi._
+import com.intellij.psi.*
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
@@ -21,26 +22,26 @@ import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.util.{Consumer, SlowOperations}
 import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.*
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.*
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.*
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.*
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.*
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.result.*
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
@@ -49,13 +50,14 @@ import org.jetbrains.plugins.scala.project.{ProjectExt, ScalaFeaturesProvider}
 
 import java.awt.Component
 import java.util.Collections
-import java.{lang, util => ju}
+import java.util.concurrent.Callable
+import java.{lang, util as ju}
 import javax.swing.{DefaultListCellRenderer, JList, ListCellRenderer}
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Using
 
 object ScalaRefactoringUtil {
@@ -1263,6 +1265,31 @@ object ScalaRefactoringUtil {
         Some(bs)
       case other => findEnclosingBlockStatement(other.getParent)
     }
+  }
+
+  /**
+   * Runs `body` in a non-blocking read action under cancellable modal progress.
+   * The read action is restarted when a write action comes, so `body` must be idempotent.
+   * Throws [[com.intellij.openapi.progress.ProcessCanceledException]] if the user cancels the progress.
+   *
+   * A copy of the private `com.intellij.codeInsight.navigation.GotoTargetHandler.computeInNonBlockingReadActionUnderProgress`,
+   * the platform's replacement for the deprecated `ActionUtil.underModalProgress` (IJPL-260316).
+   */
+  private[refactoring] def computeInNonBlockingReadActionUnderProgress[T](@NlsContexts.ProgressTitle title: String)
+                                                                         (body: => T)
+                                                                         (implicit project: Project): T = {
+    val dumbService = DumbService.getInstance(project)
+    val alternativeResolve = dumbService.isAlternativeResolveEnabled
+    val computation: Callable[T] = () =>
+      if (alternativeResolve) dumbService.computeWithAlternativeResolveEnabled[T, RuntimeException](() => body)
+      else body
+
+    ProgressManager.getInstance.runProcessWithProgressSynchronously[T, RuntimeException](
+      () => ReadAction.nonBlocking(computation).executeSynchronously(),
+      title,
+      /*canBeCanceled*/ true,
+      project
+    )
   }
 
   private[refactoring] case class RevertInfo(fileText: String, caretOffset: Int)
