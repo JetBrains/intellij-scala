@@ -191,4 +191,34 @@ class ScOverriddenVarAnnotatorTest extends ScalaHighlightingTestBase {
         |""".stripMargin
     )
   }
+
+  // scalac 2 accepts a var overriding a concrete getter/setter pair (scala/scala's `Trees.SymTree`:
+  // `override var symbol: Symbol` over `def symbol` / `def symbol_=`), and still rejects one over a var.
+  def testVariableOverridesConcreteGetterSetterPair(): Unit = {
+    val scalaCode =
+      """
+        |abstract class Tree {
+        |  def symbol: String = null
+        |  def symbol_=(sym: String): Unit = throw new UnsupportedOperationException
+        |}
+        |abstract class SymTree extends Tree {
+        |  override var symbol: String = ""
+        |}
+        |""".stripMargin
+
+    val errors = errorsFromScalaCode(scalaCode)
+    assert(errors.isEmpty, errors.mkString(", "))
+  }
+
+  def testVariableOverridesConcreteVariable(): Unit = {
+    val scalaCode =
+      """
+        |class Animal { var cat: String = "" }
+        |
+        |class Cat extends Animal { override var cat: String = "" }
+        |""".stripMargin
+
+    val errors = errorsFromScalaCode(scalaCode)
+    assert(errors.exists(err => err.element == "cat" && err.message == "Mutable variable cannot be overridden"))
+  }
 }

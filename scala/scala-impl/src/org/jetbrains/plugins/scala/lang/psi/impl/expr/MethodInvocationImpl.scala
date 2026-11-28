@@ -624,7 +624,8 @@ object MethodInvocationImpl {
     def withSubstitutedType: Option[RegularCase] = (problems, matchedParameters) match {
       case (Seq(), Seq()) => Some(this)
       case (Seq(), matchedParams) =>
-        val paramSubstitutor = ScSubstitutor.paramToType(matchedParams.map(_._1), matchedParams.map(_._3))
+        val argTypes         = matchedParams.map { case (_, arg, tpe) => ScThisReferenceImpl.dependentArgumentType(arg, tpe) }
+        val paramSubstitutor = ScSubstitutor.paramToType(matchedParams.map(_._1), argTypes)
         val `type`           = paramSubstitutor(inferredType)
         Some(copy(inferredType = `type`))
       case _ => None

@@ -12,4 +12,79 @@ class AnonymousFunctionsTest extends TypeInferenceTestBase {
     """.stripMargin.trim
   }
 
+  // A function literal's result type may not mention its own parameters (scalac's `typedFunction`
+  // packs them): `get(k)` is a `k.V`, the literal a `Key => Key#V`.
+  def testParameterDoesNotEscapeIntoResultType(): Unit = doTest {
+    """
+      |trait Key { type V }
+      |def get(k: Key): k.V = ???
+      |/*start*/(k: Key) => get(k)/*end*/
+      |//Key => Key#V
+    """.stripMargin.trim
+  }
+
+  def testParameterDoesNotEscapeIntoInferredElementType(): Unit = doTest {
+    """
+      |trait Key { type V }
+      |def get(k: Key): k.V = ???
+      |val ks: List[Key] = Nil
+      |/*start*/ks.map(k => get(k))/*end*/
+      |//List[Key#V]
+    """.stripMargin.trim
+  }
+
+  // inside the literal the parameter's path is kept
+  def testParameterPathInsideLiteral(): Unit = doTest {
+    """
+      |trait Key { type V }
+      |def get(k: Key): k.V = ???
+      |(k: Key) => /*start*/get(k)/*end*/
+      |//k.V
+    """.stripMargin.trim
+  }
+
+  def testSCL11637(): Unit = doTest {
+    """
+      |trait IA {
+      |  type T <: IAT
+      |  trait IAT {
+      |    //...
+      |  }
+      |}
+      |
+      |object A {
+      |  def Make(): IA = new IA {
+      |    case class T() extends IAT {
+      |      // ...
+      |    }
+      |  }
+      |}
+      |
+      |trait IB[V] {
+      |  type T <: IBT[V]
+      |  trait IBT[K] {
+      |    def filter(f: K => Boolean): T
+      |  }
+      |  val empty: T
+      |}
+      |
+      |object B {
+      |  def Make(D: IA): IB[D.T] = new IB[D.T] {
+      |    case class T() extends IBT[D.T] {
+      |      def filter(f: D.T => Boolean): T = { this }
+      |    }
+      |    val empty: T = T()
+      |  }
+      |}
+      |
+      |package object global {
+      |  val MA = A.Make()
+      |  val MB = B.Make(MA)
+      |
+      |  def test(k: MA.T): Boolean = true
+      |  MB.empty.filter(k => test(/*start*/k/*end*/) )   // here the type of 'k' is inferenced to IA#T, and it does not interoperable with the type MA.T in the editor.
+      |}
+      |//global.MA.T
+    """.stripMargin.trim
+  }
 }

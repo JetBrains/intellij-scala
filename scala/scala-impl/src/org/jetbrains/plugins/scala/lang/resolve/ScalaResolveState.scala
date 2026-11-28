@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiClass, ResolveState}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Signature}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{ScSubstitutor, SubstitutorInvariants}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveStateOps._
 
 object ScalaResolveState extends ResolveStateOps {
@@ -70,8 +71,10 @@ trait ResolveStateOps extends Any {
   def withImplicitScopeType(tpe: Option[ScType]): ResolveState =
     tpe.fold(resolveState)(withImplicitScopeType)
 
-  def withMatchClauseSubstitutor(subst: ScSubstitutor): ResolveState =
+  def withMatchClauseSubstitutor(subst: ScSubstitutor): ResolveState = {
+    SubstitutorInvariants.stateSafe(subst, "matchClauseSubstitutor")
     resolveState.put(MATCH_SUBSTITUTOR, subst)
+  }
 
   def withExtensionMethodMarker: ResolveState =
     resolveState.put(EXTENSION_METHOD, TRUE)
@@ -100,11 +103,15 @@ trait ResolveStateOps extends Any {
   def substitutor: ScSubstitutor =
     option(SUBSTITUTOR_KEY).getOrElse(ScSubstitutor.empty)
 
-  def substitutorWithThisType: ScSubstitutor =
-    fromType.fold(substitutor)(substitutor.followUpdateThisType)
-
-  def substitutorWithThisType(seenFromClass: PsiClass): ScSubstitutor =
-    fromType.fold(substitutor)(substitutor.followUpdateThisType(_, seenFromClass))
+  /**
+   * The substitutor for a member declared in `seenFromClass`, seen from [[fromType]]: scalac's
+   * `pre.memberType(sym)`, `sym.info.asSeenFrom(pre, sym.owner)`. A member without a class owner
+   * (`seenFromClass == null`: a synthetic, a refinement member) has no owner chain for `asSeenFrom`
+   * to climb, so `pre` contributes nothing.
+   */
+  def substitutorWithThisType(@Nullable seenFromClass: PsiClass): ScSubstitutor =
+    if (seenFromClass == null) substitutor
+    else fromType.fold(substitutor)(substitutor.followUpdateThisType(_, seenFromClass))
 
   def fromType: Option[ScType] =
     option(FROM_TYPE_KEY)

@@ -1,0 +1,32 @@
+{
+  "conformance": [
+    {
+      "lhs": "IDogCat",
+      "rhs": "IDog",
+      "holds": true
+    }
+  ],
+  "baseTypeSeq": {
+    "IDogCat": [
+      "I[Dog] with I[Cat]",
+      "I[Cat] with I[Dog]",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "IDogCat": [
+      "<refinement>",
+      "I",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "termTypes": {
+    "xGet": "Animal",
+    "pickX": "Dog"
+  },
+  "baseTypes": {
+    "IDogCatAtI": "I[_1] forSome { type _1 >: Cat with Dog <: Animal }"
+  }
+}

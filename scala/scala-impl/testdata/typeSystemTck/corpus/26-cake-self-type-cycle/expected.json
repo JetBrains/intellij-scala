@@ -1,0 +1,7 @@
+{
+  "conformance": [],
+  "baseTypeSeq": {},
+  "termTypes": {
+    "useGlobalCall": "scala.Int"
+  }
+}

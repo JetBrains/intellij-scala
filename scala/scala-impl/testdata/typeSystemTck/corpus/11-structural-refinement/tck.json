@@ -1,0 +1,20 @@
+{
+  "description": "Structural refinements with method/val members and structural conformance.",
+  "concepts": ["structural-type", "method-refinement", "val-refinement"],
+  "types": [
+    { "name": "Animal", "expr": "Animal" },
+    { "name": "Named", "expr": "Named" },
+    { "name": "StructName", "expr": "{ def name: String }" },
+    { "name": "AnimalNamed", "expr": "Animal { def name: String }" },
+    { "name": "StructVal", "expr": "{ val size: Int }" },
+    { "name": "StructFun", "expr": "{ def at(i: Int): String }" }
+  ],
+  "conformance": [
+    { "lhs": "Named", "rhs": "StructName", "expect": true },
+    { "lhs": "StructName", "rhs": "Named", "expect": false },
+    { "lhs": "AnimalNamed", "rhs": "StructName", "expect": true },
+    { "lhs": "AnimalNamed", "rhs": "Animal", "expect": true },
+    { "lhs": "AnimalNamed", "rhs": "Named", "expect": false }
+  ],
+  "baseTypeSeq": ["Named", "AnimalNamed"]
+}

@@ -129,7 +129,17 @@ object ResolveUtils {
       }
       var placeTd: ScTemplateDefinition = getPlaceTd(place, isConstr)
       if (isConstr) {
-        if (placeTd != null && !placeTd.is[ScTypeDefinition] && placeTd.extendsBlock.templateBody.isEmpty) {
+        // `new C()` (a single parent, no body) directly instantiates `C`: the enclosing
+        // anonymous template is not a subclass, so it does not grant access to `C`'s
+        // protected constructor. But `new C() with X` and `new C() {}` define an anonymous
+        // SUBCLASS of `C`, from whose super-constructor call the protected constructor is
+        // accessible (matching scalac). Previously only the `{}` form was recognized (via the
+        // template body), so `new C() with X` was a false "No constructor accessible from here".
+        def isDirectInstantiation(td: ScTemplateDefinition): Boolean =
+          td.extendsBlock.templateBody.isEmpty &&
+            td.extendsBlock.templateParents.forall(_.typeElements.sizeIs <= 1)
+
+        if (placeTd != null && !placeTd.is[ScTypeDefinition] && isDirectInstantiation(placeTd)) {
           placeTd = getPlaceTd(placeTd)
         } else if (placeTd != null) {
           if (td != null && isInheritorOrSelfOrSame(placeTd, td)) return true

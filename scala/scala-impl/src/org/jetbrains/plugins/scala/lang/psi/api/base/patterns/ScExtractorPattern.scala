@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPa
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.PatternTypeInference
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.ExpandedExtractorResolveProcessor
@@ -145,7 +144,7 @@ object ScExtractorPattern {
 
       override lazy val extractorMatch: Some[ExtractorMatch] = {
         implicit val elementScope: ElementScope = pattern.elementScope
-        val undefSubst = substitutor.followed(ScSubstitutor(ScThisType(clazz)))
+        val undefSubst = substitutor
         val params: Seq[ScParameter] = clazz.parameters
         val types = params.map(_.`type`().getOrAny).map(undefSubst)
         def selectorType = this.selectorType.getOrElse(StdTypes.instance.Any)
